@@ -66,10 +66,6 @@
             border-color: #3B8BD4;
         }
 
-        button:hover:not(.active) {
-            background: #f5f5f5;
-        }
-
         .legend {
             display: flex;
             gap: 20px;
@@ -162,10 +158,12 @@
             background: #fafafa;
             border: 1px solid #e5e5e5;
             border-radius: 6px;
-            padding: 10px;
+            padding: 8px;
             min-height: 140px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
         }
 
         .day-cell:hover {
@@ -185,9 +183,9 @@
         }
 
         .day-date {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             color: #333;
         }
 
@@ -200,22 +198,25 @@
         }
 
         .day-holiday-name {
-            font-size: 10px;
+            font-size: 9px;
             color: #d32f2f;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: 500;
+            line-height: 1.2;
         }
 
         .day-events {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
+            flex: 1;
+            overflow: hidden;
         }
 
         .event-badge {
-            font-size: 11px;
-            padding: 3px 6px;
-            border-radius: 3px;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 2px;
             color: white;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -245,24 +246,35 @@
         }
 
         .add-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
         }
 
         .add-btn {
-            flex: 1;
             padding: 10px;
-            background: #3B8BD4;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .add-btn.work {
+            background: #3B8BD4;
+        }
+
+        .add-btn.personal {
+            background: #639922;
+        }
+
+        .add-btn.team {
+            background: #D4537E;
         }
 
         .add-btn:hover {
-            background: #2a6fa8;
+            opacity: 0.9;
         }
 
         .task-content {
@@ -298,6 +310,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            cursor: pointer;
         }
 
         .task-item:last-child {
@@ -325,8 +338,8 @@
         }
 
         .task-category {
-            font-size: 11px;
-            padding: 3px 8px;
+            font-size: 10px;
+            padding: 3px 6px;
             border-radius: 3px;
             color: white;
             white-space: nowrap;
@@ -336,16 +349,25 @@
         .task-category.personal { background-color: #639922; }
         .task-category.team { background-color: #D4537E; }
 
-        .task-delete {
-            width: 28px;
-            height: 28px;
-            padding: 4px;
+        .task-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .task-btn {
+            width: 24px;
+            height: 24px;
+            padding: 0;
             background: transparent;
             border: none;
             color: #999;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             border-radius: 4px;
+        }
+
+        .task-btn:hover {
+            background: #f0f0f0;
         }
 
         .task-delete:hover {
@@ -471,13 +493,23 @@
 
         .category-btn:hover {
             border-color: #3B8BD4;
-            background: #f0f7ff;
         }
 
         .category-btn.selected {
-            background: #3B8BD4;
             color: white;
-            border-color: #3B8BD4;
+            border-color: white;
+        }
+
+        .category-btn.work.selected {
+            background: #3B8BD4;
+        }
+
+        .category-btn.personal.selected {
+            background: #639922;
+        }
+
+        .category-btn.team.selected {
+            background: #D4537E;
         }
 
         .sub-category-grid {
@@ -497,13 +529,24 @@
         }
 
         .sub-category-btn:hover {
-            border-color: #3B8BD4;
+            border-color: #999;
         }
 
         .sub-category-btn.selected {
-            background: #3B8BD4;
             color: white;
-            border-color: #3B8BD4;
+            border: none;
+        }
+
+        .sub-category-btn.work.selected {
+            background: #3B8BD4;
+        }
+
+        .sub-category-btn.personal.selected {
+            background: #639922;
+        }
+
+        .sub-category-btn.team.selected {
+            background: #D4537E;
         }
 
         .modal-actions {
@@ -531,10 +574,46 @@
             color: white;
         }
 
+        .btn-share {
+            background: #639922;
+            color: white;
+        }
+
         .date-time-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
+        }
+
+        .edit-mode .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        /* 상세 보기 모달 */
+        .detail-modal {
+            background: white;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .detail-content {
+            padding: 24px 20px;
+        }
+
+        .detail-item {
+            margin-bottom: 20px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #333;
         }
 
         @media (max-width: 1024px) {
@@ -588,9 +667,9 @@
                     <div class="selected-date">선택됨</div>
                     <div class="selected-date-value" id="selectedDateDisplay">오늘</div>
                     <div class="add-buttons">
-                        <button class="add-btn" onclick="openAddModal('work')">업무</button>
-                        <button class="add-btn" onclick="openAddModal('personal')">개인</button>
-                        <button class="add-btn" onclick="openAddModal('team')">팀일정</button>
+                        <button class="add-btn work" onclick="openAddModal('work')">업무</button>
+                        <button class="add-btn personal" onclick="openAddModal('personal')">개인</button>
+                        <button class="add-btn team" onclick="openAddModal('team')">팀연동</button>
                     </div>
                 </div>
 
@@ -615,7 +694,7 @@
         </div>
     </div>
 
-    <!-- 모달 -->
+    <!-- 추가/수정 모달 -->
     <div class="modal-overlay" id="addModal">
         <div class="modal">
             <div class="modal-title" id="modalTitle">할일 추가</div>
@@ -644,20 +723,33 @@
                 <textarea class="form-control" id="taskDesc" placeholder="세부사항을 입력하세요" style="min-height: 80px; resize: vertical;"></textarea>
             </div>
 
-            <!-- 날짜/시간 -->
+            <!-- 날짜 -->
             <div class="form-group">
                 <label class="form-label">날짜</label>
                 <input type="date" class="form-control" id="taskDate">
             </div>
 
-            <div class="date-time-group">
+            <!-- 시간들 -->
+            <div class="date-time-group" id="timeGroup" style="display: none;">
                 <div class="form-group">
-                    <label class="form-label">시작 시간</label>
+                    <label class="form-label" id="timeLabel1">시작 시간</label>
                     <input type="time" class="form-control" id="startTime">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">종료 시간</label>
+                    <label class="form-label" id="timeLabel2">종료 시간</label>
                     <input type="time" class="form-control" id="endTime">
+                </div>
+            </div>
+
+            <!-- 마감 시간 (업무용) -->
+            <div class="date-time-group" id="dueTimeGroup" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">마감일자</label>
+                    <input type="date" class="form-control" id="dueDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">마감시간</label>
+                    <input type="time" class="form-control" id="dueTime">
                 </div>
             </div>
 
@@ -665,12 +757,6 @@
             <div class="form-group" id="locationGroup" style="display: none;">
                 <label class="form-label">장소</label>
                 <input type="text" class="form-control" id="location" placeholder="장소를 입력하세요">
-            </div>
-
-            <!-- 마감일 (업무용) -->
-            <div class="form-group" id="dueDateGroup" style="display: none;">
-                <label class="form-label">마감일자</label>
-                <input type="date" class="form-control" id="dueDate">
             </div>
 
             <!-- 관계 (개인용) -->
@@ -684,9 +770,66 @@
                 </select>
             </div>
 
+            <!-- 팀 공유 (팀일정용) -->
+            <div class="form-group" id="teamShareGroup" style="display: none;">
+                <label class="form-label">
+                    <input type="checkbox" id="teamShare"> 상품기획팀 캘린더에 공유
+                </label>
+            </div>
+
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeAddModal()">취소</button>
-                <button class="btn-save" onclick="saveTask()">추가</button>
+                <button class="btn-share" id="shareBtn" style="display: none;" onclick="shareToTeam()">팀 공유</button>
+                <button class="btn-save" onclick="saveTask()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 보기 모달 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal detail-modal">
+            <div class="detail-content">
+                <div class="modal-title" id="detailTitle"></div>
+
+                <div class="detail-item">
+                    <div class="detail-label">분류</div>
+                    <div class="detail-value"><span id="detailCategory"></span> / <span id="detailSubCategory"></span></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">내용</div>
+                    <div class="detail-value" id="detailContent"></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">세부사항</div>
+                    <div class="detail-value" id="detailDesc"></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">날짜</div>
+                    <div class="detail-value" id="detailDate"></div>
+                </div>
+
+                <div class="detail-item" id="detailTimeItem" style="display: none;">
+                    <div class="detail-label" id="detailTimeLabel"></div>
+                    <div class="detail-value" id="detailTime"></div>
+                </div>
+
+                <div class="detail-item" id="detailLocationItem" style="display: none;">
+                    <div class="detail-label">장소</div>
+                    <div class="detail-value" id="detailLocation"></div>
+                </div>
+
+                <div class="detail-item" id="detailRelationItem" style="display: none;">
+                    <div class="detail-label">관계</div>
+                    <div class="detail-value" id="detailRelation"></div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 30px;">
+                    <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
+                    <button class="btn-save" onclick="editTask()">수정</button>
+                </div>
             </div>
         </div>
     </div>
@@ -700,7 +843,6 @@
             '2026-10-03': '개천절', '2026-10-09': '한글날', '2026-12-25': '크리스마스',
         };
 
-        // 분류별 세부 옵션
         const subCategories = {
             work: ['자료요청', '자료제출', '메일회신', '업무지시', '보고', '회의', '기타'],
             personal: ['점심', '저녁', '행사', '운동', '기타'],
@@ -721,6 +863,8 @@
         let currentView = 'week';
         let selectedCategory = 'work';
         let selectedSubCategory = '';
+        let editingTaskId = null;
+        let viewingTaskId = null;
 
         async function init() {
             try {
@@ -844,12 +988,6 @@
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
-            if (currentView === 'week') {
-                renderWeekView(grid);
-            }
-        }
-
-        function renderWeekView(grid) {
             const weekDays = getWeekDays(currentWeekStart);
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
@@ -943,11 +1081,14 @@
             }
 
             taskList.innerHTML = tasksToShow.map(task => `
-                <div class="task-item">
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked)">
+                <div class="task-item" onclick="openDetailModal('${task.id}')">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked); event.stopPropagation();">
                     <span class="task-text">${task.title}</span>
                     <span class="task-category ${task.category}">${getCategoryLabel(task.category)}</span>
-                    <button class="task-delete" onclick="deleteTask('${task.id}')">×</button>
+                    <div class="task-actions" onclick="event.stopPropagation();">
+                        <button class="task-btn" onclick="editTaskDirect('${task.id}')">✎</button>
+                        <button class="task-btn task-delete" onclick="deleteTask('${task.id}')">×</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -958,20 +1099,13 @@
         }
 
         function openAddModal(category) {
+            editingTaskId = null;
             selectedCategory = category;
             selectedSubCategory = '';
             
-            document.getElementById('modalTitle').textContent = 
-                category === 'work' ? '업무 추가' : category === 'personal' ? '개인 추가' : '팀일정 추가';
+            document.getElementById('modalTitle').textContent = category === 'work' ? '업무 추가' : category === 'personal' ? '개인 추가' : '팀일정 추가';
             
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDesc').value = '';
-            document.getElementById('startTime').value = '';
-            document.getElementById('endTime').value = '';
-            document.getElementById('location').value = '';
-            document.getElementById('dueDate').value = '';
-            document.getElementById('relation').value = '';
-            
+            clearFormFields();
             renderCategoryButtons();
             renderSubCategoryButtons();
             updateFormFields();
@@ -983,11 +1117,28 @@
             document.getElementById('addModal').classList.remove('open');
         }
 
+        function clearFormFields() {
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDesc').value = '';
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('location').value = '';
+            document.getElementById('dueDate').value = '';
+            document.getElementById('dueTime').value = '';
+            document.getElementById('relation').value = '';
+            document.getElementById('teamShare').checked = false;
+        }
+
         function renderCategoryButtons() {
             const grid = document.getElementById('categoryGrid');
-            grid.innerHTML = '<button class="category-btn selected" onclick="selectMainCategory(\'work\')">업무</button>' +
-                           '<button class="category-btn" onclick="selectMainCategory(\'personal\')">개인</button>' +
-                           '<button class="category-btn" onclick="selectMainCategory(\'team\')">팀연동</button>';
+            grid.innerHTML = '';
+            ['work', 'personal', 'team'].forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `category-btn ${cat} ${cat === selectedCategory ? 'selected' : ''}`;
+                btn.textContent = getCategoryLabel(cat);
+                btn.onclick = () => selectMainCategory(cat);
+                grid.appendChild(btn);
+            });
         }
 
         function selectMainCategory(cat) {
@@ -1001,13 +1152,13 @@
         function renderSubCategoryButtons() {
             const options = subCategories[selectedCategory] || [];
             const grid = document.getElementById('subCategoryGrid');
-            grid.innerHTML = options.map(opt => 
-                `<button class="sub-category-btn" onclick="selectSubCategory('${opt}')">${opt}</button>`
-            ).join('');
-            
-            if (selectedSubCategory) {
-                document.querySelector(`[onclick="selectSubCategory('${selectedSubCategory}')"]`)?.classList.add('selected');
-            }
+            grid.innerHTML = options.map(opt => {
+                const btn = document.createElement('button');
+                btn.className = `sub-category-btn ${selectedCategory} ${opt === selectedSubCategory ? 'selected' : ''}`;
+                btn.textContent = opt;
+                btn.onclick = () => selectSubCategory(opt);
+                return btn.outerHTML;
+            }).join('');
         }
 
         function selectSubCategory(subCat) {
@@ -1018,11 +1169,28 @@
         function updateFormFields() {
             document.getElementById('subCategoryGroup').style.display = 'block';
             document.getElementById('locationGroup').style.display = 
-                selectedCategory === 'personal' ? 'block' : 'none';
-            document.getElementById('dueDateGroup').style.display = 
-                selectedCategory === 'work' ? 'block' : 'none';
+                selectedCategory === 'personal' || selectedCategory === 'team' ? 'block' : 'none';
             document.getElementById('relationGroup').style.display = 
                 selectedCategory === 'personal' ? 'block' : 'none';
+            document.getElementById('teamShareGroup').style.display = 
+                selectedCategory === 'team' ? 'block' : 'none';
+            
+            document.getElementById('shareBtn').style.display = 
+                selectedCategory === 'team' ? 'inline-block' : 'none';
+
+            // 세부 분류별 시간 필드
+            const needsDueTime = ['자료요청', '자료제출', '메일회신', '업무지시'].includes(selectedSubCategory);
+            const needsTimeRange = ['보고', '회의'].includes(selectedSubCategory) || 
+                                  (selectedCategory === 'team' && ['회의', '교육', '행사'].includes(selectedSubCategory)) ||
+                                  (selectedCategory === 'personal');
+            
+            document.getElementById('dueTimeGroup').style.display = needsDueTime ? 'grid' : 'none';
+            document.getElementById('timeGroup').style.display = needsTimeRange ? 'grid' : 'none';
+
+            if (needsTimeRange) {
+                document.getElementById('timeLabel1').textContent = selectedCategory === 'personal' ? '시작 시간' : '시작 시간';
+                document.getElementById('timeLabel2').textContent = selectedCategory === 'personal' ? '종료 시간' : '종료 시간';
+            }
         }
 
         async function saveTask() {
@@ -1034,19 +1202,17 @@
 
             const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
             
-            const task = {
-                id: Date.now().toString(),
+            const taskData = {
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
                 category: selectedCategory,
                 sub_category: selectedSubCategory,
-                completed: false,
-                created_at: new Date().toISOString()
+                completed: editingTaskId ? allTasks.find(t => t.id === editingTaskId).completed : false,
+                created_at: editingTaskId ? allTasks.find(t => t.id === editingTaskId).created_at : new Date().toISOString()
             };
 
-            const schedule = {
-                id: Date.now().toString(),
+            const scheduleData = {
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
@@ -1057,15 +1223,31 @@
                 location: document.getElementById('location').value || null,
                 relation: document.getElementById('relation').value || null,
                 team_shared: false,
-                created_at: new Date().toISOString()
+                created_at: editingTaskId ? allSchedules.find(s => s.id === editingTaskId)?.created_at : new Date().toISOString()
             };
 
-            allTasks.push(task);
-            allSchedules.push(schedule);
-            
-            if (sbClient) {
-                sbClient.from('tasks').insert([task]).catch(e => console.log('Insert error:', e));
-                sbClient.from('schedules').insert([schedule]).catch(e => console.log('Insert error:', e));
+            if (editingTaskId) {
+                // 수정
+                const taskIdx = allTasks.findIndex(t => t.id === editingTaskId);
+                const scheduleIdx = allSchedules.findIndex(s => s.id === editingTaskId);
+                
+                if (taskIdx !== -1) allTasks[taskIdx] = { ...allTasks[taskIdx], ...taskData };
+                if (scheduleIdx !== -1) allSchedules[scheduleIdx] = { ...allSchedules[scheduleIdx], ...scheduleData };
+
+                if (sbClient) {
+                    sbClient.from('tasks').update(taskData).eq('id', editingTaskId).catch(e => console.log('Update error:', e));
+                    sbClient.from('schedules').update(scheduleData).eq('id', editingTaskId).catch(e => console.log('Update error:', e));
+                }
+            } else {
+                // 추가
+                const newId = Date.now().toString();
+                allTasks.push({ ...taskData, id: newId });
+                allSchedules.push({ ...scheduleData, id: newId });
+
+                if (sbClient) {
+                    sbClient.from('tasks').insert([{ ...taskData, id: newId }]).catch(e => console.log('Insert error:', e));
+                    sbClient.from('schedules').insert([{ ...scheduleData, id: newId }]).catch(e => console.log('Insert error:', e));
+                }
             }
 
             closeAddModal();
@@ -1085,6 +1267,8 @@
         }
 
         function deleteTask(id) {
+            if (!confirm('삭제하시겠습니까?')) return;
+            
             allTasks = allTasks.filter(t => t.id !== id);
             allSchedules = allSchedules.filter(s => s.id !== id);
             
@@ -1095,6 +1279,94 @@
             
             renderCalendar();
             renderTasks();
+        }
+
+        function openDetailModal(id) {
+            viewingTaskId = id;
+            const task = allTasks.find(t => t.id === id);
+            const schedule = allSchedules.find(s => s.id === id);
+            
+            if (!task) return;
+
+            document.getElementById('detailTitle').textContent = task.title;
+            document.getElementById('detailCategory').textContent = getCategoryLabel(task.category);
+            document.getElementById('detailSubCategory').textContent = task.sub_category || '-';
+            document.getElementById('detailContent').textContent = task.title;
+            document.getElementById('detailDesc').textContent = task.description || '없음';
+            document.getElementById('detailDate').textContent = task.date;
+
+            if (schedule?.start_time && schedule?.end_time) {
+                document.getElementById('detailTimeItem').style.display = 'block';
+                document.getElementById('detailTimeLabel').textContent = '시간';
+                document.getElementById('detailTime').textContent = `${schedule.start_time} ~ ${schedule.end_time}`;
+            } else if (schedule?.start_time) {
+                document.getElementById('detailTimeItem').style.display = 'block';
+                document.getElementById('detailTimeLabel').textContent = '마감시간';
+                document.getElementById('detailTime').textContent = schedule.start_time;
+            } else {
+                document.getElementById('detailTimeItem').style.display = 'none';
+            }
+
+            document.getElementById('detailLocationItem').style.display = schedule?.location ? 'block' : 'none';
+            if (schedule?.location) {
+                document.getElementById('detailLocation').textContent = schedule.location;
+            }
+
+            document.getElementById('detailRelationItem').style.display = schedule?.relation ? 'block' : 'none';
+            if (schedule?.relation) {
+                const relationLabels = { friend: '지인', colleague: '동료', family: '가족' };
+                document.getElementById('detailRelation').textContent = relationLabels[schedule.relation] || schedule.relation;
+            }
+
+            document.getElementById('detailModal').classList.add('open');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('open');
+            viewingTaskId = null;
+        }
+
+        function editTaskDirect(id) {
+            closeDetailModal();
+            const task = allTasks.find(t => t.id === id);
+            const schedule = allSchedules.find(s => s.id === id);
+            
+            if (!task) return;
+
+            editingTaskId = id;
+            selectedCategory = task.category;
+            selectedSubCategory = task.sub_category || '';
+
+            document.getElementById('modalTitle').textContent = '할일 수정';
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDesc').value = task.description || '';
+            document.getElementById('taskDate').valueAsDate = new Date(task.date + 'T00:00:00');
+            
+            if (schedule) {
+                document.getElementById('startTime').value = schedule.start_time || '';
+                document.getElementById('endTime').value = schedule.end_time || '';
+                document.getElementById('location').value = schedule.location || '';
+                document.getElementById('dueDate').value = schedule.date || '';
+                document.getElementById('relation').value = schedule.relation || '';
+            }
+
+            renderCategoryButtons();
+            renderSubCategoryButtons();
+            updateFormFields();
+
+            document.getElementById('addModal').classList.add('open');
+        }
+
+        function editTask() {
+            editTaskDirect(viewingTaskId);
+        }
+
+        function shareToTeam() {
+            const schedule = allSchedules.find(s => s.id === (editingTaskId || Date.now().toString()));
+            if (schedule) {
+                schedule.team_shared = true;
+                alert('상품기획팀 캘린더에 공유되었습니다!');
+            }
         }
 
         function filterByCategory(category) {
