@@ -24,7 +24,6 @@
             padding: 20px;
         }
 
-        /* Header */
         header {
             background: white;
             border-bottom: 1px solid #e5e5e5;
@@ -71,7 +70,6 @@
             background: #f5f5f5;
         }
 
-        /* Legend */
         .legend {
             display: flex;
             gap: 20px;
@@ -96,7 +94,6 @@
         .color-personal { background-color: #639922; }
         .color-team { background-color: #D4537E; }
 
-        /* Main Layout */
         .main-layout {
             display: grid;
             grid-template-columns: 1.3fr 1fr;
@@ -112,7 +109,6 @@
             flex-direction: column;
         }
 
-        /* Calendar */
         .calendar-header {
             display: flex;
             justify-content: space-between;
@@ -204,7 +200,6 @@
         .event-badge.personal { background-color: #639922; }
         .event-badge.team { background-color: #D4537E; }
 
-        /* Task Section */
         .task-header {
             padding: 20px;
             border-bottom: 1px solid #e5e5e5;
@@ -246,7 +241,6 @@
             background: #2a6fa8;
         }
 
-        /* Task List */
         .task-content {
             flex: 1;
             overflow-y: auto;
@@ -338,7 +332,6 @@
             color: #d32f2f;
         }
 
-        /* Filter */
         .filter-section {
             margin-top: 20px;
             padding-top: 20px;
@@ -378,14 +371,12 @@
             background: #f5f5f5;
         }
 
-        /* Loading */
         .loading {
             text-align: center;
             padding: 40px 20px;
             color: #999;
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -407,8 +398,8 @@
             <div class="header-content">
                 <h1>나의 업무 관리</h1>
                 <div class="view-toggle">
-                    <button class="active" onclick="switchView('week')">주간</button>
-                    <button onclick="switchView('month')">월간</button>
+                    <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
+                    <button id="monthBtn" onclick="switchView('month')">월간</button>
                 </div>
             </div>
             <div class="legend">
@@ -428,7 +419,6 @@
         </header>
 
         <div class="main-layout">
-            <!-- Calendar Section -->
             <div class="calendar-section">
                 <div class="calendar-header">
                     <div class="week-nav">
@@ -442,7 +432,6 @@
                 </div>
             </div>
 
-            <!-- Task Section -->
             <div class="task-section">
                 <div class="task-header">
                     <div class="selected-date">선택됨</div>
@@ -477,12 +466,11 @@
     </div>
 
     <script>
-        // Supabase 초기화 (환경 변수로 설정 필요)
+        // Supabase 초기화
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyY25zb3RmY3d3dnF3ZWpmaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTU3MTksImV4cCI6MjA5Njc3MTcxOX0.153tZC9Tkg8cP4lfzzUnRaoX5rsDT0uXU3X128p-ovU';
-        let supabase = null;
-
-        // 데이터
+        
+        let sbClient = null;
         let currentWeekStart = getMonday(new Date());
         let selectedDate = new Date();
         let allTasks = [];
@@ -491,22 +479,20 @@
 
         // 초기화
         async function init() {
-            // Supabase 초기화 (연결된 경우)
-            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                // 데이터 로드
+            try {
+                sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 await loadSchedules();
                 await loadTasks();
-            } else {
-                // 로컬 스토리지 사용 (개발/테스트용)
-                loadFromLocalStorage();
+            } catch (e) {
+                console.error('Supabase 초기화 실패:', e.message);
             }
             
             renderWeek();
             renderTasks();
+            updateSelectedDateDisplay();
         }
 
-        // 유틸리티
+        // 유틸리티 함수들
         function getMonday(date) {
             const d = new Date(date);
             const day = d.getDay();
@@ -546,14 +532,14 @@
         }
 
         function switchView(view) {
-            // 월간 뷰는 나중에 구현
             console.log('View:', view);
         }
 
-        // Supabase 데이터 로드
+        // Supabase 로드 함수
         async function loadSchedules() {
             try {
-                const { data, error } = await supabase
+                if (!sbClient) return;
+                const { data, error } = await sbClient
                     .from('schedules')
                     .select('*')
                     .order('date', { ascending: true });
@@ -567,7 +553,8 @@
 
         async function loadTasks() {
             try {
-                const { data, error } = await supabase
+                if (!sbClient) return;
+                const { data, error } = await sbClient
                     .from('tasks')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -577,17 +564,6 @@
             } catch (e) {
                 console.log('Task load error:', e.message);
             }
-        }
-
-        // 로컬 스토리지 (개발용)
-        function loadFromLocalStorage() {
-            allSchedules = JSON.parse(localStorage.getItem('schedules') || '[]');
-            allTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem('schedules', JSON.stringify(allSchedules));
-            localStorage.setItem('tasks', JSON.stringify(allTasks));
         }
 
         // 주간 렌더링
@@ -602,17 +578,15 @@
             const grid = document.getElementById('weekGrid');
             grid.innerHTML = '';
 
-            // 요일 헤더
             const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
-            dayNames.forEach((day, idx) => {
+            dayNames.forEach((day) => {
                 const header = document.createElement('div');
                 header.className = 'week-day-header';
                 header.textContent = day;
                 grid.appendChild(header);
             });
 
-            // 날짜 셀
-            weekDays.forEach((date, idx) => {
+            weekDays.forEach((date) => {
                 const cell = document.createElement('div');
                 cell.className = 'day-cell';
                 if (formatDate(date) === formatDate(selectedDate)) {
@@ -624,7 +598,6 @@
                 const dateStr = String(date.getDate()).padStart(2, '0');
                 cell.innerHTML = `<div class="day-date">${dateStr}</div><div class="day-events"></div>`;
 
-                // 이 날짜의 일정 추가
                 const daySchedules = allSchedules.filter(s => s.date === formatDate(date));
                 const eventsContainer = cell.querySelector('.day-events');
                 daySchedules.forEach(schedule => {
@@ -701,10 +674,9 @@
             };
 
             allTasks.push(task);
-            saveToLocalStorage();
             
-            if (supabase) {
-                supabase.from('tasks').insert([task]).catch(e => console.log('Insert error:', e));
+            if (sbClient) {
+                sbClient.from('tasks').insert([task]).catch(e => console.log('Insert error:', e));
             }
 
             input.value = '';
@@ -721,10 +693,9 @@
             const task = allTasks.find(t => t.id === id);
             if (task) {
                 task.completed = completed;
-                saveToLocalStorage();
                 
-                if (supabase) {
-                    supabase.from('tasks').update({ completed }).eq('id', id).catch(e => console.log('Update error:', e));
+                if (sbClient) {
+                    sbClient.from('tasks').update({ completed }).eq('id', id).catch(e => console.log('Update error:', e));
                 }
                 
                 renderTasks();
@@ -733,10 +704,9 @@
 
         function deleteTask(id) {
             allTasks = allTasks.filter(t => t.id !== id);
-            saveToLocalStorage();
             
-            if (supabase) {
-                supabase.from('tasks').delete().eq('id', id).catch(e => console.log('Delete error:', e));
+            if (sbClient) {
+                sbClient.from('tasks').delete().eq('id', id).catch(e => console.log('Delete error:', e));
             }
             
             renderTasks();
@@ -754,7 +724,7 @@
         }
 
         // 페이지 로드
-        init();
+        window.onload = init;
     </script>
 </body>
 </html>
