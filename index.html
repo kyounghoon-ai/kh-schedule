@@ -896,10 +896,18 @@
         async function init() {
             try {
                 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log('🔗 Supabase 연결 시작...');
+                
+                // schedules 먼저 로드
                 await loadSchedules();
+                // 그 다음 tasks 로드
                 await loadTasks();
+                
+                console.log('✅ 모든 데이터 로드 완료');
+                console.log('📊 allSchedules:', allSchedules.length);
+                console.log('📊 allTasks:', allTasks.length);
             } catch (e) {
-                console.error('Supabase 초기화 실패:', e.message);
+                console.error('❌ Supabase 초기화 실패:', e.message);
             }
             
             setDefaultDate();
@@ -980,8 +988,12 @@
                 if (error) throw error;
                 allSchedules = data || [];
                 console.log('✓ schedules 로드됨:', allSchedules.length);
+                console.log('📋 schedules 데이터:', allSchedules);
+                return allSchedules;
             } catch (e) {
-                console.log('Schedule load error:', e.message);
+                console.log('❌ Schedule load error:', e.message);
+                allSchedules = [];
+                return [];
             }
         }
 
@@ -996,8 +1008,12 @@
                 if (error) throw error;
                 allTasks = data || [];
                 console.log('✓ tasks 로드됨:', allTasks.length);
+                console.log('📋 tasks 데이터:', allTasks);
+                return allTasks;
             } catch (e) {
-                console.log('Task load error:', e.message);
+                console.log('❌ Task load error:', e.message);
+                allTasks = [];
+                return [];
             }
         }
 
@@ -1053,7 +1069,10 @@
                 html += '<div class="day-events"></div>';
                 cell.innerHTML = html;
 
+                // allSchedules에서 해당 날짜의 일정 찾기
                 const daySchedules = allSchedules.filter(s => s.date === dateStr);
+                console.log(`📅 ${dateStr}: ${daySchedules.length}개 일정`);
+                
                 const eventsContainer = cell.querySelector('.day-events');
                 daySchedules.forEach(schedule => {
                     const badge = document.createElement('div');
