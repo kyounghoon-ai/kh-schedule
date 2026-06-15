@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 업무 관리 - 디버그 버전</title>
+    <title>나의 업무 관리</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -871,22 +871,16 @@
         let currentWeekStart = getMonday(new Date());
         let selectedDate = new Date();
         let allTasks = [];
-        let allSchedules = [];
         let currentFilter = 'all';
         let currentView = 'week';
         let selectedCategory = 'work';
         let selectedSubCategory = '';
-        let editingTaskId = null;
 
         async function init() {
-            console.log('=== 앱 초기화 시작 ===');
             try {
                 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                console.log('✓ Supabase 클라이언트 생성됨');
-                
-                await loadSchedules();
+                console.log('✓ Supabase 연결됨');
                 await loadTasks();
-                console.log('✓ 데이터 로드 완료');
             } catch (e) {
                 console.error('❌ 초기화 오류:', e.message);
             }
@@ -895,7 +889,6 @@
             renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
-            console.log('=== 앱 초기화 완료 ===\n');
         }
 
         function setDefaultDate() {
@@ -975,22 +968,6 @@
             renderCalendar();
         }
 
-        async function loadSchedules() {
-            try {
-                if (!sbClient) return;
-                const { data, error } = await sbClient
-                    .from('schedules')
-                    .select('*')
-                    .order('date', { ascending: true });
-                
-                if (error) throw error;
-                allSchedules = data || [];
-                console.log('✓ schedules:', allSchedules.length + '개');
-            } catch (e) {
-                console.log('⚠️ Schedule 로드 오류:', e.message);
-            }
-        }
-
         async function loadTasks() {
             try {
                 if (!sbClient) return;
@@ -1001,7 +978,7 @@
                 
                 if (error) throw error;
                 allTasks = data || [];
-                console.log('✓ tasks:', allTasks.length + '개');
+                console.log('✓ tasks 로드됨:', allTasks.length + '개');
             } catch (e) {
                 console.log('⚠️ Tasks 로드 오류:', e.message);
             }
@@ -1067,15 +1044,6 @@
                 html += '<div class="day-events"></div>';
                 cell.innerHTML = html;
 
-                const daySchedules = allSchedules.filter(s => s.date === dateStr);
-                const eventsContainer = cell.querySelector('.day-events');
-                daySchedules.forEach(schedule => {
-                    const badge = document.createElement('div');
-                    badge.className = `event-badge ${schedule.category}`;
-                    badge.textContent = schedule.title;
-                    eventsContainer.appendChild(badge);
-                });
-
                 grid.appendChild(cell);
             });
         }
@@ -1135,19 +1103,6 @@
                 if (dateObj.getDay() === 0 || koreanHolidays[dateStr]) dateNum.classList.add('sunday');
                 dateNum.textContent = i;
                 day.appendChild(dateNum);
-
-                const daySchedules = allSchedules.filter(s => s.date === dateStr);
-                if (daySchedules.length > 0) {
-                    const eventsDiv = document.createElement('div');
-                    eventsDiv.className = 'month-events';
-                    daySchedules.forEach(s => {
-                        const dot = document.createElement('span');
-                        dot.className = 'month-event-dot';
-                        dot.style.background = s.category === 'work' ? '#3B8BD4' : s.category === 'personal' ? '#639922' : '#D4537E';
-                        eventsDiv.appendChild(dot);
-                    });
-                    day.appendChild(eventsDiv);
-                }
 
                 grid.appendChild(day);
             }
@@ -1210,7 +1165,6 @@
 
         function openAddModal(category) {
             console.log('\n📝 모달 열기:', category);
-            editingTaskId = null;
             selectedCategory = category;
             selectedSubCategory = '';
             
@@ -1224,11 +1178,10 @@
             updateFormFields();
             
             document.getElementById('addModal').classList.add('open');
-            console.log('✓ 모달 표시됨\n');
         }
 
         function closeAddModal() {
-            console.log('❌ 모달 닫기');
+            console.log('❌ 모달 닫기\n');
             document.getElementById('addModal').classList.remove('open');
         }
 
@@ -1339,7 +1292,7 @@
             }
 
             const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
-            console.log('📋 데이터:', { 제목: title, 날짜: dateStr, 분류: selectedCategory, 세부: selectedSubCategory });
+            console.log('📋 저장 데이터:', { 제목: title, 날짜: dateStr, 분류: selectedCategory, 세부: selectedSubCategory });
             
             const newTask = {
                 id: Date.now().toString(),
@@ -1352,28 +1305,34 @@
                 created_at: new Date().toISOString()
             };
 
-            // 로컬 배열에 즉시 추가 (DB 저장 전)
+            // 1️⃣ 로컬 배열에 즉시 추가
             allTasks.push(newTask);
-            allSchedules.push({ ...newTask, start_time: null, end_time: null });
+            console.log('✓ 로컬 배열에 추가 완료');
 
-            // UI 업데이트
+            // 2️⃣ UI 즉시 업데이트
             renderCalendar();
             renderTasks();
+            console.log('✓ UI 업데이트 완료');
 
-            // 성공 메시지 표시
+            // 3️⃣ 성공 메시지 표시
             document.getElementById('successMsg').classList.add('show');
-            console.log('✓ 로컬 저장 완료');
+            console.log('✓ 성공 메시지 표시');
 
-            // 1초 후 모달 닫기
+            // 4️⃣ 1초 후 모달 닫기
             setTimeout(() => {
-                console.log('⏱️  1초 후 모달 닫기');
+                console.log('⏱️ 1초 경과 → 모달 닫기');
                 closeAddModal();
                 
-                // Supabase에 백그라운드에서 저장 (비동기)
+                // 5️⃣ Supabase 저장 (백그라운드)
                 if (sbClient) {
-                    sbClient.from('tasks').insert([newTask])
-                        .then(() => console.log('✓ Supabase 저장 완료'))
-                        .catch(e => console.log('⚠️ Supabase 저장 오류:', e.message));
+                    console.log('📡 Supabase 저장 시작...');
+                    sbClient.from('tasks').insert([newTask]).then(result => {
+                        console.log('✓ Supabase 저장 성공');
+                    }).catch(error => {
+                        console.log('⚠️ Supabase 저장 오류:', error.message);
+                    });
+                } else {
+                    console.log('⚠️ Supabase 연결 없음 (로컬만 저장됨)');
                 }
             }, 1000);
         }
