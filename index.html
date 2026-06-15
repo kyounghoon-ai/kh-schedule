@@ -1287,8 +1287,8 @@
 
             const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
             
+            // ✅ id 제외 (Supabase가 자동으로 UUID 생성)
             const newTask = {
-                id: Date.now().toString(),
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
@@ -1298,8 +1298,12 @@
                 created_at: new Date().toISOString()
             };
 
-            // ✅ allTasks에만 추가 (하나의 배열)
-            allTasks.push(newTask);
+            // ✅ 로컬 배열에는 임시 id 추가 (UI 표시용)
+            const taskWithId = {
+                id: 'temp_' + Date.now().toString(),
+                ...newTask
+            };
+            allTasks.push(taskWithId);
 
             // ✅ UI 즉시 업데이트
             renderCalendar();
@@ -1312,10 +1316,15 @@
             setTimeout(() => {
                 closeAddModal();
                 
-                // Supabase 백그라운드 저장
+                // Supabase 저장 (id 없이 - UUID 자동생성)
                 if (sbClient) {
+                    console.log('📡 Supabase 저장 시작...');
                     sbClient.from('tasks').insert([newTask]).then(result => {
                         console.log('✓ Supabase 저장 성공');
+                        // 데이터 다시 로드 (UUID 포함)
+                        loadTasks();
+                        renderCalendar();
+                        renderTasks();
                     }).catch(error => {
                         console.log('⚠️ Supabase 저장 오류:', error.message);
                     });
