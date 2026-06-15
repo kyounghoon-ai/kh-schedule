@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 업무 관리</title>
+    <title>나의 업무 관리 - 디버그 버전</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -650,6 +650,7 @@
             border-radius: 6px;
             font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .btn-cancel {
@@ -662,23 +663,39 @@
             color: white;
         }
 
+        .btn-save:hover {
+            background: #2a6ba0;
+        }
+
         .date-time-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
+        .message-box {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            border-left: 4px solid;
+        }
+
         .success-message {
             background: #e8f5e9;
             color: #2e7d32;
-            padding: 10px 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 12px;
-            display: none;
+            border-left-color: #2e7d32;
         }
 
-        .success-message.show {
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border-left-color: #c62828;
+        }
+
+        .message-box.show {
             display: block;
         }
 
@@ -700,18 +717,9 @@
                 </div>
             </div>
             <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color color-work"></div>
-                    <span>업무</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color color-personal"></div>
-                    <span>개인</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color color-team"></div>
-                    <span>팀연동</span>
-                </div>
+                <div class="legend-item"><div class="legend-color color-work"></div><span>업무</span></div>
+                <div class="legend-item"><div class="legend-color color-personal"></div><span>개인</span></div>
+                <div class="legend-item"><div class="legend-color color-team"></div><span>팀연동</span></div>
             </div>
         </header>
 
@@ -740,10 +748,7 @@
                 </div>
 
                 <div class="task-content">
-                    <div class="task-list-title">
-                        할일 목록
-                        <span class="task-counter" id="taskCounter">0/0</span>
-                    </div>
+                    <div class="task-list-title">할일 목록 <span class="task-counter" id="taskCounter">0/0</span></div>
                     <div class="task-list" id="taskList"></div>
 
                     <div class="filter-section">
@@ -764,7 +769,8 @@
         <div class="modal">
             <div class="modal-title" id="modalTitle">할일 추가</div>
 
-            <div class="success-message" id="successMsg">저장되었습니다!</div>
+            <div class="message-box success-message" id="successMsg">✓ 저장되었습니다!</div>
+            <div class="message-box error-message" id="errorMsg"></div>
 
             <div class="form-group">
                 <label class="form-label">분류</label>
@@ -772,7 +778,7 @@
             </div>
 
             <div class="form-group" id="subCategoryGroup" style="display: none;">
-                <label class="form-label" id="subCategoryLabel">세부 분류</label>
+                <label class="form-label">세부 분류</label>
                 <div class="sub-category-grid" id="subCategoryGrid"></div>
             </div>
 
@@ -793,11 +799,11 @@
 
             <div class="date-time-group" id="timeGroup" style="display: none;">
                 <div class="form-group">
-                    <label class="form-label" id="timeLabel1">시작 시간</label>
+                    <label class="form-label">시작 시간</label>
                     <input type="time" class="form-control" id="startTime">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" id="timeLabel2">종료 시간</label>
+                    <label class="form-label">종료 시간</label>
                     <input type="time" class="form-control" id="endTime">
                 </div>
             </div>
@@ -836,53 +842,7 @@
 
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeAddModal()">취소</button>
-                <button class="btn-save" onclick="saveTask()">저장</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal">
-            <div class="modal-title" id="detailTitle"></div>
-
-            <div class="form-group">
-                <label class="form-label">분류</label>
-                <div><span id="detailCategory"></span> / <span id="detailSubCategory"></span></div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">내용</label>
-                <div id="detailContent"></div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">세부사항</label>
-                <div id="detailDesc"></div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">날짜</label>
-                <div id="detailDate"></div>
-            </div>
-
-            <div class="form-group" id="detailTimeItem" style="display: none;">
-                <label class="form-label" id="detailTimeLabel"></label>
-                <div id="detailTime"></div>
-            </div>
-
-            <div class="form-group" id="detailLocationItem" style="display: none;">
-                <label class="form-label">장소</label>
-                <div id="detailLocation"></div>
-            </div>
-
-            <div class="form-group" id="detailRelationItem" style="display: none;">
-                <label class="form-label">관계</label>
-                <div id="detailRelation"></div>
-            </div>
-
-            <div class="modal-actions" style="margin-top: 30px;">
-                <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
-                <button class="btn-save" onclick="editTask()">수정</button>
+                <button class="btn-save" id="saveBtn" onclick="saveTask()">저장</button>
             </div>
         </div>
     </div>
@@ -919,18 +879,23 @@
         let editingTaskId = null;
 
         async function init() {
+            console.log('=== 앱 초기화 시작 ===');
             try {
                 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log('✓ Supabase 클라이언트 생성됨');
+                
                 await loadSchedules();
                 await loadTasks();
+                console.log('✓ 데이터 로드 완료');
             } catch (e) {
-                console.error('Supabase 초기화 실패:', e.message);
+                console.error('❌ 초기화 오류:', e.message);
             }
             
             setDefaultDate();
             renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
+            console.log('=== 앱 초기화 완료 ===\n');
         }
 
         function setDefaultDate() {
@@ -1020,9 +985,9 @@
                 
                 if (error) throw error;
                 allSchedules = data || [];
-                console.log('✓ schedules 로드됨:', allSchedules.length);
+                console.log('✓ schedules:', allSchedules.length + '개');
             } catch (e) {
-                console.log('Schedule load error:', e.message);
+                console.log('⚠️ Schedule 로드 오류:', e.message);
             }
         }
 
@@ -1036,9 +1001,9 @@
                 
                 if (error) throw error;
                 allTasks = data || [];
-                console.log('✓ tasks 로드됨:', allTasks.length);
+                console.log('✓ tasks:', allTasks.length + '개');
             } catch (e) {
-                console.log('Task load error:', e.message);
+                console.log('⚠️ Tasks 로드 오류:', e.message);
             }
         }
 
@@ -1227,16 +1192,12 @@
             }
 
             taskList.innerHTML = tasksToShow.map(task => `
-                <div class="task-item" onclick="openDetailModal('${task.id}')">
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked); event.stopPropagation();">
+                <div class="task-item">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked);">
                     <span class="task-text">${task.title}</span>
                     <div class="task-info">
                         <span class="task-category ${task.category}">${getCategoryLabel(task.category)}</span>
                         ${task.sub_category ? `<span class="task-subcategory">${task.sub_category}</span>` : ''}
-                    </div>
-                    <div class="task-actions" onclick="event.stopPropagation();">
-                        <button class="task-btn" onclick="editTaskDirect('${task.id}')">✎</button>
-                        <button class="task-btn task-delete" onclick="deleteTask('${task.id}')">×</button>
                     </div>
                 </div>
             `).join('');
@@ -1248,12 +1209,14 @@
         }
 
         function openAddModal(category) {
+            console.log('\n📝 모달 열기:', category);
             editingTaskId = null;
             selectedCategory = category;
             selectedSubCategory = '';
             
             document.getElementById('modalTitle').textContent = category === 'work' ? '업무 추가' : category === 'personal' ? '개인 추가' : '팀연동 추가';
             document.getElementById('successMsg').classList.remove('show');
+            document.getElementById('errorMsg').classList.remove('show');
             
             clearFormFields();
             renderCategoryButtons();
@@ -1261,9 +1224,11 @@
             updateFormFields();
             
             document.getElementById('addModal').classList.add('open');
+            console.log('✓ 모달 표시됨\n');
         }
 
         function closeAddModal() {
+            console.log('❌ 모달 닫기');
             document.getElementById('addModal').classList.remove('open');
         }
 
@@ -1317,18 +1282,14 @@
         }
 
         function selectSubCategory(subCat) {
-            console.log('세부분류 선택:', subCat); // 디버깅
             selectedSubCategory = subCat;
             renderSubCategoryButtons();
             updateFormFields();
         }
 
         function updateFormFields() {
-            console.log('선택된 세부분류:', selectedSubCategory);
-            
             document.getElementById('subCategoryGroup').style.display = 'block';
             
-            // 기본: 위치, 관계는 모두 숨기기
             document.getElementById('locationGroup').style.display = 'none';
             document.getElementById('relationGroup').style.display = 'none';
             document.getElementById('teamShareGroup').style.display = 'none';
@@ -1336,209 +1297,93 @@
             document.getElementById('dueTimeGroup').style.display = 'none';
 
             if (selectedCategory === 'work') {
-                // 업무: 자료요청/제출/메일회신/업무지시 → 마감일자+시간
                 if (['자료요청', '자료제출', '메일회신', '업무지시'].includes(selectedSubCategory)) {
                     document.getElementById('dueTimeGroup').style.display = 'grid';
                 }
-                // 업무: 보고/회의 → 시작/종료 시간
                 else if (['보고', '회의'].includes(selectedSubCategory)) {
                     document.getElementById('timeGroup').style.display = 'grid';
                 }
-                // 업무: 기타 → 아무것도 안 함
             } 
             else if (selectedCategory === 'personal') {
-                // 개인: 행사만 시간+장소
                 if (selectedSubCategory === '행사') {
                     document.getElementById('timeGroup').style.display = 'grid';
                     document.getElementById('locationGroup').style.display = 'block';
                 }
-                // 개인: 점심/저녁 → 시간만
                 else if (['점심', '저녁'].includes(selectedSubCategory)) {
                     document.getElementById('timeGroup').style.display = 'grid';
                 }
-                // 개인: 운동 → 시간+장소
                 else if (selectedSubCategory === '운동') {
                     document.getElementById('timeGroup').style.display = 'grid';
                     document.getElementById('locationGroup').style.display = 'block';
                 }
-                // 항상: 관계 필드
                 document.getElementById('relationGroup').style.display = 'block';
             }
             else if (selectedCategory === 'team') {
-                // 팀: 회의/교육/행사 → 시간+장소
                 if (['회의', '교육', '행사'].includes(selectedSubCategory)) {
                     document.getElementById('timeGroup').style.display = 'grid';
                     document.getElementById('locationGroup').style.display = 'block';
                 }
-                // 팀: 공지 → 아무것도 안 함
                 document.getElementById('teamShareGroup').style.display = 'block';
             }
         }
 
-        async function saveTask() {
+        function saveTask() {
+            console.log('\n💾 저장 시작');
             const title = document.getElementById('taskTitle').value.trim();
+            
             if (!title) {
-                alert('내용을 입력하세요');
+                document.getElementById('errorMsg').textContent = '✗ 내용을 입력하세요';
+                document.getElementById('errorMsg').classList.add('show');
+                console.log('❌ 제목 없음');
                 return;
             }
 
             const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
+            console.log('📋 데이터:', { 제목: title, 날짜: dateStr, 분류: selectedCategory, 세부: selectedSubCategory });
             
-            const taskData = {
+            const newTask = {
+                id: Date.now().toString(),
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
                 category: selectedCategory,
                 sub_category: selectedSubCategory,
-                completed: editingTaskId ? allTasks.find(t => t.id === editingTaskId)?.completed : false,
-                created_at: editingTaskId ? allTasks.find(t => t.id === editingTaskId)?.created_at : new Date().toISOString()
+                completed: false,
+                created_at: new Date().toISOString()
             };
 
-            const scheduleData = {
-                title,
-                description: document.getElementById('taskDesc').value || null,
-                date: dateStr,
-                category: selectedCategory,
-                sub_category: selectedSubCategory,
-                start_time: document.getElementById('startTime').value || null,
-                end_time: document.getElementById('endTime').value || null,
-                location: document.getElementById('location').value || null,
-                relation: document.getElementById('relation').value || null,
-                team_shared: document.getElementById('teamShare')?.checked || false,
-                created_at: editingTaskId ? allSchedules.find(s => s.id === editingTaskId)?.created_at : new Date().toISOString()
-            };
+            // 로컬 배열에 즉시 추가 (DB 저장 전)
+            allTasks.push(newTask);
+            allSchedules.push({ ...newTask, start_time: null, end_time: null });
 
-            if (editingTaskId) {
-                const taskIdx = allTasks.findIndex(t => t.id === editingTaskId);
-                const scheduleIdx = allSchedules.findIndex(s => s.id === editingTaskId);
-                
-                if (taskIdx !== -1) allTasks[taskIdx] = { ...allTasks[taskIdx], ...taskData };
-                if (scheduleIdx !== -1) allSchedules[scheduleIdx] = { ...allSchedules[scheduleIdx], ...scheduleData };
-
-                if (sbClient) {
-                    sbClient.from('tasks').update(taskData).eq('id', editingTaskId).catch(e => console.log('Update error:', e));
-                    sbClient.from('schedules').update(scheduleData).eq('id', editingTaskId).catch(e => console.log('Update error:', e));
-                }
-            } else {
-                const newId = Date.now().toString();
-                allTasks.push({ ...taskData, id: newId });
-                allSchedules.push({ ...scheduleData, id: newId });
-
-                if (sbClient) {
-                    sbClient.from('tasks').insert([{ ...taskData, id: newId }]).catch(e => console.log('Insert error:', e));
-                    sbClient.from('schedules').insert([{ ...scheduleData, id: newId }]).catch(e => console.log('Insert error:', e));
-                }
-            }
-
+            // UI 업데이트
             renderCalendar();
             renderTasks();
-            closeAddModal();
+
+            // 성공 메시지 표시
+            document.getElementById('successMsg').classList.add('show');
+            console.log('✓ 로컬 저장 완료');
+
+            // 1초 후 모달 닫기
+            setTimeout(() => {
+                console.log('⏱️  1초 후 모달 닫기');
+                closeAddModal();
+                
+                // Supabase에 백그라운드에서 저장 (비동기)
+                if (sbClient) {
+                    sbClient.from('tasks').insert([newTask])
+                        .then(() => console.log('✓ Supabase 저장 완료'))
+                        .catch(e => console.log('⚠️ Supabase 저장 오류:', e.message));
+                }
+            }, 1000);
         }
 
         function toggleTask(id, completed) {
             const task = allTasks.find(t => t.id === id);
             if (task) {
                 task.completed = completed;
-                if (sbClient) {
-                    sbClient.from('tasks').update({ completed }).eq('id', id).catch(e => console.log('Update error:', e));
-                }
                 renderTasks();
             }
-        }
-
-        function deleteTask(id) {
-            if (!confirm('삭제하시겠습니까?')) return;
-            
-            allTasks = allTasks.filter(t => t.id !== id);
-            allSchedules = allSchedules.filter(s => s.id !== id);
-            
-            if (sbClient) {
-                sbClient.from('tasks').delete().eq('id', id).catch(e => console.log('Delete error:', e));
-                sbClient.from('schedules').delete().eq('id', id).catch(e => console.log('Delete error:', e));
-            }
-            
-            renderCalendar();
-            renderTasks();
-        }
-
-        function openDetailModal(id) {
-            const task = allTasks.find(t => t.id === id);
-            const schedule = allSchedules.find(s => s.id === id);
-            
-            if (!task) return;
-
-            document.getElementById('detailTitle').textContent = task.title;
-            document.getElementById('detailCategory').textContent = getCategoryLabel(task.category);
-            document.getElementById('detailSubCategory').textContent = task.sub_category || '-';
-            document.getElementById('detailContent').textContent = task.title;
-            document.getElementById('detailDesc').textContent = task.description || '없음';
-            document.getElementById('detailDate').textContent = task.date;
-
-            if (schedule?.start_time && schedule?.end_time) {
-                document.getElementById('detailTimeItem').style.display = 'block';
-                document.getElementById('detailTimeLabel').textContent = '시간';
-                document.getElementById('detailTime').textContent = `${schedule.start_time} ~ ${schedule.end_time}`;
-            } else if (schedule?.start_time) {
-                document.getElementById('detailTimeItem').style.display = 'block';
-                document.getElementById('detailTimeLabel').textContent = '마감시간';
-                document.getElementById('detailTime').textContent = schedule.start_time;
-            } else {
-                document.getElementById('detailTimeItem').style.display = 'none';
-            }
-
-            document.getElementById('detailLocationItem').style.display = schedule?.location ? 'block' : 'none';
-            if (schedule?.location) {
-                document.getElementById('detailLocation').textContent = schedule.location;
-            }
-
-            document.getElementById('detailRelationItem').style.display = schedule?.relation ? 'block' : 'none';
-            if (schedule?.relation) {
-                const relationLabels = { friend: '지인', colleague: '동료', family: '가족' };
-                document.getElementById('detailRelation').textContent = relationLabels[schedule.relation] || schedule.relation;
-            }
-
-            document.getElementById('detailModal').classList.add('open');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.remove('open');
-        }
-
-        function editTaskDirect(id) {
-            closeDetailModal();
-            const task = allTasks.find(t => t.id === id);
-            const schedule = allSchedules.find(s => s.id === id);
-            
-            if (!task) return;
-
-            editingTaskId = id;
-            selectedCategory = task.category;
-            selectedSubCategory = task.sub_category || '';
-
-            document.getElementById('modalTitle').textContent = '할일 수정';
-            document.getElementById('taskTitle').value = task.title;
-            document.getElementById('taskDesc').value = task.description || '';
-            document.getElementById('taskDate').valueAsDate = new Date(task.date + 'T00:00:00');
-            
-            if (schedule) {
-                document.getElementById('startTime').value = schedule.start_time || '';
-                document.getElementById('endTime').value = schedule.end_time || '';
-                document.getElementById('location').value = schedule.location || '';
-                document.getElementById('dueDate').value = schedule.date || '';
-                document.getElementById('dueTime').value = schedule.start_time || '';
-                document.getElementById('relation').value = schedule.relation || '';
-                document.getElementById('teamShare').checked = schedule.team_shared || false;
-            }
-
-            renderCategoryButtons();
-            renderSubCategoryButtons();
-            updateFormFields();
-
-            document.getElementById('addModal').classList.add('open');
-        }
-
-        function editTask() {
-            closeDetailModal();
         }
 
         function filterByCategory(category) {
