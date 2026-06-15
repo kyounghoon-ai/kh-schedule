@@ -131,7 +131,6 @@
             font-size: 16px;
         }
 
-        /* 주간 뷰 */
         .week-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -234,7 +233,6 @@
         .event-badge.personal { background-color: #639922; }
         .event-badge.team { background-color: #D4537E; }
 
-        /* 월간 뷰 */
         .month-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -333,27 +331,18 @@
             margin-bottom: 15px;
         }
 
-        .quick-add {
-            display: flex;
-            gap: 8px;
-        }
-
-        .quick-add input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        .quick-add button {
-            padding: 8px 16px;
+        .add-btn {
+            padding: 10px 16px;
             background: #3B8BD4;
             color: white;
-            border: 1px solid #3B8BD4;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
         }
 
-        .quick-add button:hover {
+        .add-btn:hover {
             background: #2a6fa8;
         }
 
@@ -500,6 +489,122 @@
             font-size: 13px;
         }
 
+        /* 모달 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px 16px 0 0;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px 20px 40px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3B8BD4;
+            box-shadow: 0 0 0 3px rgba(59,139,212,0.1);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .category-btn {
+            padding: 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            border-color: #3B8BD4;
+            background: #f0f7ff;
+        }
+
+        .category-btn.selected {
+            background: #3B8BD4;
+            color: white;
+            border-color: #3B8BD4;
+        }
+
+        .category-btn.work-cat { color: #3B8BD4; }
+        .category-btn.personal-cat { color: #639922; }
+        .category-btn.team-cat { color: #D4537E; }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-actions .btn-cancel {
+            background: #e5e5e5;
+            color: #333;
+        }
+
+        .modal-actions .btn-save {
+            background: #3B8BD4;
+            color: white;
+        }
+
         @media (max-width: 1024px) {
             .main-layout {
                 grid-template-columns: 1fr;
@@ -552,10 +657,7 @@
                 <div class="task-header">
                     <div class="selected-date">선택됨</div>
                     <div class="selected-date-value" id="selectedDateDisplay">오늘</div>
-                    <div class="quick-add">
-                        <input type="text" id="quickAddInput" placeholder="빠른 추가..." onkeypress="handleQuickAdd(event)">
-                        <button onclick="addQuickTask()">+</button>
-                    </div>
+                    <button class="add-btn" onclick="openAddModal()">+ 할일 목록 추가</button>
                 </div>
 
                 <div class="task-content">
@@ -581,58 +683,52 @@
         </div>
     </div>
 
+    <!-- 모달 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-title">할일 목록 추가</div>
+
+            <div class="form-group">
+                <label class="form-label">분류 선택 *</label>
+                <div class="category-grid">
+                    <button class="category-btn work-cat selected" onclick="selectCategory('work')" data-category="work">업무</button>
+                    <button class="category-btn personal-cat" onclick="selectCategory('personal')" data-category="personal">개인</button>
+                    <button class="category-btn team-cat" onclick="selectCategory('team')" data-category="team">팀연동</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">할일 내용 *</label>
+                <input type="text" class="form-control" id="taskTitle" placeholder="할일을 입력하세요">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">세부 내용 (선택)</label>
+                <textarea class="form-control" id="taskDesc" placeholder="세부 내용을 입력하세요" style="min-height: 100px; resize: vertical;"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeAddModal()">취소</button>
+                <button class="btn-save" onclick="saveTask()">추가</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 한국 공휴일 데이터 (2025-2027년)
         const koreanHolidays = {
-            '2025-01-01': '신정',
-            '2025-02-10': '설날',
-            '2025-02-11': '설날',
-            '2025-02-12': '설날',
-            '2025-03-01': '삼일절',
-            '2025-04-06': '국회의원선거일',
-            '2025-05-05': '어린이날',
-            '2025-05-15': '부처님오탄신일',
-            '2025-06-06': '현충일',
-            '2025-08-15': '광복절',
-            '2025-09-16': '추석',
-            '2025-09-17': '추석',
-            '2025-09-18': '추석',
-            '2025-10-03': '개천절',
-            '2025-10-09': '한글날',
-            '2025-12-25': '크리스마스',
+            '2025-01-01': '신정', '2025-02-10': '설날', '2025-02-11': '설날', '2025-02-12': '설날',
+            '2025-03-01': '삼일절', '2025-04-06': '국회의원선거일', '2025-05-05': '어린이날',
+            '2025-05-15': '부처님오탄신일', '2025-06-06': '현충일', '2025-08-15': '광복절',
+            '2025-09-16': '추석', '2025-09-17': '추석', '2025-09-18': '추석',
+            '2025-10-03': '개천절', '2025-10-09': '한글날', '2025-12-25': '크리스마스',
             
-            '2026-01-01': '신정',
-            '2026-01-29': '설날',
-            '2026-01-30': '설날',
-            '2026-02-02': '대체공휴일',
-            '2026-03-01': '삼일절',
-            '2026-05-05': '어린이날',
-            '2026-05-06': '대체공휴일',
-            '2026-05-24': '부처님오탄신일',
-            '2026-06-06': '현충일',
-            '2026-08-15': '광복절',
-            '2026-09-28': '추석',
-            '2026-09-29': '추석',
-            '2026-09-30': '추석',
-            '2026-10-03': '개천절',
-            '2026-10-09': '한글날',
-            '2026-12-25': '크리스마스',
-            
-            '2027-01-01': '신정',
-            '2027-02-18': '설날',
-            '2027-02-19': '설날',
-            '2027-02-20': '설날',
-            '2027-03-01': '삼일절',
-            '2027-05-05': '어린이날',
-            '2027-05-13': '부처님오탄신일',
-            '2027-06-06': '현충일',
-            '2027-08-15': '광복절',
-            '2027-10-03': '개천절',
-            '2027-10-09': '한글날',
-            '2027-12-25': '크리스마스',
+            '2026-01-01': '신정', '2026-01-29': '설날', '2026-01-30': '설날', '2026-02-02': '대체공휴일',
+            '2026-03-01': '삼일절', '2026-05-05': '어린이날', '2026-05-06': '대체공휴일',
+            '2026-05-24': '부처님오탄신일', '2026-06-06': '현충일', '2026-08-15': '광복절',
+            '2026-09-28': '추석', '2026-09-29': '추석', '2026-09-30': '추석',
+            '2026-10-03': '개천절', '2026-10-09': '한글날', '2026-12-25': '크리스마스',
         };
 
-        // Supabase 초기화
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyY25zb3RmY3d3dnF3ZWpmaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTU3MTksImV4cCI6MjA5Njc3MTcxOX0.153tZC9Tkg8cP4lfzzUnRaoX5rsDT0uXU3X128p-ovU';
         
@@ -645,8 +741,8 @@
         let allSchedules = [];
         let currentFilter = 'all';
         let currentView = 'week';
+        let selectedCategory = 'work';
 
-        // 초기화
         async function init() {
             try {
                 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -661,7 +757,6 @@
             updateSelectedDateDisplay();
         }
 
-        // 뷰 전환
         function switchView(view) {
             currentView = view;
             document.getElementById('weekBtn').classList.remove('active');
@@ -677,7 +772,6 @@
             renderCalendar();
         }
 
-        // 유틸리티 함수들
         function getMonday(date) {
             const d = new Date(date);
             const day = d.getDay();
@@ -707,8 +801,6 @@
 
         function getMonthDays(year, month) {
             const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const daysInMonth = lastDay.getDate();
             const startDate = getMonday(firstDay);
             
             const days = [];
@@ -722,7 +814,6 @@
             return days;
         }
 
-        // 네비게이션
         function previousPeriod() {
             if (currentView === 'week') {
                 currentWeekStart.setDate(currentWeekStart.getDate() - 7);
@@ -749,7 +840,6 @@
             renderCalendar();
         }
 
-        // Supabase 로드 함수
         async function loadSchedules() {
             try {
                 if (!sbClient) return;
@@ -780,7 +870,6 @@
             }
         }
 
-        // 캘린더 렌더링
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
@@ -868,7 +957,7 @@
             });
 
             const days = getMonthDays(currentYear, currentMonth);
-            days.forEach((date, idx) => {
+            days.forEach((date) => {
                 const cell = document.createElement('div');
                 cell.className = 'month-cell';
                 
@@ -915,7 +1004,6 @@
             document.getElementById('selectedDateDisplay').textContent = formatDate(selectedDate, 'FULL');
         }
 
-        // 투두 렌더링
         function renderTasks() {
             const selectedDateStr = formatDate(selectedDate);
             let tasksToShow = allTasks.filter(t => t.date === selectedDateStr);
@@ -950,36 +1038,73 @@
             return labels[cat] || cat;
         }
 
-        // 투두 추가
-        function addQuickTask() {
-            const input = document.getElementById('quickAddInput');
-            const title = input.value.trim();
-            
-            if (!title) return;
+        // 모달 관련
+        function openAddModal() {
+            selectedCategory = 'work';
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDesc').value = '';
+            updateCategoryButtons();
+            document.getElementById('addModal').classList.add('open');
+        }
 
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('open');
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            updateCategoryButtons();
+        }
+
+        function updateCategoryButtons() {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-category="${selectedCategory}"]`).classList.add('selected');
+        }
+
+        async function saveTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDesc').value.trim();
+            
+            if (!title) {
+                alert('할일 내용을 입력하세요');
+                return;
+            }
+
+            const dateStr = formatDate(selectedDate);
+            
             const task = {
                 id: Date.now().toString(),
                 title,
-                date: formatDate(selectedDate),
-                category: 'work',
+                description: description || null,
+                date: dateStr,
+                category: selectedCategory,
                 completed: false,
                 created_at: new Date().toISOString()
             };
 
+            const schedule = {
+                id: Date.now().toString(),
+                title,
+                description: description || null,
+                date: dateStr,
+                category: selectedCategory,
+                team_shared: false,
+                created_at: new Date().toISOString()
+            };
+
             allTasks.push(task);
+            allSchedules.push(schedule);
             
             if (sbClient) {
                 sbClient.from('tasks').insert([task]).catch(e => console.log('Insert error:', e));
+                sbClient.from('schedules').insert([schedule]).catch(e => console.log('Insert error:', e));
             }
 
-            input.value = '';
+            closeAddModal();
+            renderCalendar();
             renderTasks();
-        }
-
-        function handleQuickAdd(event) {
-            if (event.key === 'Enter') {
-                addQuickTask();
-            }
         }
 
         function toggleTask(id, completed) {
@@ -997,11 +1122,14 @@
 
         function deleteTask(id) {
             allTasks = allTasks.filter(t => t.id !== id);
+            allSchedules = allSchedules.filter(s => s.id !== id);
             
             if (sbClient) {
                 sbClient.from('tasks').delete().eq('id', id).catch(e => console.log('Delete error:', e));
+                sbClient.from('schedules').delete().eq('id', id).catch(e => console.log('Delete error:', e));
             }
             
+            renderCalendar();
             renderTasks();
         }
 
@@ -1016,7 +1144,6 @@
             renderTasks();
         }
 
-        // 페이지 로드
         window.onload = init;
     </script>
 </body>
