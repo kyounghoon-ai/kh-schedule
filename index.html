@@ -1289,12 +1289,17 @@
             
             // ✅ id 제외 (Supabase가 자동으로 UUID 생성)
             const newTask = {
+                user_id: '00000000-0000-0000-0000-000000000000',  // 임시 사용자 ID
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
                 category: selectedCategory,
-                sub_category: selectedSubCategory,
+                sub_category: selectedSubCategory || null,
+                priority: null,
                 completed: false,
+                due_date: null,
+                due_date_time: null,
+                status: null,
                 created_at: new Date().toISOString()
             };
 
