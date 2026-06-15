@@ -131,6 +131,7 @@
             font-size: 16px;
         }
 
+        /* 주간 뷰 */
         .week-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -146,6 +147,16 @@
             color: #999;
             margin-bottom: 8px;
             font-weight: 600;
+        }
+
+        .week-day-header.saturday {
+            color: #3B8BD4;
+            font-weight: 700;
+        }
+
+        .week-day-header.sunday {
+            color: #d32f2f;
+            font-weight: 700;
         }
 
         .day-cell {
@@ -167,11 +178,34 @@
             border: 2px solid #3B8BD4;
         }
 
+        .day-cell.saturday {
+            background: #e6f1fb;
+        }
+
+        .day-cell.sunday, .day-cell.holiday {
+            background: #fcebeb;
+        }
+
         .day-date {
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
             color: #333;
+        }
+
+        .day-date.saturday {
+            color: #3B8BD4;
+        }
+
+        .day-date.sunday {
+            color: #d32f2f;
+        }
+
+        .day-holiday-name {
+            font-size: 10px;
+            color: #d32f2f;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
         .day-events {
@@ -199,6 +233,88 @@
         .event-badge.work { background-color: #3B8BD4; }
         .event-badge.personal { background-color: #639922; }
         .event-badge.team { background-color: #D4537E; }
+
+        /* 월간 뷰 */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .month-day-header {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            padding: 8px 0;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .month-day-header.saturday {
+            color: #3B8BD4;
+            font-weight: 700;
+        }
+
+        .month-day-header.sunday {
+            color: #d32f2f;
+            font-weight: 700;
+        }
+
+        .month-cell {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            padding: 6px;
+            min-height: 80px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .month-cell:hover {
+            background: #f0f0f0;
+        }
+
+        .month-cell.selected {
+            border: 2px solid #3B8BD4;
+        }
+
+        .month-cell.other-month {
+            background: #f9f9f9;
+            color: #ccc;
+        }
+
+        .month-cell.saturday {
+            background: #e6f1fb;
+        }
+
+        .month-cell.sunday, .month-cell.holiday {
+            background: #fcebeb;
+        }
+
+        .month-date {
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #333;
+        }
+
+        .month-date.saturday {
+            color: #3B8BD4;
+        }
+
+        .month-date.sunday {
+            color: #d32f2f;
+        }
+
+        .month-holiday-name {
+            font-size: 9px;
+            color: #d32f2f;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
 
         .task-header {
             padding: 20px;
@@ -422,12 +538,12 @@
             <div class="calendar-section">
                 <div class="calendar-header">
                     <div class="week-nav">
-                        <button class="nav-btn" onclick="previousWeek()">←</button>
-                        <span id="weekDisplay"></span>
-                        <button class="nav-btn" onclick="nextWeek()">→</button>
+                        <button class="nav-btn" onclick="previousPeriod()">←</button>
+                        <span id="periodDisplay"></span>
+                        <button class="nav-btn" onclick="nextPeriod()">→</button>
                     </div>
                 </div>
-                <div class="week-grid" id="weekGrid">
+                <div class="week-grid" id="calendarGrid">
                     <div class="loading">로딩 중...</div>
                 </div>
             </div>
@@ -466,16 +582,69 @@
     </div>
 
     <script>
+        // 한국 공휴일 데이터 (2025-2027년)
+        const koreanHolidays = {
+            '2025-01-01': '신정',
+            '2025-02-10': '설날',
+            '2025-02-11': '설날',
+            '2025-02-12': '설날',
+            '2025-03-01': '삼일절',
+            '2025-04-06': '국회의원선거일',
+            '2025-05-05': '어린이날',
+            '2025-05-15': '부처님오탄신일',
+            '2025-06-06': '현충일',
+            '2025-08-15': '광복절',
+            '2025-09-16': '추석',
+            '2025-09-17': '추석',
+            '2025-09-18': '추석',
+            '2025-10-03': '개천절',
+            '2025-10-09': '한글날',
+            '2025-12-25': '크리스마스',
+            
+            '2026-01-01': '신정',
+            '2026-01-29': '설날',
+            '2026-01-30': '설날',
+            '2026-02-02': '대체공휴일',
+            '2026-03-01': '삼일절',
+            '2026-05-05': '어린이날',
+            '2026-05-06': '대체공휴일',
+            '2026-05-24': '부처님오탄신일',
+            '2026-06-06': '현충일',
+            '2026-08-15': '광복절',
+            '2026-09-28': '추석',
+            '2026-09-29': '추석',
+            '2026-09-30': '추석',
+            '2026-10-03': '개천절',
+            '2026-10-09': '한글날',
+            '2026-12-25': '크리스마스',
+            
+            '2027-01-01': '신정',
+            '2027-02-18': '설날',
+            '2027-02-19': '설날',
+            '2027-02-20': '설날',
+            '2027-03-01': '삼일절',
+            '2027-05-05': '어린이날',
+            '2027-05-13': '부처님오탄신일',
+            '2027-06-06': '현충일',
+            '2027-08-15': '광복절',
+            '2027-10-03': '개천절',
+            '2027-10-09': '한글날',
+            '2027-12-25': '크리스마스',
+        };
+
         // Supabase 초기화
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyY25zb3RmY3d3dnF3ZWpmaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTU3MTksImV4cCI6MjA5Njc3MTcxOX0.153tZC9Tkg8cP4lfzzUnRaoX5rsDT0uXU3X128p-ovU';
         
         let sbClient = null;
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
         let currentWeekStart = getMonday(new Date());
         let selectedDate = new Date();
         let allTasks = [];
         let allSchedules = [];
         let currentFilter = 'all';
+        let currentView = 'week';
 
         // 초기화
         async function init() {
@@ -487,9 +656,25 @@
                 console.error('Supabase 초기화 실패:', e.message);
             }
             
-            renderWeek();
+            renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
+        }
+
+        // 뷰 전환
+        function switchView(view) {
+            currentView = view;
+            document.getElementById('weekBtn').classList.remove('active');
+            document.getElementById('monthBtn').classList.remove('active');
+            
+            if (view === 'week') {
+                document.getElementById('weekBtn').classList.add('active');
+                currentWeekStart = getMonday(selectedDate);
+            } else {
+                document.getElementById('monthBtn').classList.add('active');
+            }
+            
+            renderCalendar();
         }
 
         // 유틸리티 함수들
@@ -520,19 +705,48 @@
             return days;
         }
 
-        // 주간 네비게이션
-        function previousWeek() {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            renderWeek();
+        function getMonthDays(year, month) {
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDate = getMonday(firstDay);
+            
+            const days = [];
+            let currentDate = new Date(startDate);
+            
+            while (days.length < 42) {
+                days.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return days;
         }
 
-        function nextWeek() {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            renderWeek();
+        // 네비게이션
+        function previousPeriod() {
+            if (currentView === 'week') {
+                currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            } else {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+            }
+            renderCalendar();
         }
 
-        function switchView(view) {
-            console.log('View:', view);
+        function nextPeriod() {
+            if (currentView === 'week') {
+                currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            } else {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+            }
+            renderCalendar();
         }
 
         // Supabase 로드 함수
@@ -566,39 +780,68 @@
             }
         }
 
-        // 주간 렌더링
-        function renderWeek() {
+        // 캘린더 렌더링
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            if (currentView === 'week') {
+                renderWeekView(grid);
+            } else {
+                renderMonthView(grid);
+            }
+        }
+
+        function renderWeekView(grid) {
             const weekDays = getWeekDays(currentWeekStart);
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
             
-            document.getElementById('weekDisplay').textContent = 
+            document.getElementById('periodDisplay').textContent = 
                 `${formatDate(currentWeekStart, 'YYYY-MM-DD').split('-')[1]}월 ${currentWeekStart.getDate()}-${weekEnd.getDate()}`;
 
-            const grid = document.getElementById('weekGrid');
-            grid.innerHTML = '';
-
             const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
-            dayNames.forEach((day) => {
+            dayNames.forEach((day, idx) => {
                 const header = document.createElement('div');
                 header.className = 'week-day-header';
+                if (idx === 5) header.classList.add('saturday');
+                if (idx === 6) header.classList.add('sunday');
                 header.textContent = day;
                 grid.appendChild(header);
             });
 
-            weekDays.forEach((date) => {
+            weekDays.forEach((date, idx) => {
                 const cell = document.createElement('div');
                 cell.className = 'day-cell';
-                if (formatDate(date) === formatDate(selectedDate)) {
+                
+                if (idx === 5) cell.classList.add('saturday');
+                if (idx === 6) cell.classList.add('sunday');
+                
+                const dateStr = formatDate(date);
+                if (koreanHolidays[dateStr]) {
+                    cell.classList.add('holiday');
+                }
+                
+                if (dateStr === formatDate(selectedDate)) {
                     cell.classList.add('selected');
                 }
                 
                 cell.onclick = () => selectDate(date);
 
-                const dateStr = String(date.getDate()).padStart(2, '0');
-                cell.innerHTML = `<div class="day-date">${dateStr}</div><div class="day-events"></div>`;
+                const dateNum = String(date.getDate()).padStart(2, '0');
+                let html = `<div class="day-date`;
+                if (idx === 5) html += ' saturday';
+                if (idx === 6 || koreanHolidays[dateStr]) html += ' sunday';
+                html += `">${dateNum}</div>`;
+                
+                if (koreanHolidays[dateStr]) {
+                    html += `<div class="day-holiday-name">${koreanHolidays[dateStr]}</div>`;
+                }
+                
+                html += '<div class="day-events"></div>';
+                cell.innerHTML = html;
 
-                const daySchedules = allSchedules.filter(s => s.date === formatDate(date));
+                const daySchedules = allSchedules.filter(s => s.date === dateStr);
                 const eventsContainer = cell.querySelector('.day-events');
                 daySchedules.forEach(schedule => {
                     const badge = document.createElement('div');
@@ -611,9 +854,59 @@
             });
         }
 
+        function renderMonthView(grid) {
+            document.getElementById('periodDisplay').textContent = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+            dayNames.forEach((day, idx) => {
+                const header = document.createElement('div');
+                header.className = 'month-day-header';
+                if (idx === 5) header.classList.add('saturday');
+                if (idx === 6) header.classList.add('sunday');
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+
+            const days = getMonthDays(currentYear, currentMonth);
+            days.forEach((date, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'month-cell';
+                
+                if (date.getMonth() !== currentMonth) {
+                    cell.classList.add('other-month');
+                }
+                
+                if (date.getDay() === 6) cell.classList.add('saturday');
+                if (date.getDay() === 0 || date.getDay() === 6) cell.classList.add('sunday');
+                
+                const dateStr = formatDate(date);
+                if (koreanHolidays[dateStr]) {
+                    cell.classList.add('holiday');
+                }
+                
+                if (dateStr === formatDate(selectedDate)) {
+                    cell.classList.add('selected');
+                }
+                
+                cell.onclick = () => selectDate(date);
+
+                let html = `<div class="month-date`;
+                if (date.getDay() === 6) html += ' saturday';
+                if (date.getDay() === 0 || koreanHolidays[dateStr]) html += ' sunday';
+                html += `">${date.getDate()}</div>`;
+                
+                if (koreanHolidays[dateStr]) {
+                    html += `<div class="month-holiday-name">${koreanHolidays[dateStr]}</div>`;
+                }
+                
+                cell.innerHTML = html;
+                grid.appendChild(cell);
+            });
+        }
+
         function selectDate(date) {
             selectedDate = new Date(date);
-            renderWeek();
+            renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
         }
