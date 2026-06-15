@@ -166,7 +166,6 @@
             min-height: 140px;
             cursor: pointer;
             transition: all 0.2s;
-            position: relative;
         }
 
         .day-cell:hover {
@@ -222,97 +221,11 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .event-badge:hover {
-            opacity: 0.8;
         }
 
         .event-badge.work { background-color: #3B8BD4; }
         .event-badge.personal { background-color: #639922; }
         .event-badge.team { background-color: #D4537E; }
-
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .month-day-header {
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-            padding: 8px 0;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .month-day-header.saturday {
-            color: #3B8BD4;
-            font-weight: 700;
-        }
-
-        .month-day-header.sunday {
-            color: #d32f2f;
-            font-weight: 700;
-        }
-
-        .month-cell {
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            border-radius: 4px;
-            padding: 6px;
-            min-height: 80px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-
-        .month-cell:hover {
-            background: #f0f0f0;
-        }
-
-        .month-cell.selected {
-            border: 2px solid #3B8BD4;
-        }
-
-        .month-cell.other-month {
-            background: #f9f9f9;
-            color: #ccc;
-        }
-
-        .month-cell.saturday {
-            background: #e6f1fb;
-        }
-
-        .month-cell.sunday, .month-cell.holiday {
-            background: #fcebeb;
-        }
-
-        .month-date {
-            font-weight: 600;
-            margin-bottom: 2px;
-            color: #333;
-        }
-
-        .month-date.saturday {
-            color: #3B8BD4;
-        }
-
-        .month-date.sunday {
-            color: #d32f2f;
-        }
-
-        .month-holiday-name {
-            font-size: 9px;
-            color: #d32f2f;
-            margin-bottom: 2px;
-            font-weight: 500;
-        }
 
         .task-header {
             padding: 20px;
@@ -331,15 +244,21 @@
             margin-bottom: 15px;
         }
 
+        .add-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
         .add-btn {
-            padding: 10px 16px;
+            flex: 1;
+            padding: 10px;
             background: #3B8BD4;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            width: 100%;
+            font-size: 13px;
+            font-weight: 500;
         }
 
         .add-btn:hover {
@@ -379,7 +298,6 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            transition: background 0.2s;
         }
 
         .task-item:last-child {
@@ -399,7 +317,6 @@
         .task-text {
             flex: 1;
             font-size: 13px;
-            transition: all 0.2s;
         }
 
         .task-item input[type="checkbox"]:checked + .task-text {
@@ -429,7 +346,6 @@
             cursor: pointer;
             font-size: 16px;
             border-radius: 4px;
-            transition: all 0.2s;
         }
 
         .task-delete:hover {
@@ -463,23 +379,12 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .filter-btn.active {
             background: #3B8BD4;
             color: white;
             border-color: #3B8BD4;
-        }
-
-        .filter-btn:hover:not(.active) {
-            background: #f5f5f5;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
         }
 
         .empty-state {
@@ -560,7 +465,6 @@
             background: white;
             cursor: pointer;
             text-align: center;
-            transition: all 0.2s;
             font-size: 13px;
             font-weight: 500;
         }
@@ -576,9 +480,31 @@
             border-color: #3B8BD4;
         }
 
-        .category-btn.work-cat { color: #3B8BD4; }
-        .category-btn.personal-cat { color: #639922; }
-        .category-btn.team-cat { color: #D4537E; }
+        .sub-category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .sub-category-btn {
+            padding: 10px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .sub-category-btn:hover {
+            border-color: #3B8BD4;
+        }
+
+        .sub-category-btn.selected {
+            background: #3B8BD4;
+            color: white;
+            border-color: #3B8BD4;
+        }
 
         .modal-actions {
             display: flex;
@@ -595,14 +521,20 @@
             cursor: pointer;
         }
 
-        .modal-actions .btn-cancel {
+        .btn-cancel {
             background: #e5e5e5;
             color: #333;
         }
 
-        .modal-actions .btn-save {
+        .btn-save {
             background: #3B8BD4;
             color: white;
+        }
+
+        .date-time-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         @media (max-width: 1024px) {
@@ -648,16 +580,18 @@
                         <button class="nav-btn" onclick="nextPeriod()">→</button>
                     </div>
                 </div>
-                <div class="week-grid" id="calendarGrid">
-                    <div class="loading">로딩 중...</div>
-                </div>
+                <div class="week-grid" id="calendarGrid"></div>
             </div>
 
             <div class="task-section">
                 <div class="task-header">
                     <div class="selected-date">선택됨</div>
                     <div class="selected-date-value" id="selectedDateDisplay">오늘</div>
-                    <button class="add-btn" onclick="openAddModal()">+ 할일 목록 추가</button>
+                    <div class="add-buttons">
+                        <button class="add-btn" onclick="openAddModal('work')">업무</button>
+                        <button class="add-btn" onclick="openAddModal('personal')">개인</button>
+                        <button class="add-btn" onclick="openAddModal('team')">팀일정</button>
+                    </div>
                 </div>
 
                 <div class="task-content">
@@ -665,9 +599,7 @@
                         할일 목록
                         <span class="task-counter" id="taskCounter">0/0</span>
                     </div>
-                    <div class="task-list" id="taskList">
-                        <div class="empty-state">로딩 중...</div>
-                    </div>
+                    <div class="task-list" id="taskList"></div>
 
                     <div class="filter-section">
                         <div class="filter-title">분류 필터</div>
@@ -686,25 +618,70 @@
     <!-- 모달 -->
     <div class="modal-overlay" id="addModal">
         <div class="modal">
-            <div class="modal-title">할일 목록 추가</div>
+            <div class="modal-title" id="modalTitle">할일 추가</div>
 
+            <!-- 분류 선택 -->
             <div class="form-group">
-                <label class="form-label">분류 선택 *</label>
-                <div class="category-grid">
-                    <button class="category-btn work-cat selected" onclick="selectCategory('work')" data-category="work">업무</button>
-                    <button class="category-btn personal-cat" onclick="selectCategory('personal')" data-category="personal">개인</button>
-                    <button class="category-btn team-cat" onclick="selectCategory('team')" data-category="team">팀연동</button>
+                <label class="form-label">분류</label>
+                <div class="category-grid" id="categoryGrid"></div>
+            </div>
+
+            <!-- 세부 분류 -->
+            <div class="form-group" id="subCategoryGroup" style="display: none;">
+                <label class="form-label" id="subCategoryLabel">세부 분류</label>
+                <div class="sub-category-grid" id="subCategoryGrid"></div>
+            </div>
+
+            <!-- 제목 -->
+            <div class="form-group">
+                <label class="form-label">내용 *</label>
+                <input type="text" class="form-control" id="taskTitle" placeholder="내용을 입력하세요">
+            </div>
+
+            <!-- 설명 -->
+            <div class="form-group">
+                <label class="form-label">세부사항</label>
+                <textarea class="form-control" id="taskDesc" placeholder="세부사항을 입력하세요" style="min-height: 80px; resize: vertical;"></textarea>
+            </div>
+
+            <!-- 날짜/시간 -->
+            <div class="form-group">
+                <label class="form-label">날짜</label>
+                <input type="date" class="form-control" id="taskDate">
+            </div>
+
+            <div class="date-time-group">
+                <div class="form-group">
+                    <label class="form-label">시작 시간</label>
+                    <input type="time" class="form-control" id="startTime">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">종료 시간</label>
+                    <input type="time" class="form-control" id="endTime">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">할일 내용 *</label>
-                <input type="text" class="form-control" id="taskTitle" placeholder="할일을 입력하세요">
+            <!-- 장소 -->
+            <div class="form-group" id="locationGroup" style="display: none;">
+                <label class="form-label">장소</label>
+                <input type="text" class="form-control" id="location" placeholder="장소를 입력하세요">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">세부 내용 (선택)</label>
-                <textarea class="form-control" id="taskDesc" placeholder="세부 내용을 입력하세요" style="min-height: 100px; resize: vertical;"></textarea>
+            <!-- 마감일 (업무용) -->
+            <div class="form-group" id="dueDateGroup" style="display: none;">
+                <label class="form-label">마감일자</label>
+                <input type="date" class="form-control" id="dueDate">
+            </div>
+
+            <!-- 관계 (개인용) -->
+            <div class="form-group" id="relationGroup" style="display: none;">
+                <label class="form-label">관계</label>
+                <select class="form-control" id="relation">
+                    <option value="">선택하세요</option>
+                    <option value="friend">지인</option>
+                    <option value="colleague">동료</option>
+                    <option value="family">가족</option>
+                </select>
             </div>
 
             <div class="modal-actions">
@@ -716,17 +693,18 @@
 
     <script>
         const koreanHolidays = {
-            '2025-01-01': '신정', '2025-02-10': '설날', '2025-02-11': '설날', '2025-02-12': '설날',
-            '2025-03-01': '삼일절', '2025-04-06': '국회의원선거일', '2025-05-05': '어린이날',
-            '2025-05-15': '부처님오탄신일', '2025-06-06': '현충일', '2025-08-15': '광복절',
-            '2025-09-16': '추석', '2025-09-17': '추석', '2025-09-18': '추석',
-            '2025-10-03': '개천절', '2025-10-09': '한글날', '2025-12-25': '크리스마스',
-            
             '2026-01-01': '신정', '2026-01-29': '설날', '2026-01-30': '설날', '2026-02-02': '대체공휴일',
             '2026-03-01': '삼일절', '2026-05-05': '어린이날', '2026-05-06': '대체공휴일',
             '2026-05-24': '부처님오탄신일', '2026-06-06': '현충일', '2026-08-15': '광복절',
             '2026-09-28': '추석', '2026-09-29': '추석', '2026-09-30': '추석',
             '2026-10-03': '개천절', '2026-10-09': '한글날', '2026-12-25': '크리스마스',
+        };
+
+        // 분류별 세부 옵션
+        const subCategories = {
+            work: ['자료요청', '자료제출', '메일회신', '업무지시', '보고', '회의', '기타'],
+            personal: ['점심', '저녁', '행사', '운동', '기타'],
+            team: ['회의', '교육', '행사', '공지', '기타']
         };
 
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
@@ -742,6 +720,7 @@
         let currentFilter = 'all';
         let currentView = 'week';
         let selectedCategory = 'work';
+        let selectedSubCategory = '';
 
         async function init() {
             try {
@@ -752,9 +731,15 @@
                 console.error('Supabase 초기화 실패:', e.message);
             }
             
+            setDefaultDate();
             renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
+        }
+
+        function setDefaultDate() {
+            const today = new Date();
+            document.getElementById('taskDate').valueAsDate = today;
         }
 
         function switchView(view) {
@@ -796,21 +781,6 @@
                 date.setDate(startDate.getDate() + i);
                 days.push(date);
             }
-            return days;
-        }
-
-        function getMonthDays(year, month) {
-            const firstDay = new Date(year, month, 1);
-            const startDate = getMonday(firstDay);
-            
-            const days = [];
-            let currentDate = new Date(startDate);
-            
-            while (days.length < 42) {
-                days.push(new Date(currentDate));
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
             return days;
         }
 
@@ -876,8 +846,6 @@
 
             if (currentView === 'week') {
                 renderWeekView(grid);
-            } else {
-                renderMonthView(grid);
             }
         }
 
@@ -943,61 +911,12 @@
             });
         }
 
-        function renderMonthView(grid) {
-            document.getElementById('periodDisplay').textContent = `${currentYear}년 ${currentMonth + 1}월`;
-
-            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
-            dayNames.forEach((day, idx) => {
-                const header = document.createElement('div');
-                header.className = 'month-day-header';
-                if (idx === 5) header.classList.add('saturday');
-                if (idx === 6) header.classList.add('sunday');
-                header.textContent = day;
-                grid.appendChild(header);
-            });
-
-            const days = getMonthDays(currentYear, currentMonth);
-            days.forEach((date) => {
-                const cell = document.createElement('div');
-                cell.className = 'month-cell';
-                
-                if (date.getMonth() !== currentMonth) {
-                    cell.classList.add('other-month');
-                }
-                
-                if (date.getDay() === 6) cell.classList.add('saturday');
-                if (date.getDay() === 0 || date.getDay() === 6) cell.classList.add('sunday');
-                
-                const dateStr = formatDate(date);
-                if (koreanHolidays[dateStr]) {
-                    cell.classList.add('holiday');
-                }
-                
-                if (dateStr === formatDate(selectedDate)) {
-                    cell.classList.add('selected');
-                }
-                
-                cell.onclick = () => selectDate(date);
-
-                let html = `<div class="month-date`;
-                if (date.getDay() === 6) html += ' saturday';
-                if (date.getDay() === 0 || koreanHolidays[dateStr]) html += ' sunday';
-                html += `">${date.getDate()}</div>`;
-                
-                if (koreanHolidays[dateStr]) {
-                    html += `<div class="month-holiday-name">${koreanHolidays[dateStr]}</div>`;
-                }
-                
-                cell.innerHTML = html;
-                grid.appendChild(cell);
-            });
-        }
-
         function selectDate(date) {
             selectedDate = new Date(date);
             renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
+            document.getElementById('taskDate').valueAsDate = selectedDate;
         }
 
         function updateSelectedDateDisplay() {
@@ -1038,12 +957,25 @@
             return labels[cat] || cat;
         }
 
-        // 모달 관련
-        function openAddModal() {
-            selectedCategory = 'work';
+        function openAddModal(category) {
+            selectedCategory = category;
+            selectedSubCategory = '';
+            
+            document.getElementById('modalTitle').textContent = 
+                category === 'work' ? '업무 추가' : category === 'personal' ? '개인 추가' : '팀일정 추가';
+            
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDesc').value = '';
-            updateCategoryButtons();
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('location').value = '';
+            document.getElementById('dueDate').value = '';
+            document.getElementById('relation').value = '';
+            
+            renderCategoryButtons();
+            renderSubCategoryButtons();
+            updateFormFields();
+            
             document.getElementById('addModal').classList.add('open');
         }
 
@@ -1051,35 +983,64 @@
             document.getElementById('addModal').classList.remove('open');
         }
 
-        function selectCategory(cat) {
-            selectedCategory = cat;
-            updateCategoryButtons();
+        function renderCategoryButtons() {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = '<button class="category-btn selected" onclick="selectMainCategory(\'work\')">업무</button>' +
+                           '<button class="category-btn" onclick="selectMainCategory(\'personal\')">개인</button>' +
+                           '<button class="category-btn" onclick="selectMainCategory(\'team\')">팀연동</button>';
         }
 
-        function updateCategoryButtons() {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            document.querySelector(`[data-category="${selectedCategory}"]`).classList.add('selected');
+        function selectMainCategory(cat) {
+            selectedCategory = cat;
+            selectedSubCategory = '';
+            renderCategoryButtons();
+            renderSubCategoryButtons();
+            updateFormFields();
+        }
+
+        function renderSubCategoryButtons() {
+            const options = subCategories[selectedCategory] || [];
+            const grid = document.getElementById('subCategoryGrid');
+            grid.innerHTML = options.map(opt => 
+                `<button class="sub-category-btn" onclick="selectSubCategory('${opt}')">${opt}</button>`
+            ).join('');
+            
+            if (selectedSubCategory) {
+                document.querySelector(`[onclick="selectSubCategory('${selectedSubCategory}')"]`)?.classList.add('selected');
+            }
+        }
+
+        function selectSubCategory(subCat) {
+            selectedSubCategory = subCat;
+            renderSubCategoryButtons();
+        }
+
+        function updateFormFields() {
+            document.getElementById('subCategoryGroup').style.display = 'block';
+            document.getElementById('locationGroup').style.display = 
+                selectedCategory === 'personal' ? 'block' : 'none';
+            document.getElementById('dueDateGroup').style.display = 
+                selectedCategory === 'work' ? 'block' : 'none';
+            document.getElementById('relationGroup').style.display = 
+                selectedCategory === 'personal' ? 'block' : 'none';
         }
 
         async function saveTask() {
             const title = document.getElementById('taskTitle').value.trim();
-            const description = document.getElementById('taskDesc').value.trim();
-            
             if (!title) {
-                alert('할일 내용을 입력하세요');
+                alert('내용을 입력하세요');
                 return;
             }
 
-            const dateStr = formatDate(selectedDate);
+            const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
             
             const task = {
                 id: Date.now().toString(),
                 title,
-                description: description || null,
+                description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
                 category: selectedCategory,
+                sub_category: selectedSubCategory,
                 completed: false,
                 created_at: new Date().toISOString()
             };
@@ -1087,9 +1048,14 @@
             const schedule = {
                 id: Date.now().toString(),
                 title,
-                description: description || null,
+                description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
                 category: selectedCategory,
+                sub_category: selectedSubCategory,
+                start_time: document.getElementById('startTime').value || null,
+                end_time: document.getElementById('endTime').value || null,
+                location: document.getElementById('location').value || null,
+                relation: document.getElementById('relation').value || null,
                 team_shared: false,
                 created_at: new Date().toISOString()
             };
@@ -1111,11 +1077,9 @@
             const task = allTasks.find(t => t.id === id);
             if (task) {
                 task.completed = completed;
-                
                 if (sbClient) {
                     sbClient.from('tasks').update({ completed }).eq('id', id).catch(e => console.log('Update error:', e));
                 }
-                
                 renderTasks();
             }
         }
