@@ -607,6 +607,7 @@
             cursor: pointer;
             text-align: center;
             font-size: 12px;
+            transition: all 0.2s;
         }
 
         .sub-category-btn:hover {
@@ -618,19 +619,22 @@
             color: white;
             border: none;
             font-weight: 600;
-            box-shadow: inset 0 0 0 2px;
+            transform: scale(1.05);
         }
 
         .sub-category-btn.work.selected {
             background: #3B8BD4;
+            box-shadow: 0 4px 12px rgba(59, 139, 212, 0.4);
         }
 
         .sub-category-btn.personal.selected {
             background: #639922;
+            box-shadow: 0 4px 12px rgba(99, 153, 34, 0.4);
         }
 
         .sub-category-btn.team.selected {
             background: #D4537E;
+            box-shadow: 0 4px 12px rgba(212, 83, 126, 0.4);
         }
 
         .modal-actions {
@@ -1282,7 +1286,7 @@
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${cat} ${cat === selectedCategory ? 'selected' : ''}`;
                 btn.textContent = getCategoryLabel(cat);
-                btn.onclick = (e) => { selectMainCategory(cat); e.stopPropagation(); };
+                btn.onclick = (e) => { selectMainCategory(cat); };
                 grid.appendChild(btn);
             });
         }
@@ -1298,37 +1302,77 @@
         function renderSubCategoryButtons() {
             const options = subCategories[selectedCategory] || [];
             const grid = document.getElementById('subCategoryGrid');
-            grid.innerHTML = options.map(opt => {
+            grid.innerHTML = '';
+            options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = `sub-category-btn ${selectedCategory} ${opt === selectedSubCategory ? 'selected' : ''}`;
                 btn.textContent = opt;
-                btn.onclick = (e) => { selectSubCategory(opt); e.stopPropagation(); };
-                return btn.outerHTML;
-            }).join('');
+                btn.type = 'button';
+                btn.onclick = (e) => { 
+                    selectSubCategory(opt);
+                    return false;
+                };
+                grid.appendChild(btn);
+            });
         }
 
         function selectSubCategory(subCat) {
+            console.log('세부분류 선택:', subCat); // 디버깅
             selectedSubCategory = subCat;
             renderSubCategoryButtons();
             updateFormFields();
         }
 
         function updateFormFields() {
-            document.getElementById('subCategoryGroup').style.display = 'block';
-            document.getElementById('locationGroup').style.display = 
-                selectedCategory === 'personal' || selectedCategory === 'team' ? 'block' : 'none';
-            document.getElementById('relationGroup').style.display = 
-                selectedCategory === 'personal' ? 'block' : 'none';
-            document.getElementById('teamShareGroup').style.display = 
-                selectedCategory === 'team' ? 'block' : 'none';
-
-            const needsDueTime = ['자료요청', '자료제출', '메일회신', '업무지시'].includes(selectedSubCategory);
-            const needsTimeRange = ['보고', '회의'].includes(selectedSubCategory) || 
-                                  (selectedCategory === 'team' && ['회의', '교육', '행사'].includes(selectedSubCategory)) ||
-                                  (selectedCategory === 'personal');
+            console.log('선택된 세부분류:', selectedSubCategory);
             
-            document.getElementById('dueTimeGroup').style.display = needsDueTime ? 'grid' : 'none';
-            document.getElementById('timeGroup').style.display = needsTimeRange ? 'grid' : 'none';
+            document.getElementById('subCategoryGroup').style.display = 'block';
+            
+            // 기본: 위치, 관계는 모두 숨기기
+            document.getElementById('locationGroup').style.display = 'none';
+            document.getElementById('relationGroup').style.display = 'none';
+            document.getElementById('teamShareGroup').style.display = 'none';
+            document.getElementById('timeGroup').style.display = 'none';
+            document.getElementById('dueTimeGroup').style.display = 'none';
+
+            if (selectedCategory === 'work') {
+                // 업무: 자료요청/제출/메일회신/업무지시 → 마감일자+시간
+                if (['자료요청', '자료제출', '메일회신', '업무지시'].includes(selectedSubCategory)) {
+                    document.getElementById('dueTimeGroup').style.display = 'grid';
+                }
+                // 업무: 보고/회의 → 시작/종료 시간
+                else if (['보고', '회의'].includes(selectedSubCategory)) {
+                    document.getElementById('timeGroup').style.display = 'grid';
+                }
+                // 업무: 기타 → 아무것도 안 함
+            } 
+            else if (selectedCategory === 'personal') {
+                // 개인: 행사만 시간+장소
+                if (selectedSubCategory === '행사') {
+                    document.getElementById('timeGroup').style.display = 'grid';
+                    document.getElementById('locationGroup').style.display = 'block';
+                }
+                // 개인: 점심/저녁 → 시간만
+                else if (['점심', '저녁'].includes(selectedSubCategory)) {
+                    document.getElementById('timeGroup').style.display = 'grid';
+                }
+                // 개인: 운동 → 시간+장소
+                else if (selectedSubCategory === '운동') {
+                    document.getElementById('timeGroup').style.display = 'grid';
+                    document.getElementById('locationGroup').style.display = 'block';
+                }
+                // 항상: 관계 필드
+                document.getElementById('relationGroup').style.display = 'block';
+            }
+            else if (selectedCategory === 'team') {
+                // 팀: 회의/교육/행사 → 시간+장소
+                if (['회의', '교육', '행사'].includes(selectedSubCategory)) {
+                    document.getElementById('timeGroup').style.display = 'grid';
+                    document.getElementById('locationGroup').style.display = 'block';
+                }
+                // 팀: 공지 → 아무것도 안 함
+                document.getElementById('teamShareGroup').style.display = 'block';
+            }
         }
 
         async function saveTask() {
