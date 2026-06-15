@@ -431,32 +431,6 @@
             white-space: nowrap;
         }
 
-        .task-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .task-btn {
-            width: 24px;
-            height: 24px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 4px;
-        }
-
-        .task-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .task-delete:hover {
-            background: #fee;
-            color: #d32f2f;
-        }
-
         .filter-section {
             margin-top: 20px;
             padding-top: 20px;
@@ -870,7 +844,7 @@
         let currentMonth = new Date().getMonth();
         let currentWeekStart = getMonday(new Date());
         let selectedDate = new Date();
-        let allTasks = [];
+        let allTasks = [];  // ← 하나의 배열만 사용
         let currentFilter = 'all';
         let currentView = 'week';
         let selectedCategory = 'work';
@@ -1044,6 +1018,16 @@
                 html += '<div class="day-events"></div>';
                 cell.innerHTML = html;
 
+                // ✅ allTasks에서 일정 가져오기
+                const dayTasks = allTasks.filter(t => t.date === dateStr);
+                const eventsContainer = cell.querySelector('.day-events');
+                dayTasks.forEach(task => {
+                    const badge = document.createElement('div');
+                    badge.className = `event-badge ${task.category}`;
+                    badge.textContent = task.title;
+                    eventsContainer.appendChild(badge);
+                });
+
                 grid.appendChild(cell);
             });
         }
@@ -1103,6 +1087,20 @@
                 if (dateObj.getDay() === 0 || koreanHolidays[dateStr]) dateNum.classList.add('sunday');
                 dateNum.textContent = i;
                 day.appendChild(dateNum);
+
+                // ✅ allTasks에서 일정 가져오기
+                const dayTasks = allTasks.filter(t => t.date === dateStr);
+                if (dayTasks.length > 0) {
+                    const eventsDiv = document.createElement('div');
+                    eventsDiv.className = 'month-events';
+                    dayTasks.forEach(t => {
+                        const dot = document.createElement('span');
+                        dot.className = 'month-event-dot';
+                        dot.style.background = t.category === 'work' ? '#3B8BD4' : t.category === 'personal' ? '#639922' : '#D4537E';
+                        eventsDiv.appendChild(dot);
+                    });
+                    day.appendChild(eventsDiv);
+                }
 
                 grid.appendChild(day);
             }
@@ -1164,7 +1162,6 @@
         }
 
         function openAddModal(category) {
-            console.log('\n📝 모달 열기:', category);
             selectedCategory = category;
             selectedSubCategory = '';
             
@@ -1181,7 +1178,6 @@
         }
 
         function closeAddModal() {
-            console.log('❌ 모달 닫기\n');
             document.getElementById('addModal').classList.remove('open');
         }
 
@@ -1281,18 +1277,15 @@
         }
 
         function saveTask() {
-            console.log('\n💾 저장 시작');
             const title = document.getElementById('taskTitle').value.trim();
             
             if (!title) {
                 document.getElementById('errorMsg').textContent = '✗ 내용을 입력하세요';
                 document.getElementById('errorMsg').classList.add('show');
-                console.log('❌ 제목 없음');
                 return;
             }
 
             const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
-            console.log('📋 저장 데이터:', { 제목: title, 날짜: dateStr, 분류: selectedCategory, 세부: selectedSubCategory });
             
             const newTask = {
                 id: Date.now().toString(),
@@ -1305,34 +1298,27 @@
                 created_at: new Date().toISOString()
             };
 
-            // 1️⃣ 로컬 배열에 즉시 추가
+            // ✅ allTasks에만 추가 (하나의 배열)
             allTasks.push(newTask);
-            console.log('✓ 로컬 배열에 추가 완료');
 
-            // 2️⃣ UI 즉시 업데이트
+            // ✅ UI 즉시 업데이트
             renderCalendar();
             renderTasks();
-            console.log('✓ UI 업데이트 완료');
 
-            // 3️⃣ 성공 메시지 표시
+            // ✅ 성공 메시지 표시
             document.getElementById('successMsg').classList.add('show');
-            console.log('✓ 성공 메시지 표시');
 
-            // 4️⃣ 1초 후 모달 닫기
+            // ✅ 1초 후 모달 닫기
             setTimeout(() => {
-                console.log('⏱️ 1초 경과 → 모달 닫기');
                 closeAddModal();
                 
-                // 5️⃣ Supabase 저장 (백그라운드)
+                // Supabase 백그라운드 저장
                 if (sbClient) {
-                    console.log('📡 Supabase 저장 시작...');
                     sbClient.from('tasks').insert([newTask]).then(result => {
                         console.log('✓ Supabase 저장 성공');
                     }).catch(error => {
                         console.log('⚠️ Supabase 저장 오류:', error.message);
                     });
-                } else {
-                    console.log('⚠️ Supabase 연결 없음 (로컬만 저장됨)');
                 }
             }, 1000);
         }
