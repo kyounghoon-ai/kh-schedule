@@ -94,7 +94,7 @@
             display: grid;
             grid-template-columns: 1.3fr 1fr;
             gap: 20px;
-            height: 800px;
+            min-height: 700px;
         }
 
         .calendar-section, .task-section {
@@ -136,6 +136,20 @@
             overflow-y: auto;
         }
 
+        .month-grid {
+            display: none;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            background: #e5e5e5;
+        }
+
+        .month-grid.active {
+            display: grid;
+        }
+
         .week-day-header {
             text-align: center;
             font-size: 12px;
@@ -159,7 +173,7 @@
             border: 1px solid #e5e5e5;
             border-radius: 6px;
             padding: 8px;
-            min-height: 140px;
+            min-height: 120px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -172,6 +186,7 @@
 
         .day-cell.selected {
             border: 2px solid #3B8BD4;
+            background: #e6f1fb;
         }
 
         .day-cell.saturday {
@@ -228,6 +243,66 @@
         .event-badge.personal { background-color: #639922; }
         .event-badge.team { background-color: #D4537E; }
 
+        .month-day {
+            background: white;
+            padding: 8px;
+            min-height: 100px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .month-day:hover {
+            background: #f0f0f0;
+        }
+
+        .month-day.selected {
+            background: #e6f1fb;
+            border: 2px solid #3B8BD4;
+        }
+
+        .month-day.other-month {
+            background: #f9f9f9;
+            color: #ccc;
+        }
+
+        .month-day.saturday {
+            background: #f5f9ff;
+        }
+
+        .month-day.sunday {
+            background: #fff8f8;
+        }
+
+        .month-date {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .month-date.saturday {
+            color: #3B8BD4;
+        }
+
+        .month-date.sunday {
+            color: #d32f2f;
+        }
+
+        .month-events {
+            font-size: 9px;
+            color: #666;
+            overflow: hidden;
+        }
+
+        .month-event-dot {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            margin-right: 2px;
+        }
+
         .task-header {
             padding: 20px;
             border-bottom: 1px solid #e5e5e5;
@@ -261,17 +336,9 @@
             font-weight: 600;
         }
 
-        .add-btn.work {
-            background: #3B8BD4;
-        }
-
-        .add-btn.personal {
-            background: #639922;
-        }
-
-        .add-btn.team {
-            background: #D4537E;
-        }
+        .add-btn.work { background: #3B8BD4; }
+        .add-btn.personal { background: #639922; }
+        .add-btn.team { background: #D4537E; }
 
         .add-btn:hover {
             opacity: 0.9;
@@ -431,7 +498,6 @@
             font-size: 13px;
         }
 
-        /* 모달 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -552,6 +618,7 @@
             color: white;
             border: none;
             font-weight: 600;
+            box-shadow: inset 0 0 0 2px;
         }
 
         .sub-category-btn.work.selected {
@@ -591,11 +658,6 @@
             color: white;
         }
 
-        .btn-share {
-            background: #639922;
-            color: white;
-        }
-
         .date-time-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -616,36 +678,9 @@
             display: block;
         }
 
-        /* 상세 보기 모달 */
-        .detail-modal {
-            background: white;
-            border-radius: 16px 16px 0 0;
-        }
-
-        .detail-content {
-            padding: 24px 20px;
-        }
-
-        .detail-item {
-            margin-bottom: 20px;
-        }
-
-        .detail-label {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .detail-value {
-            font-size: 14px;
-            color: #333;
-        }
-
         @media (max-width: 1024px) {
             .main-layout {
                 grid-template-columns: 1fr;
-                height: auto;
             }
         }
     </style>
@@ -686,6 +721,7 @@
                     </div>
                 </div>
                 <div class="week-grid" id="calendarGrid"></div>
+                <div class="month-grid" id="monthGrid"></div>
             </div>
 
             <div class="task-section">
@@ -720,44 +756,37 @@
         </div>
     </div>
 
-    <!-- 추가/수정 모달 -->
     <div class="modal-overlay" id="addModal">
         <div class="modal">
             <div class="modal-title" id="modalTitle">할일 추가</div>
 
             <div class="success-message" id="successMsg">저장되었습니다!</div>
 
-            <!-- 분류 선택 -->
             <div class="form-group">
                 <label class="form-label">분류</label>
                 <div class="category-grid" id="categoryGrid"></div>
             </div>
 
-            <!-- 세부 분류 -->
             <div class="form-group" id="subCategoryGroup" style="display: none;">
                 <label class="form-label" id="subCategoryLabel">세부 분류</label>
                 <div class="sub-category-grid" id="subCategoryGrid"></div>
             </div>
 
-            <!-- 제목 -->
             <div class="form-group">
                 <label class="form-label">내용 *</label>
                 <input type="text" class="form-control" id="taskTitle" placeholder="내용을 입력하세요">
             </div>
 
-            <!-- 설명 -->
             <div class="form-group">
                 <label class="form-label">세부사항</label>
                 <textarea class="form-control" id="taskDesc" placeholder="세부사항을 입력하세요" style="min-height: 80px; resize: vertical;"></textarea>
             </div>
 
-            <!-- 날짜 -->
             <div class="form-group">
                 <label class="form-label">날짜</label>
                 <input type="date" class="form-control" id="taskDate">
             </div>
 
-            <!-- 시간들 -->
             <div class="date-time-group" id="timeGroup" style="display: none;">
                 <div class="form-group">
                     <label class="form-label" id="timeLabel1">시작 시간</label>
@@ -769,7 +798,6 @@
                 </div>
             </div>
 
-            <!-- 마감 시간 (업무용) -->
             <div class="date-time-group" id="dueTimeGroup" style="display: none;">
                 <div class="form-group">
                     <label class="form-label">마감일자</label>
@@ -781,13 +809,11 @@
                 </div>
             </div>
 
-            <!-- 장소 -->
             <div class="form-group" id="locationGroup" style="display: none;">
                 <label class="form-label">장소</label>
                 <input type="text" class="form-control" id="location" placeholder="장소를 입력하세요">
             </div>
 
-            <!-- 관계 (개인용) -->
             <div class="form-group" id="relationGroup" style="display: none;">
                 <label class="form-label">관계</label>
                 <select class="form-control" id="relation">
@@ -798,7 +824,6 @@
                 </select>
             </div>
 
-            <!-- 팀 공유 (팀일정용) -->
             <div class="form-group" id="teamShareGroup" style="display: none;">
                 <label class="form-label">
                     <input type="checkbox" id="teamShare"> 상품기획팀 캘린더에 공유
@@ -812,51 +837,48 @@
         </div>
     </div>
 
-    <!-- 상세 보기 모달 -->
     <div class="modal-overlay" id="detailModal">
-        <div class="modal detail-modal">
-            <div class="detail-content">
-                <div class="modal-title" id="detailTitle"></div>
+        <div class="modal">
+            <div class="modal-title" id="detailTitle"></div>
 
-                <div class="detail-item">
-                    <div class="detail-label">분류</div>
-                    <div class="detail-value"><span id="detailCategory"></span> / <span id="detailSubCategory"></span></div>
-                </div>
+            <div class="form-group">
+                <label class="form-label">분류</label>
+                <div><span id="detailCategory"></span> / <span id="detailSubCategory"></span></div>
+            </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">내용</div>
-                    <div class="detail-value" id="detailContent"></div>
-                </div>
+            <div class="form-group">
+                <label class="form-label">내용</label>
+                <div id="detailContent"></div>
+            </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">세부사항</div>
-                    <div class="detail-value" id="detailDesc"></div>
-                </div>
+            <div class="form-group">
+                <label class="form-label">세부사항</label>
+                <div id="detailDesc"></div>
+            </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">날짜</div>
-                    <div class="detail-value" id="detailDate"></div>
-                </div>
+            <div class="form-group">
+                <label class="form-label">날짜</label>
+                <div id="detailDate"></div>
+            </div>
 
-                <div class="detail-item" id="detailTimeItem" style="display: none;">
-                    <div class="detail-label" id="detailTimeLabel"></div>
-                    <div class="detail-value" id="detailTime"></div>
-                </div>
+            <div class="form-group" id="detailTimeItem" style="display: none;">
+                <label class="form-label" id="detailTimeLabel"></label>
+                <div id="detailTime"></div>
+            </div>
 
-                <div class="detail-item" id="detailLocationItem" style="display: none;">
-                    <div class="detail-label">장소</div>
-                    <div class="detail-value" id="detailLocation"></div>
-                </div>
+            <div class="form-group" id="detailLocationItem" style="display: none;">
+                <label class="form-label">장소</label>
+                <div id="detailLocation"></div>
+            </div>
 
-                <div class="detail-item" id="detailRelationItem" style="display: none;">
-                    <div class="detail-label">관계</div>
-                    <div class="detail-value" id="detailRelation"></div>
-                </div>
+            <div class="form-group" id="detailRelationItem" style="display: none;">
+                <label class="form-label">관계</label>
+                <div id="detailRelation"></div>
+            </div>
 
-                <div class="modal-actions" style="margin-top: 30px;">
-                    <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
-                    <button class="btn-save" onclick="editTask()">수정</button>
-                </div>
+            <div class="modal-actions" style="margin-top: 30px;">
+                <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
+                <button class="btn-save" onclick="editTask()">수정</button>
             </div>
         </div>
     </div>
@@ -891,23 +913,14 @@
         let selectedCategory = 'work';
         let selectedSubCategory = '';
         let editingTaskId = null;
-        let viewingTaskId = null;
 
         async function init() {
             try {
                 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                console.log('🔗 Supabase 연결 시작...');
-                
-                // schedules 먼저 로드
                 await loadSchedules();
-                // 그 다음 tasks 로드
                 await loadTasks();
-                
-                console.log('✅ 모든 데이터 로드 완료');
-                console.log('📊 allSchedules:', allSchedules.length);
-                console.log('📊 allTasks:', allTasks.length);
             } catch (e) {
-                console.error('❌ Supabase 초기화 실패:', e.message);
+                console.error('Supabase 초기화 실패:', e.message);
             }
             
             setDefaultDate();
@@ -925,12 +938,16 @@
             currentView = view;
             document.getElementById('weekBtn').classList.remove('active');
             document.getElementById('monthBtn').classList.remove('active');
+            document.getElementById('calendarGrid').style.display = 'none';
+            document.getElementById('monthGrid').classList.remove('active');
             
             if (view === 'week') {
                 document.getElementById('weekBtn').classList.add('active');
+                document.getElementById('calendarGrid').style.display = 'grid';
                 currentWeekStart = getMonday(selectedDate);
             } else {
                 document.getElementById('monthBtn').classList.add('active');
+                document.getElementById('monthGrid').classList.add('active');
             }
             
             renderCalendar();
@@ -966,6 +983,12 @@
         function previousPeriod() {
             if (currentView === 'week') {
                 currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            } else {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
             }
             renderCalendar();
         }
@@ -973,6 +996,12 @@
         function nextPeriod() {
             if (currentView === 'week') {
                 currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            } else {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
             }
             renderCalendar();
         }
@@ -988,12 +1017,8 @@
                 if (error) throw error;
                 allSchedules = data || [];
                 console.log('✓ schedules 로드됨:', allSchedules.length);
-                console.log('📋 schedules 데이터:', allSchedules);
-                return allSchedules;
             } catch (e) {
-                console.log('❌ Schedule load error:', e.message);
-                allSchedules = [];
-                return [];
+                console.log('Schedule load error:', e.message);
             }
         }
 
@@ -1008,16 +1033,20 @@
                 if (error) throw error;
                 allTasks = data || [];
                 console.log('✓ tasks 로드됨:', allTasks.length);
-                console.log('📋 tasks 데이터:', allTasks);
-                return allTasks;
             } catch (e) {
-                console.log('❌ Task load error:', e.message);
-                allTasks = [];
-                return [];
+                console.log('Task load error:', e.message);
             }
         }
 
         function renderCalendar() {
+            if (currentView === 'week') {
+                renderWeekCalendar();
+            } else {
+                renderMonthCalendar();
+            }
+        }
+
+        function renderWeekCalendar() {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
@@ -1069,10 +1098,7 @@
                 html += '<div class="day-events"></div>';
                 cell.innerHTML = html;
 
-                // allSchedules에서 해당 날짜의 일정 찾기
                 const daySchedules = allSchedules.filter(s => s.date === dateStr);
-                console.log(`📅 ${dateStr}: ${daySchedules.length}개 일정`);
-                
                 const eventsContainer = cell.querySelector('.day-events');
                 daySchedules.forEach(schedule => {
                     const badge = document.createElement('div');
@@ -1083,6 +1109,86 @@
 
                 grid.appendChild(cell);
             });
+        }
+
+        function renderMonthCalendar() {
+            const grid = document.getElementById('monthGrid');
+            grid.innerHTML = '';
+
+            document.getElementById('periodDisplay').textContent = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            dayNames.forEach(day => {
+                const header = document.createElement('div');
+                header.style.background = '#f5f5f5';
+                header.style.fontWeight = '600';
+                header.style.textAlign = 'center';
+                header.style.padding = '8px';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const prevLastDay = new Date(currentYear, currentMonth, 0);
+            
+            const startDate = firstDay.getDay();
+            const endDate = lastDay.getDate();
+            const prevEndDate = prevLastDay.getDate();
+
+            for (let i = startDate - 1; i >= 0; i--) {
+                const day = document.createElement('div');
+                day.className = 'month-day other-month';
+                day.textContent = prevEndDate - i;
+                grid.appendChild(day);
+            }
+
+            for (let i = 1; i <= endDate; i++) {
+                const day = document.createElement('div');
+                const dateObj = new Date(currentYear, currentMonth, i);
+                const dateStr = formatDate(dateObj);
+                
+                day.className = 'month-day';
+                
+                if (dateObj.getDay() === 5) day.classList.add('saturday');
+                if (dateObj.getDay() === 0) day.classList.add('sunday');
+                if (koreanHolidays[dateStr]) day.classList.add('sunday');
+                
+                if (dateStr === formatDate(selectedDate)) {
+                    day.classList.add('selected');
+                }
+                
+                day.onclick = () => selectDate(dateObj);
+                
+                const dateNum = document.createElement('div');
+                dateNum.className = 'month-date';
+                if (dateObj.getDay() === 5) dateNum.classList.add('saturday');
+                if (dateObj.getDay() === 0 || koreanHolidays[dateStr]) dateNum.classList.add('sunday');
+                dateNum.textContent = i;
+                day.appendChild(dateNum);
+
+                const daySchedules = allSchedules.filter(s => s.date === dateStr);
+                if (daySchedules.length > 0) {
+                    const eventsDiv = document.createElement('div');
+                    eventsDiv.className = 'month-events';
+                    daySchedules.forEach(s => {
+                        const dot = document.createElement('span');
+                        dot.className = 'month-event-dot';
+                        dot.style.background = s.category === 'work' ? '#3B8BD4' : s.category === 'personal' ? '#639922' : '#D4537E';
+                        eventsDiv.appendChild(dot);
+                    });
+                    day.appendChild(eventsDiv);
+                }
+
+                grid.appendChild(day);
+            }
+
+            for (let i = 1; i <= (42 - startDate - endDate); i++) {
+                const day = document.createElement('div');
+                day.className = 'month-day other-month';
+                day.textContent = i;
+                grid.appendChild(day);
+            }
         }
 
         function selectDate(date) {
@@ -1280,18 +1386,9 @@
                 }
             }
 
-            showSuccessMessage();
-            setTimeout(() => {
-                closeAddModal();
-                renderCalendar();
-                renderTasks();
-            }, 500);
-        }
-
-        function showSuccessMessage() {
-            const msg = document.getElementById('successMsg');
-            msg.classList.add('show');
-            setTimeout(() => msg.classList.remove('show'), 1000);
+            renderCalendar();
+            renderTasks();
+            closeAddModal();
         }
 
         function toggleTask(id, completed) {
@@ -1321,7 +1418,6 @@
         }
 
         function openDetailModal(id) {
-            viewingTaskId = id;
             const task = allTasks.find(t => t.id === id);
             const schedule = allSchedules.find(s => s.id === id);
             
@@ -1362,7 +1458,6 @@
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.remove('open');
-            viewingTaskId = null;
         }
 
         function editTaskDirect(id) {
@@ -1399,7 +1494,7 @@
         }
 
         function editTask() {
-            editTaskDirect(viewingTaskId);
+            closeDetailModal();
         }
 
         function filterByCategory(category) {
