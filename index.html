@@ -1276,6 +1276,7 @@
                 const { data, error } = await sbTeam
                     .from('events')
                     .select('*, profiles(name)')
+                    .eq('category', 'meeting')   // ✅ 회의/보고만 가져오기
                     .order('start_date', { ascending: true });
 
                 if (error) throw error;
@@ -1295,7 +1296,7 @@
                     isTeamEvent: true   // 팀 일정 표시용 플래그
                 }));
 
-                console.log('✓ 팀 일정 로드됨:', teamEvents.length + '개');
+                console.log('✓ 팀 일정(회의/보고) 로드됨:', teamEvents.length + '개');
             } catch (e) {
                 console.log('⚠️ 팀 일정 로드 오류:', e.message);
             }
