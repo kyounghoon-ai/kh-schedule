@@ -1343,8 +1343,10 @@
 
             // ✅ 수정 모드 확인
             if (window.editingTaskId) {
+                const editId = window.editingTaskId;  // ← 먼저 저장!
+
                 // 로컬 배열 업데이트
-                const taskIndex = allTasks.findIndex(t => t.id === window.editingTaskId);
+                const taskIndex = allTasks.findIndex(t => t.id === editId);
                 if (taskIndex !== -1) {
                     allTasks[taskIndex] = {
                         ...allTasks[taskIndex],
@@ -1357,13 +1359,15 @@
                 document.getElementById('successMsg').classList.add('show');
 
                 setTimeout(() => {
-                    closeAddModal();
-                    window.editingTaskId = null;
+                    closeAddModal();  // closeAddModal이 editingTaskId를 null로 초기화함
 
-                    // Supabase 업데이트
+                    // Supabase 업데이트 (editId 사용 - null 아님)
                     if (sbClient) {
-                        sbClient.from('tasks').update(taskData).eq('id', window.editingTaskId).then(() => {
+                        sbClient.from('tasks').update(taskData).eq('id', editId).then(() => {
                             console.log('✓ 수정 완료');
+                            loadTasks();
+                            renderCalendar();
+                            renderTasks();
                         }).catch(error => {
                             console.log('⚠️ 수정 오류:', error.message);
                         });
@@ -1487,18 +1491,19 @@
 
             if (!confirm('정말 삭제하시겠습니까?')) return;
 
+            const deleteId = selectedTaskId;  // ← 먼저 저장! (closeDetailModal이 null로 바꿈)
             closeDetailModal();
 
             // 로컬 배열에서 제거
-            allTasks = allTasks.filter(t => t.id !== selectedTaskId);
+            allTasks = allTasks.filter(t => t.id !== deleteId);
 
             // UI 업데이트
             renderCalendar();
             renderTasks();
 
-            // Supabase에서 삭제
-            if (sbClient) {
-                sbClient.from('tasks').delete().eq('id', selectedTaskId).then(() => {
+            // Supabase에서 삭제 (temp_ id면 DB에 없으니 skip)
+            if (sbClient && !deleteId.startsWith('temp_')) {
+                sbClient.from('tasks').delete().eq('id', deleteId).then(() => {
                     console.log('✓ 삭제 완료');
                 }).catch(error => {
                     console.log('⚠️ 삭제 오류:', error.message);
