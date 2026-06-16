@@ -698,31 +698,13 @@
         }
         .due-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            padding: 5px 0;
+            padding: 4px 0;
             border-bottom: 1px solid #fde68a;
             color: #78350f;
         }
         .due-item:last-child { border-bottom: none; }
-        .due-item-check {
-            width: 15px;
-            height: 15px;
-            flex-shrink: 0;
-            cursor: pointer;
-            accent-color: #f59e0b;
-        }
-        .due-item-title {
-            flex: 1;
-            font-size: 12px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .due-item-title.done {
-            text-decoration: line-through;
-            color: #bbb;
-        }
         .due-badge {
             font-size: 10px;
             padding: 2px 6px;
@@ -882,6 +864,13 @@
                 <div class="legend-item"><div class="legend-color color-work"></div><span>업무</span></div>
                 <div class="legend-item"><div class="legend-color color-personal"></div><span>개인</span></div>
                 <div class="legend-item"><div class="legend-color color-team"></div><span>팀연동</span></div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#D4537E;border-left:3px solid #a5345d;"></div>
+                    <span>팀 캘린더</span>
+                </div>
+                <button onclick="refreshTeamEvents()" style="margin-left:8px;padding:3px 10px;font-size:11px;border:1px solid #ddd;border-radius:4px;background:white;cursor:pointer;color:#666;">
+                    🔄 팀 일정 갱신
+                </button>
             </div>
         </header>
 
@@ -1142,13 +1131,19 @@
 
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyY25zb3RmY3d3dnF3ZWpmaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTU3MTksImV4cCI6MjA5Njc3MTcxOX0.153tZC9Tkg8cP4lfzzUnRaoX5rsDT0uXU3X128p-ovU';
+
+        // ✅ 팀 캘린더 Supabase 연결 정보
+        const TEAM_SUPABASE_URL = 'https://omcyyqcvsruxcoblgilo.supabase.co';
+        const TEAM_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tY3l5cWN2c3J1eGNvYmxnaWxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NDIxMTgsImV4cCI6MjA5NTQxODExOH0.LDLumMzIn8m7FVRRyU2vjpGYSm-tS0dtNNv9ezX0_6o';
         
         let sbClient = null;
+        let sbTeam = null;       // ✅ 팀 Supabase 클라이언트
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth();
         let currentWeekStart = getMonday(new Date());
         let selectedDate = new Date();
         let allTasks = [];
+        let teamEvents = [];     // ✅ 팀 캘린더 일정
         let currentFilter = 'all';
         let currentView = 'week';
         let selectedCategory = 'work';
@@ -1159,17 +1154,26 @@
         async function init() {
             try {
                 sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                console.log('✓ Supabase 연결됨');
+                console.log('✓ 개인 Supabase 연결됨');
                 await loadTasks();
             } catch (e) {
-                console.error('❌ 초기화 오류:', e.message);
+                console.error('❌ 개인 DB 오류:', e.message);
             }
-            
+
+            // ✅ 팀 캘린더 연결
+            try {
+                sbTeam = window.supabase.createClient(TEAM_SUPABASE_URL, TEAM_SUPABASE_KEY);
+                console.log('✓ 팀 Supabase 연결됨');
+                await loadTeamEvents();
+            } catch (e) {
+                console.error('❌ 팀 DB 오류:', e.message);
+            }
+
             setDefaultDate();
             renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
-            checkDueAlerts();  // ✅ 마감 임박 알림 체크
+            checkDueAlerts();
         }
 
         function setDefaultDate() {
@@ -1265,6 +1269,50 @@
             }
         }
 
+        // ✅ 팀 캘린더 일정 로드
+        async function loadTeamEvents() {
+            try {
+                if (!sbTeam) return;
+                const { data, error } = await sbTeam
+                    .from('events')
+                    .select('*, profiles(name)')
+                    .order('start_date', { ascending: true });
+
+                if (error) throw error;
+
+                // 팀 일정을 개인 스케줄러 형식으로 변환
+                teamEvents = (data || []).map(e => ({
+                    id: 'team_' + e.id,
+                    title: e.profiles?.name ? `[${e.profiles.name}] ${e.title}` : e.title,
+                    date: e.start_date,
+                    end_date: e.end_date || e.start_date,
+                    start_time: e.start_time || null,
+                    end_time: e.end_time || null,
+                    location: e.location || null,
+                    category: 'team',
+                    sub_category: getCategoryKor(e.category),
+                    completed: false,
+                    isTeamEvent: true   // 팀 일정 표시용 플래그
+                }));
+
+                console.log('✓ 팀 일정 로드됨:', teamEvents.length + '개');
+            } catch (e) {
+                console.log('⚠️ 팀 일정 로드 오류:', e.message);
+            }
+        }
+
+        // 팀 카테고리 한글 변환
+        function getCategoryKor(cat) {
+            const map = {
+                vacation: '연차/휴가',
+                fieldwork: '외근/출장',
+                meeting: '회의/보고',
+                overtime: '야근/대휴',
+                notice: '공지/이벤트'
+            };
+            return map[cat] || cat;
+        }
+
         function renderCalendar() {
             if (currentView === 'week') {
                 renderWeekCalendar();
@@ -1325,13 +1373,27 @@
                 html += '<div class="day-events"></div>';
                 cell.innerHTML = html;
 
-                // ✅ allTasks에서 일정 가져오기
+                // 개인 일정 표시
                 const dayTasks = allTasks.filter(t => t.date === dateStr);
                 const eventsContainer = cell.querySelector('.day-events');
                 dayTasks.forEach(task => {
                     const badge = document.createElement('div');
                     badge.className = `event-badge ${task.category}`;
                     badge.textContent = task.title;
+                    eventsContainer.appendChild(badge);
+                });
+
+                // ✅ 팀 일정 표시 (start_date ~ end_date 범위 포함)
+                const dayTeamEvents = teamEvents.filter(e =>
+                    e.date <= dateStr && e.end_date >= dateStr
+                );
+                dayTeamEvents.forEach(e => {
+                    const badge = document.createElement('div');
+                    badge.className = 'event-badge team';
+                    badge.style.opacity = '0.85';
+                    badge.style.borderLeft = '3px solid #a5345d';
+                    badge.title = e.sub_category || '';
+                    badge.textContent = e.title;
                     eventsContainer.appendChild(badge);
                 });
 
@@ -1395,15 +1457,19 @@
                 dateNum.textContent = i;
                 day.appendChild(dateNum);
 
-                // ✅ allTasks에서 일정 가져오기
+                // 개인 일정 도트
                 const dayTasks = allTasks.filter(t => t.date === dateStr);
-                if (dayTasks.length > 0) {
+                const dayTeamEvts = teamEvents.filter(e => e.date <= dateStr && e.end_date >= dateStr);
+                const allDayItems = [...dayTasks, ...dayTeamEvts];
+
+                if (allDayItems.length > 0) {
                     const eventsDiv = document.createElement('div');
                     eventsDiv.className = 'month-events';
-                    dayTasks.forEach(t => {
+                    allDayItems.forEach(t => {
                         const dot = document.createElement('span');
                         dot.className = 'month-event-dot';
-                        dot.style.background = t.category === 'work' ? '#3B8BD4' : t.category === 'personal' ? '#639922' : '#D4537E';
+                        dot.style.background = t.category === 'work' ? '#3B8BD4'
+                            : t.category === 'personal' ? '#639922' : '#D4537E';
                         eventsDiv.appendChild(dot);
                     });
                     day.appendChild(eventsDiv);
@@ -1695,12 +1761,6 @@
             if (task) {
                 task.completed = completed;
                 renderTasks();
-                checkDueAlerts();
-                if (sbClient && !id.startsWith('temp_')) {
-                    sbClient.from('tasks').update({ completed }).eq('id', id)
-                        .then(() => console.log('✓ 완료 상태 저장'))
-                        .catch(e => console.log('⚠️ 완료 오류:', e.message));
-                }
             }
         }
 
@@ -1816,6 +1876,13 @@
             }
         }
 
+        // ✅ 팀 일정 수동 새로고침
+        async function refreshTeamEvents() {
+            await loadTeamEvents();
+            renderCalendar();
+            console.log('✓ 팀 일정 갱신됨');
+        }
+
         function filterByCategory(category, el) {
             currentFilter = category;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -1901,36 +1968,26 @@
         // ========================================
 
         function checkDueAlerts() {
-            // ✅ toISOString() 쓰지 않음 (UTC 변환으로 하루 차이 발생)
-            // 로컬 날짜를 직접 YYYY-MM-DD 형식으로 만들기
-            function localDateStr(d) {
-                const y = d.getFullYear();
-                const m = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return `${y}-${m}-${day}`;
-            }
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const dayAfter = new Date(today);
+            dayAfter.setDate(today.getDate() + 2);
 
-            const today    = new Date();
-            const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-            const dayAfter = new Date(today); dayAfter.setDate(today.getDate() + 2);
+            const todayStr = today.toISOString().split('T')[0];
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            const dayAfterStr = dayAfter.toISOString().split('T')[0];
 
-            const todayStr    = localDateStr(today);
-            const tomorrowStr = localDateStr(tomorrow);
-            const dayAfterStr = localDateStr(dayAfter);
-
-            // 미완료 + 마감일이 오늘~2일 후인 항목 + 임박순 정렬
+            // 미완료 + 마감일이 있는 항목
             const dueItems = allTasks.filter(t => {
                 if (t.completed) return false;
                 const due = t.due_date || t.date;
                 return due && due <= dayAfterStr;
-            }).sort((a, b) => {
-                const aKey = (a.due_date || a.date) + (a.due_date_time ? ' ' + a.due_date_time : ' 23:59');
-                const bKey = (b.due_date || b.date) + (b.due_date_time ? ' ' + b.due_date_time : ' 23:59');
-                return aKey.localeCompare(bKey);
             });
 
             const banner = document.getElementById('dueBanner');
-            const list   = document.getElementById('dueList');
+            const list = document.getElementById('dueList');
 
             if (dueItems.length === 0) {
                 banner.classList.remove('show');
@@ -1941,37 +1998,16 @@
             list.innerHTML = dueItems.map(t => {
                 const due = t.due_date || t.date;
                 let badgeClass = 'due-soon';
-                let badgeText  = '2일 후 마감';
-                if (due < todayStr)           { badgeClass = 'due-today';    badgeText = '기한 초과'; }
-                else if (due === todayStr)    { badgeClass = 'due-today';    badgeText = '오늘 마감'; }
+                let badgeText = '2일 후 마감';
+                if (due === todayStr) { badgeClass = 'due-today'; badgeText = '오늘 마감'; }
                 else if (due === tomorrowStr) { badgeClass = 'due-tomorrow'; badgeText = '내일 마감'; }
+                else if (due < todayStr) { badgeClass = 'due-today'; badgeText = '기한 초과'; }
 
-                return `<div class="due-item" id="due-${t.id}">
-                    <input type="checkbox" class="due-item-check"
-                        onchange="completeDueItem('${t.id}', this)">
-                    <span class="due-item-title">${t.title}</span>
+                return `<div class="due-item">
+                    <span>${t.title}</span>
                     <span class="due-badge ${badgeClass}">${badgeText}</span>
                 </div>`;
             }).join('');
-        }
-
-        function completeDueItem(taskId, checkbox) {
-            checkbox.nextElementSibling.classList.add('done');
-            setTimeout(() => {
-                const task = allTasks.find(t => t.id === taskId);
-                if (task) task.completed = true;
-                const el = document.getElementById('due-' + taskId);
-                if (el) el.remove();
-                if (document.querySelectorAll('.due-item').length === 0) {
-                    document.getElementById('dueBanner').classList.remove('show');
-                }
-                renderTasks();
-                if (sbClient && !taskId.startsWith('temp_')) {
-                    sbClient.from('tasks').update({ completed: true }).eq('id', taskId)
-                        .then(() => console.log('✓ 완료 처리됨'))
-                        .catch(e => console.log('⚠️ 완료 오류:', e.message));
-                }
-            }, 500);
         }
 
         // ========================================
