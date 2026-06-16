@@ -678,6 +678,173 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ===== 마감 임박 알림 배너 ===== */
+        .due-banner {
+            background: #fff8e1;
+            border: 1px solid #ffcc02;
+            border-left: 4px solid #f59e0b;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            display: none;
+        }
+        .due-banner.show { display: block; }
+        .due-banner-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 6px;
+        }
+        .due-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #fde68a;
+            color: #78350f;
+        }
+        .due-item:last-child { border-bottom: none; }
+        .due-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .due-today { background: #fee2e2; color: #991b1b; }
+        .due-tomorrow { background: #fef3c7; color: #92400e; }
+        .due-soon { background: #e0f2fe; color: #075985; }
+
+        /* ===== 할일 항목 마감 강조 ===== */
+        .task-item.overdue { background: #fff5f5; }
+        .task-item.due-today-item { background: #fffbeb; }
+        .task-due-label {
+            font-size: 10px;
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        /* ===== 헤더 버튼 ===== */
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .header-btn {
+            padding: 7px 14px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+        }
+        .header-btn:hover { background: #f5f5f5; }
+        .header-btn.report-btn { border-color: #3B8BD4; color: #3B8BD4; }
+
+        /* ===== 주간 리포트 모달 ===== */
+        .report-modal { max-width: 600px; border-radius: 16px 16px 0 0; }
+        .report-week-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .report-week-label { font-size: 14px; font-weight: 600; }
+        .report-nav-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px 8px; }
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .report-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+        .report-card-num {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3B8BD4;
+            line-height: 1;
+        }
+        .report-card-label { font-size: 11px; color: #999; margin-top: 4px; }
+        .report-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin: 16px 0 8px;
+            color: #555;
+        }
+        .report-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .report-bar-label { font-size: 12px; width: 60px; color: #666; }
+        .report-bar-bg { flex: 1; background: #eee; border-radius: 4px; height: 10px; overflow: hidden; }
+        .report-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+        .bar-work { background: #3B8BD4; }
+        .bar-personal { background: #639922; }
+        .bar-team { background: #D4537E; }
+        .report-bar-count { font-size: 11px; color: #999; width: 30px; text-align: right; }
+        .report-task-list { max-height: 160px; overflow-y: auto; }
+        .report-task-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+        .report-task-item:last-child { border-bottom: none; }
+        .report-task-dot {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+        }
+        .report-done { text-decoration: line-through; color: #aaa; }
+        .report-export-btn {
+            width: 100%; padding: 11px; margin-top: 16px;
+            background: #f0f7ff; color: #3B8BD4;
+            border: 1.5px solid #3B8BD4; border-radius: 6px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .report-export-btn:hover { background: #e0efff; }
+
+        /* ===== 반복 일정 옵션 ===== */
+        .repeat-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .repeat-btn {
+            padding: 8px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.15s;
+        }
+        .repeat-btn:hover { border-color: #999; }
+        .repeat-btn.selected {
+            background: #3B8BD4;
+            color: white;
+            border-color: #3B8BD4;
+            font-weight: 600;
+        }
+        .repeat-end-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -685,9 +852,12 @@
         <header>
             <div class="header-content">
                 <h1>나의 업무 관리</h1>
-                <div class="view-toggle">
-                    <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
-                    <button id="monthBtn" onclick="switchView('month')">월간</button>
+                <div class="header-actions">
+                    <button class="header-btn report-btn" onclick="openReportModal()">📊 주간 리포트</button>
+                    <div class="view-toggle">
+                        <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
+                        <button id="monthBtn" onclick="switchView('month')">월간</button>
+                    </div>
                 </div>
             </div>
             <div class="legend">
@@ -722,16 +892,20 @@
                 </div>
 
                 <div class="task-content">
+                    <div class="due-banner" id="dueBanner">
+                        <div class="due-banner-title">⚠️ 마감 임박</div>
+                        <div id="dueList"></div>
+                    </div>
                     <div class="task-list-title">할일 목록 <span class="task-counter" id="taskCounter">0/0</span></div>
                     <div class="task-list" id="taskList"></div>
 
                     <div class="filter-section">
                         <div class="filter-title">분류 필터</div>
                         <div class="filter-buttons">
-                            <button class="filter-btn active" onclick="filterByCategory('all', this)">전체</button>
-                            <button class="filter-btn" onclick="filterByCategory('work', this)">업무</button>
-                            <button class="filter-btn" onclick="filterByCategory('personal', this)">개인</button>
-                            <button class="filter-btn" onclick="filterByCategory('team', this)">팀연동</button>
+                            <button class="filter-btn active" onclick="filterByCategory('all')">전체</button>
+                            <button class="filter-btn" onclick="filterByCategory('work')">업무</button>
+                            <button class="filter-btn" onclick="filterByCategory('personal')">개인</button>
+                            <button class="filter-btn" onclick="filterByCategory('team')">팀연동</button>
                         </div>
                     </div>
                 </div>
@@ -814,9 +988,85 @@
                 </label>
             </div>
 
+            <div class="form-group">
+                <label class="form-label">반복 설정</label>
+                <div class="repeat-options" id="repeatOptions">
+                    <button type="button" class="repeat-btn selected" onclick="selectRepeat('none', this)">반복 없음</button>
+                    <button type="button" class="repeat-btn" onclick="selectRepeat('daily', this)">매일</button>
+                    <button type="button" class="repeat-btn" onclick="selectRepeat('weekly', this)">매주</button>
+                    <button type="button" class="repeat-btn" onclick="selectRepeat('biweekly', this)">2주마다</button>
+                    <button type="button" class="repeat-btn" onclick="selectRepeat('monthly', this)">매월</button>
+                    <button type="button" class="repeat-btn" onclick="selectRepeat('weekday', this)">평일마다</button>
+                </div>
+                <div class="repeat-end-group" id="repeatEndGroup" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">반복 종료일</label>
+                        <input type="date" class="form-control" id="repeatEndDate">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">최대 반복 횟수</label>
+                        <input type="number" class="form-control" id="repeatCount" placeholder="예: 10" min="1" max="100">
+                    </div>
+                </div>
+            </div>
+
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeAddModal()">취소</button>
                 <button class="btn-save" id="saveBtn" onclick="saveTask()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주간 리포트 모달 -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal report-modal">
+            <div class="modal-title">📊 주간 리포트</div>
+
+            <div class="report-week-nav">
+                <button class="report-nav-btn" onclick="reportPrevWeek()">←</button>
+                <span class="report-week-label" id="reportWeekLabel"></span>
+                <button class="report-nav-btn" onclick="reportNextWeek()">→</button>
+            </div>
+
+            <div class="report-summary">
+                <div class="report-card">
+                    <div class="report-card-num" id="rTotal">0</div>
+                    <div class="report-card-label">전체 할일</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-num" id="rDone" style="color: #639922;">0</div>
+                    <div class="report-card-label">완료</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-num" id="rRate" style="color: #D4537E;">0%</div>
+                    <div class="report-card-label">완료율</div>
+                </div>
+            </div>
+
+            <div class="report-section-title">카테고리별 업무량</div>
+            <div class="report-bar-row">
+                <div class="report-bar-label">업무</div>
+                <div class="report-bar-bg"><div class="report-bar-fill bar-work" id="barWork" style="width:0%"></div></div>
+                <div class="report-bar-count" id="cntWork">0</div>
+            </div>
+            <div class="report-bar-row">
+                <div class="report-bar-label">개인</div>
+                <div class="report-bar-bg"><div class="report-bar-fill bar-personal" id="barPersonal" style="width:0%"></div></div>
+                <div class="report-bar-count" id="cntPersonal">0</div>
+            </div>
+            <div class="report-bar-row">
+                <div class="report-bar-label">팀연동</div>
+                <div class="report-bar-bg"><div class="report-bar-fill bar-team" id="barTeam" style="width:0%"></div></div>
+                <div class="report-bar-count" id="cntTeam">0</div>
+            </div>
+
+            <div class="report-section-title">이번 주 할일 목록</div>
+            <div class="report-task-list" id="reportTaskList"></div>
+
+            <button class="report-export-btn" onclick="exportReport()">📋 텍스트로 내보내기</button>
+
+            <div class="modal-actions" style="margin-top: 12px;">
+                <button class="btn-cancel" onclick="closeReportModal()">닫기</button>
             </div>
         </div>
     </div>
@@ -847,26 +1097,6 @@
             <div class="form-group">
                 <label class="form-label">날짜</label>
                 <div id="detailDate" style="padding: 8px 0;"></div>
-            </div>
-
-            <div class="form-group" id="detailTimeItem" style="display: none;">
-                <label class="form-label" id="detailTimeLabel">시간</label>
-                <div id="detailTime" style="padding: 8px 0;"></div>
-            </div>
-
-            <div class="form-group" id="detailDueItem" style="display: none;">
-                <label class="form-label">마감일시</label>
-                <div id="detailDue" style="padding: 8px 0;"></div>
-            </div>
-
-            <div class="form-group" id="detailLocationItem" style="display: none;">
-                <label class="form-label">장소</label>
-                <div id="detailLocation" style="padding: 8px 0;"></div>
-            </div>
-
-            <div class="form-group" id="detailRelationItem" style="display: none;">
-                <label class="form-label">관계</label>
-                <div id="detailRelation" style="padding: 8px 0;"></div>
             </div>
 
             <div class="modal-actions" style="margin-top: 30px;">
@@ -900,11 +1130,13 @@
         let currentMonth = new Date().getMonth();
         let currentWeekStart = getMonday(new Date());
         let selectedDate = new Date();
-        let allTasks = [];  // ← 하나의 배열만 사용
+        let allTasks = [];
         let currentFilter = 'all';
         let currentView = 'week';
         let selectedCategory = 'work';
         let selectedSubCategory = '';
+        let selectedRepeat = 'none';
+        let reportWeekStart = getMonday(new Date());
 
         async function init() {
             try {
@@ -919,6 +1151,7 @@
             renderCalendar();
             renderTasks();
             updateSelectedDateDisplay();
+            checkDueAlerts();  // ✅ 마감 임박 알림 체크
         }
 
         function setDefaultDate() {
@@ -1251,6 +1484,13 @@
             document.getElementById('dueTime').value = '';
             document.getElementById('relation').value = '';
             document.getElementById('teamShare').checked = false;
+            // ✅ 반복 설정 초기화
+            selectedRepeat = 'none';
+            document.querySelectorAll('.repeat-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelector('.repeat-btn').classList.add('selected');
+            document.getElementById('repeatEndDate').value = '';
+            document.getElementById('repeatCount').value = '';
+            document.getElementById('repeatEndGroup').style.display = 'none';
         }
 
         function renderCategoryButtons() {
@@ -1400,18 +1640,17 @@
                 }, 1000);
             } else {
                 // 새로운 항목 추가
-
                 const newTask = {
                     ...taskData,
                     created_at: new Date().toISOString()
                 };
 
-                // 로컬 배열에 임시 id 추가
-                const taskWithId = {
-                    id: 'temp_' + Date.now().toString(),
-                    ...newTask
-                };
-                allTasks.push(taskWithId);
+                // ✅ 반복 일정 처리
+                const repeatTasks = generateRepeatTasks(newTask, dateStr);
+
+                repeatTasks.forEach(t => {
+                    allTasks.push({ id: 'temp_' + Date.now() + '_' + t.date, ...t });
+                });
 
                 renderCalendar();
                 renderTasks();
@@ -1419,22 +1658,14 @@
 
                 setTimeout(() => {
                     closeAddModal();
+                    checkDueAlerts();
 
-                    // Supabase 저장
                     if (sbClient) {
-                        sbClient.from('tasks').insert([newTask]).then(() => {
-                            console.log('✓ Supabase 저장 성공');
-                            loadTasks();
-                            renderCalendar();
-                            renderTasks();
+                        sbClient.from('tasks').insert(repeatTasks).then(() => {
+                            console.log('✓ Supabase 저장 성공 (' + repeatTasks.length + '건)');
+                            loadTasks().then(() => { renderCalendar(); renderTasks(); checkDueAlerts(); });
                         }).catch(error => {
                             console.log('⚠️ Supabase 저장 오류:', error.message);
-                            // ✅ 저장 실패 알림
-                            const errEl = document.getElementById('errorMsg');
-                            errEl.textContent = '✗ 저장 중 오류가 발생했습니다: ' + error.message;
-                            errEl.classList.add('show');
-                            document.getElementById('successMsg').classList.remove('show');
-                            document.getElementById('addModal').classList.add('open');
                         });
                     }
                 }, 1000);
@@ -1446,13 +1677,6 @@
             if (task) {
                 task.completed = completed;
                 renderTasks();
-
-                // ✅ Supabase 반영 (temp_ id가 아닌 경우만)
-                if (sbClient && !id.startsWith('temp_')) {
-                    sbClient.from('tasks').update({ completed }).eq('id', id).then(() => {
-                        console.log('✓ 완료 상태 저장');
-                    }).catch(e => console.log('⚠️ 완료 상태 저장 오류:', e.message));
-                }
             }
         }
 
@@ -1465,11 +1689,10 @@
 
             selectedTaskId = taskId;
 
-            // 제목
+            // 상세 정보 표시
             document.getElementById('detailTitle').textContent = task.title;
-
-            // 분류 / 세부분류
             document.getElementById('detailCategory').textContent = getCategoryLabel(task.category);
+            
             const subCatSpan = document.getElementById('detailSubCategory');
             if (task.sub_category) {
                 subCatSpan.textContent = task.sub_category;
@@ -1478,10 +1701,8 @@
                 subCatSpan.style.display = 'none';
             }
 
-            // 내용
             document.getElementById('detailContent').textContent = task.title;
 
-            // 세부사항
             const descItem = document.getElementById('detailDescItem');
             if (task.description) {
                 document.getElementById('detailDesc').textContent = task.description;
@@ -1490,47 +1711,7 @@
                 descItem.style.display = 'none';
             }
 
-            // 날짜
             document.getElementById('detailDate').textContent = task.date;
-
-            // ✅ 시작/종료 시간
-            const timeItem = document.getElementById('detailTimeItem');
-            if (task.start_time || task.end_time) {
-                timeItem.style.display = 'block';
-                const timeStr = [task.start_time, task.end_time].filter(Boolean).join(' ~ ');
-                document.getElementById('detailTime').textContent = timeStr;
-            } else {
-                timeItem.style.display = 'none';
-            }
-
-            // ✅ 마감일시
-            const dueItem = document.getElementById('detailDueItem');
-            if (task.due_date || task.due_date_time) {
-                dueItem.style.display = 'block';
-                const dueStr = [task.due_date, task.due_date_time].filter(Boolean).join(' ');
-                document.getElementById('detailDue').textContent = dueStr;
-            } else {
-                dueItem.style.display = 'none';
-            }
-
-            // ✅ 장소
-            const locationItem = document.getElementById('detailLocationItem');
-            if (task.location) {
-                locationItem.style.display = 'block';
-                document.getElementById('detailLocation').textContent = task.location;
-            } else {
-                locationItem.style.display = 'none';
-            }
-
-            // ✅ 관계
-            const relationItem = document.getElementById('detailRelationItem');
-            if (task.relation) {
-                relationItem.style.display = 'block';
-                const relationLabels = { friend: '지인', colleague: '동료', family: '가족' };
-                document.getElementById('detailRelation').textContent = relationLabels[task.relation] || task.relation;
-            } else {
-                relationItem.style.display = 'none';
-            }
 
             document.getElementById('detailModal').classList.add('open');
         }
@@ -1544,10 +1725,12 @@
             const task = allTasks.find(t => t.id === selectedTaskId);
             if (!task) return;
 
-            // ✅ editingTaskId 먼저 설정 (closeDetailModal 호출 전!)
+            // ✅ editingTaskId를 먼저 설정 (closeDetailModal 전에!)
             window.editingTaskId = selectedTaskId;
-            closeDetailModal();
 
+            closeDetailModal();  // 이제 selectedTaskId가 null이 돼도 괜찮음
+
+            // 추가 모달에 데이터 입력
             selectedCategory = task.category;
             selectedSubCategory = task.sub_category || '';
 
@@ -1555,23 +1738,20 @@
             document.getElementById('taskTitle').value = task.title;
             document.getElementById('taskDesc').value = task.description || '';
 
-            // ✅ 날짜 (value 직접 사용 - UTC 변환 방지)
+            // ✅ 날짜 하루 차이 버그 수정 (valueAsDate 대신 직접 value 사용)
             document.getElementById('taskDate').value = task.date;
-
-            // ✅ 시작/종료 시간 복원
-            document.getElementById('startTime').value = task.start_time || '';
-            document.getElementById('endTime').value = task.end_time || '';
 
             // ✅ 마감일자/시간 복원
             document.getElementById('dueDate').value = task.due_date || '';
             document.getElementById('dueTime').value = task.due_date_time || '';
 
+            // ✅ 시작/종료 시간 복원
+            document.getElementById('startTime').value = task.start_time || '';
+            document.getElementById('endTime').value = task.end_time || '';
+
             // ✅ 장소/관계 복원
             document.getElementById('location').value = task.location || '';
             document.getElementById('relation').value = task.relation || '';
-
-            // ✅ 팀공유 복원
-            document.getElementById('teamShare').checked = task.team_shared || false;
 
             document.getElementById('successMsg').classList.remove('show');
             document.getElementById('errorMsg').classList.remove('show');
@@ -1585,24 +1765,29 @@
 
         function deleteTask() {
             if (!selectedTaskId) return;
+
             if (!confirm('정말 삭제하시겠습니까?')) return;
 
-            const deleteId = selectedTaskId;  // ✅ 먼저 저장
+            const deleteId = selectedTaskId;  // ← 먼저 저장
             closeDetailModal();
 
             // 로컬 배열에서 제거
             allTasks = allTasks.filter(t => t.id !== deleteId);
+
+            // UI 업데이트
             renderCalendar();
             renderTasks();
 
-            // ✅ temp_ id: Supabase에서 title로 찾아 삭제
+            // Supabase에서 삭제
             if (sbClient) {
                 if (deleteId.startsWith('temp_')) {
-                    console.log('⚠️ temp_ id는 Supabase에 없으므로 로컬만 삭제됨');
+                    console.log('⚠️ 임시 id - DB에 없으므로 로컬만 삭제');
                 } else {
                     sbClient.from('tasks').delete().eq('id', deleteId).then(() => {
-                        console.log('✓ Supabase 삭제 완료');
-                    }).catch(e => console.log('⚠️ 삭제 오류:', e.message));
+                        console.log('✓ 삭제 완료');
+                    }).catch(error => {
+                        console.log('⚠️ 삭제 오류:', error.message);
+                    });
                 }
             }
         }
@@ -1610,9 +1795,227 @@
         function filterByCategory(category, el) {
             currentFilter = category;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            el.classList.add('active');
+            if (el) el.classList.add('active');
             renderTasks();
         }
+
+        // ========================================
+        // ✅ 반복 일정 함수
+        // ========================================
+
+        function selectRepeat(type, el) {
+            selectedRepeat = type;
+            document.querySelectorAll('.repeat-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('repeatEndGroup').style.display = type === 'none' ? 'none' : 'grid';
+        }
+
+        function generateRepeatTasks(baseTask, startDateStr) {
+            const tasks = [];
+            const created_at = new Date().toISOString();
+
+            if (selectedRepeat === 'none') {
+                tasks.push({ ...baseTask, created_at });
+                return tasks;
+            }
+
+            const endDateStr = document.getElementById('repeatEndDate').value;
+            const maxCount = parseInt(document.getElementById('repeatCount').value) || 30;
+            const endDate = endDateStr ? new Date(endDateStr + 'T00:00:00') : null;
+
+            let current = new Date(startDateStr + 'T00:00:00');
+            let count = 0;
+
+            while (count < maxCount) {
+                const dateStr = current.toISOString().split('T')[0];
+
+                // 반복 종료일 초과 시 중단
+                if (endDate && current > endDate) break;
+
+                // 평일마다: 토(6), 일(0) 제외
+                if (selectedRepeat === 'weekday') {
+                    const day = current.getDay();
+                    if (day !== 0 && day !== 6) {
+                        tasks.push({ ...baseTask, date: dateStr, created_at });
+                        count++;
+                    }
+                } else {
+                    tasks.push({ ...baseTask, date: dateStr, created_at });
+                    count++;
+                }
+
+                // 다음 날짜 계산
+                if (selectedRepeat === 'daily' || selectedRepeat === 'weekday') {
+                    current.setDate(current.getDate() + 1);
+                } else if (selectedRepeat === 'weekly') {
+                    current.setDate(current.getDate() + 7);
+                } else if (selectedRepeat === 'biweekly') {
+                    current.setDate(current.getDate() + 14);
+                } else if (selectedRepeat === 'monthly') {
+                    current.setMonth(current.getMonth() + 1);
+                }
+
+                if (count >= maxCount) break;
+            }
+
+            return tasks;
+        }
+
+        // ========================================
+        // ✅ 마감 임박 알림 함수
+        // ========================================
+
+        function checkDueAlerts() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const dayAfter = new Date(today);
+            dayAfter.setDate(today.getDate() + 2);
+
+            const todayStr = today.toISOString().split('T')[0];
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            const dayAfterStr = dayAfter.toISOString().split('T')[0];
+
+            // 미완료 + 마감일이 있는 항목
+            const dueItems = allTasks.filter(t => {
+                if (t.completed) return false;
+                const due = t.due_date || t.date;
+                return due && due <= dayAfterStr;
+            });
+
+            const banner = document.getElementById('dueBanner');
+            const list = document.getElementById('dueList');
+
+            if (dueItems.length === 0) {
+                banner.classList.remove('show');
+                return;
+            }
+
+            banner.classList.add('show');
+            list.innerHTML = dueItems.map(t => {
+                const due = t.due_date || t.date;
+                let badgeClass = 'due-soon';
+                let badgeText = '2일 후 마감';
+                if (due === todayStr) { badgeClass = 'due-today'; badgeText = '오늘 마감'; }
+                else if (due === tomorrowStr) { badgeClass = 'due-tomorrow'; badgeText = '내일 마감'; }
+                else if (due < todayStr) { badgeClass = 'due-today'; badgeText = '기한 초과'; }
+
+                return `<div class="due-item">
+                    <span>${t.title}</span>
+                    <span class="due-badge ${badgeClass}">${badgeText}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // ========================================
+        // ✅ 주간 리포트 함수
+        // ========================================
+
+        function openReportModal() {
+            reportWeekStart = getMonday(new Date());
+            renderReport();
+            document.getElementById('reportModal').classList.add('open');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('open');
+        }
+
+        function reportPrevWeek() {
+            reportWeekStart = new Date(reportWeekStart);
+            reportWeekStart.setDate(reportWeekStart.getDate() - 7);
+            renderReport();
+        }
+
+        function reportNextWeek() {
+            reportWeekStart = new Date(reportWeekStart);
+            reportWeekStart.setDate(reportWeekStart.getDate() + 7);
+            renderReport();
+        }
+
+        function renderReport() {
+            const weekEnd = new Date(reportWeekStart);
+            weekEnd.setDate(reportWeekStart.getDate() + 6);
+
+            const startStr = formatDate(reportWeekStart);
+            const endStr = formatDate(weekEnd);
+
+            document.getElementById('reportWeekLabel').textContent =
+                `${reportWeekStart.getMonth()+1}월 ${reportWeekStart.getDate()}일 ~ ${weekEnd.getMonth()+1}월 ${weekEnd.getDate()}일`;
+
+            // 해당 주 할일 필터
+            const weekTasks = allTasks.filter(t => t.date >= startStr && t.date <= endStr);
+            const total = weekTasks.length;
+            const done = weekTasks.filter(t => t.completed).length;
+            const rate = total > 0 ? Math.round(done / total * 100) : 0;
+
+            document.getElementById('rTotal').textContent = total;
+            document.getElementById('rDone').textContent = done;
+            document.getElementById('rRate').textContent = rate + '%';
+
+            // 카테고리별
+            const cntWork = weekTasks.filter(t => t.category === 'work').length;
+            const cntPersonal = weekTasks.filter(t => t.category === 'personal').length;
+            const cntTeam = weekTasks.filter(t => t.category === 'team').length;
+            const maxCnt = Math.max(cntWork, cntPersonal, cntTeam, 1);
+
+            document.getElementById('barWork').style.width = (cntWork / maxCnt * 100) + '%';
+            document.getElementById('barPersonal').style.width = (cntPersonal / maxCnt * 100) + '%';
+            document.getElementById('barTeam').style.width = (cntTeam / maxCnt * 100) + '%';
+            document.getElementById('cntWork').textContent = cntWork;
+            document.getElementById('cntPersonal').textContent = cntPersonal;
+            document.getElementById('cntTeam').textContent = cntTeam;
+
+            // 할일 목록
+            const catColors = { work: '#3B8BD4', personal: '#639922', team: '#D4537E' };
+            document.getElementById('reportTaskList').innerHTML = weekTasks.length === 0
+                ? '<div style="text-align:center;color:#aaa;padding:20px;">이번 주 할일이 없습니다</div>'
+                : weekTasks.map(t => `
+                    <div class="report-task-item">
+                        <div class="report-task-dot" style="background:${catColors[t.category]||'#ccc'}"></div>
+                        <span style="flex:1;font-size:11px;color:#888;">${t.date}</span>
+                        <span class="${t.completed ? 'report-done' : ''}" style="flex:3;">${t.title}</span>
+                        <span style="font-size:10px;color:#bbb;">${t.sub_category||''}</span>
+                    </div>`).join('');
+        }
+
+        function exportReport() {
+            const weekEnd = new Date(reportWeekStart);
+            weekEnd.setDate(reportWeekStart.getDate() + 6);
+            const startStr = formatDate(reportWeekStart);
+            const endStr = formatDate(weekEnd);
+
+            const weekTasks = allTasks.filter(t => t.date >= startStr && t.date <= endStr);
+            const done = weekTasks.filter(t => t.completed).length;
+            const rate = weekTasks.length > 0 ? Math.round(done / weekTasks.length * 100) : 0;
+
+            let text = `📊 주간 업무 리포트\n`;
+            text += `기간: ${startStr} ~ ${endStr}\n`;
+            text += `완료율: ${done}/${weekTasks.length} (${rate}%)\n\n`;
+
+            ['work', 'personal', 'team'].forEach(cat => {
+                const items = weekTasks.filter(t => t.category === cat);
+                if (items.length === 0) return;
+                const label = { work: '업무', personal: '개인', team: '팀연동' }[cat];
+                text += `[${label}]\n`;
+                items.forEach(t => {
+                    text += `  ${t.completed ? '✅' : '⬜'} ${t.date} ${t.title}${t.sub_category ? ' (' + t.sub_category + ')' : ''}\n`;
+                });
+                text += '\n';
+            });
+
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert('📋 리포트가 클립보드에 복사되었습니다!');
+        }
+
+        // closeAddModal 초기화 시 반복 설정도 리셋
+        const _origCloseAddModal = closeAddModal;
 
         window.onload = init;
     </script>
