@@ -1325,7 +1325,7 @@
                 return;
             }
 
-            const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
+            const dateStr = document.getElementById('taskDate').value || formatDate(new Date());
             
             const taskData = {
                 user_id: '00000000-0000-0000-0000-000000000000',
@@ -1336,8 +1336,12 @@
                 sub_category: selectedSubCategory || null,
                 priority: null,
                 completed: false,
-                due_date: null,
-                due_date_time: null,
+                due_date: document.getElementById('dueDate').value || null,
+                due_date_time: document.getElementById('dueTime').value || null,
+                start_time: document.getElementById('startTime').value || null,
+                end_time: document.getElementById('endTime').value || null,
+                location: document.getElementById('location').value || null,
+                relation: document.getElementById('relation').value || null,
                 status: null
             };
 
@@ -1463,7 +1467,10 @@
             const task = allTasks.find(t => t.id === selectedTaskId);
             if (!task) return;
 
-            closeDetailModal();
+            // ✅ editingTaskId를 먼저 설정 (closeDetailModal 전에!)
+            window.editingTaskId = selectedTaskId;
+
+            closeDetailModal();  // 이제 selectedTaskId가 null이 돼도 괜찮음
 
             // 추가 모달에 데이터 입력
             selectedCategory = task.category;
@@ -1472,12 +1479,24 @@
             document.getElementById('modalTitle').textContent = '할일 수정';
             document.getElementById('taskTitle').value = task.title;
             document.getElementById('taskDesc').value = task.description || '';
-            document.getElementById('taskDate').valueAsDate = new Date(task.date + 'T00:00:00');
+
+            // ✅ 날짜 하루 차이 버그 수정 (valueAsDate 대신 직접 value 사용)
+            document.getElementById('taskDate').value = task.date;
+
+            // ✅ 마감일자/시간 복원
+            document.getElementById('dueDate').value = task.due_date || '';
+            document.getElementById('dueTime').value = task.due_date_time || '';
+
+            // ✅ 시작/종료 시간 복원
+            document.getElementById('startTime').value = task.start_time || '';
+            document.getElementById('endTime').value = task.end_time || '';
+
+            // ✅ 장소/관계 복원
+            document.getElementById('location').value = task.location || '';
+            document.getElementById('relation').value = task.relation || '';
+
             document.getElementById('successMsg').classList.remove('show');
             document.getElementById('errorMsg').classList.remove('show');
-
-            // 변수 설정 (수정 모드)
-            window.editingTaskId = selectedTaskId;
 
             renderCategoryButtons();
             renderSubCategoryButtons();
@@ -1491,7 +1510,7 @@
 
             if (!confirm('정말 삭제하시겠습니까?')) return;
 
-            const deleteId = selectedTaskId;  // ← 먼저 저장! (closeDetailModal이 null로 바꿈)
+            const deleteId = selectedTaskId;  // ← 먼저 저장
             closeDetailModal();
 
             // 로컬 배열에서 제거
@@ -1501,13 +1520,17 @@
             renderCalendar();
             renderTasks();
 
-            // Supabase에서 삭제 (temp_ id면 DB에 없으니 skip)
-            if (sbClient && !deleteId.startsWith('temp_')) {
-                sbClient.from('tasks').delete().eq('id', deleteId).then(() => {
-                    console.log('✓ 삭제 완료');
-                }).catch(error => {
-                    console.log('⚠️ 삭제 오류:', error.message);
-                });
+            // Supabase에서 삭제
+            if (sbClient) {
+                if (deleteId.startsWith('temp_')) {
+                    console.log('⚠️ 임시 id - DB에 없으므로 로컬만 삭제');
+                } else {
+                    sbClient.from('tasks').delete().eq('id', deleteId).then(() => {
+                        console.log('✓ 삭제 완료');
+                    }).catch(error => {
+                        console.log('⚠️ 삭제 오류:', error.message);
+                    });
+                }
             }
         }
 
