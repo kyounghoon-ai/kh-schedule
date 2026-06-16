@@ -863,10 +863,9 @@
             <div class="legend">
                 <div class="legend-item"><div class="legend-color color-work"></div><span>업무</span></div>
                 <div class="legend-item"><div class="legend-color color-personal"></div><span>개인</span></div>
-                <div class="legend-item"><div class="legend-color color-team"></div><span>팀연동</span></div>
                 <div class="legend-item">
                     <div class="legend-color" style="background:#D4537E;border-left:3px solid #a5345d;"></div>
-                    <span>팀 캘린더</span>
+                    <span>팀 캘린더(회의/보고)</span>
                 </div>
                 <button onclick="refreshTeamEvents()" style="margin-left:8px;padding:3px 10px;font-size:11px;border:1px solid #ddd;border-radius:4px;background:white;cursor:pointer;color:#666;">
                     🔄 팀 일정 갱신
@@ -891,10 +890,9 @@
                 <div class="task-header">
                     <div class="selected-date">선택됨</div>
                     <div class="selected-date-value" id="selectedDateDisplay">오늘</div>
-                    <div class="add-buttons">
+                    <div class="add-buttons" style="grid-template-columns: 1fr 1fr;">
                         <button class="add-btn work" onclick="openAddModal('work')">업무</button>
                         <button class="add-btn personal" onclick="openAddModal('personal')">개인</button>
-                        <button class="add-btn team" onclick="openAddModal('team')">팀연동</button>
                     </div>
                 </div>
 
@@ -909,10 +907,10 @@
                     <div class="filter-section">
                         <div class="filter-title">분류 필터</div>
                         <div class="filter-buttons">
-                            <button class="filter-btn active" onclick="filterByCategory('all')">전체</button>
-                            <button class="filter-btn" onclick="filterByCategory('work')">업무</button>
-                            <button class="filter-btn" onclick="filterByCategory('personal')">개인</button>
-                            <button class="filter-btn" onclick="filterByCategory('team')">팀연동</button>
+                            <button class="filter-btn active" onclick="filterByCategory('all', this)">전체</button>
+                            <button class="filter-btn" onclick="filterByCategory('work', this)">업무</button>
+                            <button class="filter-btn" onclick="filterByCategory('personal', this)">개인</button>
+                            <button class="filter-btn" onclick="filterByCategory('team', this)">팀 캘린더</button>
                         </div>
                     </div>
                 </div>
@@ -989,12 +987,6 @@
                 </select>
             </div>
 
-            <div class="form-group" id="teamShareGroup" style="display: none;">
-                <label class="form-label">
-                    <input type="checkbox" id="teamShare"> 상품기획팀 캘린더에 공유
-                </label>
-            </div>
-
             <div class="form-group">
                 <label class="form-label">반복 설정</label>
                 <div class="repeat-options" id="repeatOptions">
@@ -1062,7 +1054,7 @@
                 <div class="report-bar-count" id="cntPersonal">0</div>
             </div>
             <div class="report-bar-row">
-                <div class="report-bar-label">팀연동</div>
+                <div class="report-bar-label">팀 캘린더</div>
                 <div class="report-bar-bg"><div class="report-bar-fill bar-team" id="barTeam" style="width:0%"></div></div>
                 <div class="report-bar-count" id="cntTeam">0</div>
             </div>
@@ -1125,8 +1117,7 @@
 
         const subCategories = {
             work: ['자료요청', '자료제출', '메일회신', '업무지시', '보고', '회의', '기타'],
-            personal: ['점심', '저녁', '행사', '운동', '기타'],
-            team: ['회의', '교육', '행사', '공지', '기타']
+            personal: ['점심', '저녁', '행사', '운동', '기타']
         };
 
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
@@ -1501,15 +1492,22 @@
 
         function renderTasks() {
             const selectedDateStr = formatDate(selectedDate);
-            let tasksToShow = allTasks.filter(t => t.date === selectedDateStr);
 
+            // ✅ 개인 할일 + 팀 캘린더 일정(회의/보고) 통합
+            const dayTeamEvents = teamEvents.filter(e =>
+                e.date <= selectedDateStr && e.end_date >= selectedDateStr
+            );
+            let combined = [...allTasks.filter(t => t.date === selectedDateStr), ...dayTeamEvents];
+
+            let tasksToShow = combined;
             if (currentFilter !== 'all') {
-                tasksToShow = tasksToShow.filter(t => t.category === currentFilter);
+                tasksToShow = combined.filter(t => t.category === currentFilter);
             }
 
             const taskList = document.getElementById('taskList');
+            const personalForCount = allTasks.filter(t => t.date === selectedDateStr);
             const completed = tasksToShow.filter(t => t.completed).length;
-            const total = allTasks.filter(t => t.date === selectedDateStr).length;
+            const total = combined.length;
 
             document.getElementById('taskCounter').textContent = `${completed}/${total}`;
 
@@ -1518,20 +1516,33 @@
                 return;
             }
 
-            taskList.innerHTML = tasksToShow.map(task => `
-                <div class="task-item" onclick="openDetailModal('${task.id}')">
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked); event.stopPropagation();">
-                    <span class="task-text">${task.title}</span>
-                    <div class="task-info">
-                        <span class="task-category ${task.category}">${getCategoryLabel(task.category)}</span>
-                        ${task.sub_category ? `<span class="task-subcategory">${task.sub_category}</span>` : ''}
-                    </div>
-                </div>
-            `).join('');
+            taskList.innerHTML = tasksToShow.map(task => {
+                if (task.isTeamEvent) {
+                    // ✅ 팀 캘린더 일정 - 읽기 전용 (체크/클릭 수정 불가)
+                    return `
+                        <div class="task-item" style="cursor:default; background:#fdf2f6;">
+                            <span style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;color:#D4537E;flex-shrink:0;">📅</span>
+                            <span class="task-text">${task.title}</span>
+                            <div class="task-info">
+                                <span class="task-category team">팀 캘린더</span>
+                                ${task.sub_category ? `<span class="task-subcategory">${task.sub_category}</span>` : ''}
+                            </div>
+                        </div>`;
+                }
+                return `
+                    <div class="task-item" onclick="openDetailModal('${task.id}')">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked); event.stopPropagation();">
+                        <span class="task-text">${task.title}</span>
+                        <div class="task-info">
+                            <span class="task-category ${task.category}">${getCategoryLabel(task.category)}</span>
+                            ${task.sub_category ? `<span class="task-subcategory">${task.sub_category}</span>` : ''}
+                        </div>
+                    </div>`;
+            }).join('');
         }
 
         function getCategoryLabel(cat) {
-            const labels = { work: '업무', personal: '개인', team: '팀연동' };
+            const labels = { work: '업무', personal: '개인', team: '팀 캘린더' };
             return labels[cat] || cat;
         }
 
@@ -1540,7 +1551,7 @@
             selectedCategory = category;
             selectedSubCategory = '';
             
-            document.getElementById('modalTitle').textContent = category === 'work' ? '업무 추가' : category === 'personal' ? '개인 추가' : '팀연동 추가';
+            document.getElementById('modalTitle').textContent = category === 'work' ? '업무 추가' : '개인 추가';
             document.getElementById('successMsg').classList.remove('show');
             document.getElementById('errorMsg').classList.remove('show');
             
@@ -1568,7 +1579,6 @@
             document.getElementById('dueDate').value = '';
             document.getElementById('dueTime').value = '';
             document.getElementById('relation').value = '';
-            document.getElementById('teamShare').checked = false;
             // ✅ 반복 설정 초기화
             selectedRepeat = 'none';
             document.querySelectorAll('.repeat-btn').forEach(b => b.classList.remove('selected'));
@@ -1581,7 +1591,8 @@
         function renderCategoryButtons() {
             const grid = document.getElementById('categoryGrid');
             grid.innerHTML = '';
-            ['work', 'personal', 'team'].forEach(cat => {
+            grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            ['work', 'personal'].forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${cat} ${cat === selectedCategory ? 'selected' : ''}`;
                 btn.textContent = getCategoryLabel(cat);
@@ -1626,7 +1637,6 @@
             
             document.getElementById('locationGroup').style.display = 'none';
             document.getElementById('relationGroup').style.display = 'none';
-            document.getElementById('teamShareGroup').style.display = 'none';
             document.getElementById('timeGroup').style.display = 'none';
             document.getElementById('dueTimeGroup').style.display = 'none';
 
@@ -1651,13 +1661,6 @@
                     document.getElementById('locationGroup').style.display = 'block';
                 }
                 document.getElementById('relationGroup').style.display = 'block';
-            }
-            else if (selectedCategory === 'team') {
-                if (['회의', '교육', '행사'].includes(selectedSubCategory)) {
-                    document.getElementById('timeGroup').style.display = 'grid';
-                    document.getElementById('locationGroup').style.display = 'block';
-                }
-                document.getElementById('teamShareGroup').style.display = 'block';
             }
         }
 
@@ -1687,7 +1690,6 @@
                 end_time: document.getElementById('endTime').value || null,
                 location: document.getElementById('location').value || null,
                 relation: document.getElementById('relation').value || null,
-                team_shared: document.getElementById('teamShare').checked || false,
                 status: null
             };
 
@@ -2100,7 +2102,7 @@
             ['work', 'personal', 'team'].forEach(cat => {
                 const items = weekTasks.filter(t => t.category === cat);
                 if (items.length === 0) return;
-                const label = { work: '업무', personal: '개인', team: '팀연동' }[cat];
+                const label = { work: '업무', personal: '개인', team: '팀 캘린더' }[cat];
                 text += `[${label}]\n`;
                 items.forEach(t => {
                     text += `  ${t.completed ? '✅' : '⬜'} ${t.date} ${t.title}${t.sub_category ? ' (' + t.sub_category + ')' : ''}\n`;
