@@ -698,13 +698,31 @@
         }
         .due-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 4px 0;
+            gap: 8px;
+            padding: 5px 0;
             border-bottom: 1px solid #fde68a;
             color: #78350f;
         }
         .due-item:last-child { border-bottom: none; }
+        .due-item-check {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: #f59e0b;
+        }
+        .due-item-title {
+            flex: 1;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .due-item-title.done {
+            text-decoration: line-through;
+            color: #bbb;
+        }
         .due-badge {
             font-size: 10px;
             padding: 2px 6px;
@@ -1677,6 +1695,12 @@
             if (task) {
                 task.completed = completed;
                 renderTasks();
+                checkDueAlerts();
+                if (sbClient && !id.startsWith('temp_')) {
+                    sbClient.from('tasks').update({ completed }).eq('id', id)
+                        .then(() => console.log('✓ 완료 상태 저장'))
+                        .catch(e => console.log('⚠️ 완료 오류:', e.message));
+                }
             }
         }
 
@@ -1877,31 +1901,36 @@
         // ========================================
 
         function checkDueAlerts() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            const dayAfter = new Date(today);
-            dayAfter.setDate(today.getDate() + 2);
+            // ✅ toISOString() 쓰지 않음 (UTC 변환으로 하루 차이 발생)
+            // 로컬 날짜를 직접 YYYY-MM-DD 형식으로 만들기
+            function localDateStr(d) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
 
-            const todayStr = today.toISOString().split('T')[0];
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            const dayAfterStr = dayAfter.toISOString().split('T')[0];
+            const today    = new Date();
+            const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+            const dayAfter = new Date(today); dayAfter.setDate(today.getDate() + 2);
 
-            // 미완료 + 마감일이 있는 항목
+            const todayStr    = localDateStr(today);
+            const tomorrowStr = localDateStr(tomorrow);
+            const dayAfterStr = localDateStr(dayAfter);
+
+            // 미완료 + 마감일이 오늘~2일 후인 항목 + 임박순 정렬
             const dueItems = allTasks.filter(t => {
                 if (t.completed) return false;
                 const due = t.due_date || t.date;
                 return due && due <= dayAfterStr;
             }).sort((a, b) => {
-                // ✅ 마감일 + 마감시간 합쳐서 비교 (임박순 = 오름차순)
                 const aKey = (a.due_date || a.date) + (a.due_date_time ? ' ' + a.due_date_time : ' 23:59');
                 const bKey = (b.due_date || b.date) + (b.due_date_time ? ' ' + b.due_date_time : ' 23:59');
                 return aKey.localeCompare(bKey);
             });
 
             const banner = document.getElementById('dueBanner');
-            const list = document.getElementById('dueList');
+            const list   = document.getElementById('dueList');
 
             if (dueItems.length === 0) {
                 banner.classList.remove('show');
@@ -1912,16 +1941,37 @@
             list.innerHTML = dueItems.map(t => {
                 const due = t.due_date || t.date;
                 let badgeClass = 'due-soon';
-                let badgeText = '2일 후 마감';
-                if (due === todayStr) { badgeClass = 'due-today'; badgeText = '오늘 마감'; }
+                let badgeText  = '2일 후 마감';
+                if (due < todayStr)           { badgeClass = 'due-today';    badgeText = '기한 초과'; }
+                else if (due === todayStr)    { badgeClass = 'due-today';    badgeText = '오늘 마감'; }
                 else if (due === tomorrowStr) { badgeClass = 'due-tomorrow'; badgeText = '내일 마감'; }
-                else if (due < todayStr) { badgeClass = 'due-today'; badgeText = '기한 초과'; }
 
-                return `<div class="due-item">
-                    <span>${t.title}</span>
+                return `<div class="due-item" id="due-${t.id}">
+                    <input type="checkbox" class="due-item-check"
+                        onchange="completeDueItem('${t.id}', this)">
+                    <span class="due-item-title">${t.title}</span>
                     <span class="due-badge ${badgeClass}">${badgeText}</span>
                 </div>`;
             }).join('');
+        }
+
+        function completeDueItem(taskId, checkbox) {
+            checkbox.nextElementSibling.classList.add('done');
+            setTimeout(() => {
+                const task = allTasks.find(t => t.id === taskId);
+                if (task) task.completed = true;
+                const el = document.getElementById('due-' + taskId);
+                if (el) el.remove();
+                if (document.querySelectorAll('.due-item').length === 0) {
+                    document.getElementById('dueBanner').classList.remove('show');
+                }
+                renderTasks();
+                if (sbClient && !taskId.startsWith('temp_')) {
+                    sbClient.from('tasks').update({ completed: true }).eq('id', taskId)
+                        .then(() => console.log('✓ 완료 처리됨'))
+                        .catch(e => console.log('⚠️ 완료 오류:', e.message));
+                }
+            }, 500);
         }
 
         // ========================================
