@@ -1814,23 +1814,34 @@
             const tasks = [];
             const created_at = new Date().toISOString();
 
+            // ✅ 반복 없음: 단건만 반환
             if (selectedRepeat === 'none') {
                 tasks.push({ ...baseTask, created_at });
                 return tasks;
             }
 
             const endDateStr = document.getElementById('repeatEndDate').value;
-            const maxCount = parseInt(document.getElementById('repeatCount').value) || 30;
-            const endDate = endDateStr ? new Date(endDateStr + 'T00:00:00') : null;
+            const repeatCountVal = document.getElementById('repeatCount').value;
 
+            // ✅ 종료일도 없고 횟수도 없으면 단건만 저장
+            if (!endDateStr && !repeatCountVal) {
+                tasks.push({ ...baseTask, created_at });
+                return tasks;
+            }
+
+            const maxCount = parseInt(repeatCountVal) || 10;
+            const endDate = endDateStr ? new Date(endDateStr + 'T00:00:00') : null;
             let current = new Date(startDateStr + 'T00:00:00');
             let count = 0;
+            let safetyLimit = 0;
 
-            while (count < maxCount) {
-                const dateStr = current.toISOString().split('T')[0];
+            while (count < maxCount && safetyLimit < 366) {
+                safetyLimit++;
 
-                // 반복 종료일 초과 시 중단
+                // 종료일 초과 시 중단
                 if (endDate && current > endDate) break;
+
+                const dateStr = current.toISOString().split('T')[0];
 
                 // 평일마다: 토(6), 일(0) 제외
                 if (selectedRepeat === 'weekday') {
@@ -1853,9 +1864,9 @@
                     current.setDate(current.getDate() + 14);
                 } else if (selectedRepeat === 'monthly') {
                     current.setMonth(current.getMonth() + 1);
+                } else {
+                    break;
                 }
-
-                if (count >= maxCount) break;
             }
 
             return tasks;
