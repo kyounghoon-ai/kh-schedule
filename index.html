@@ -821,6 +821,42 @@
         </div>
     </div>
 
+    <!-- 상세 모달 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <div class="modal-title" id="detailTitle"></div>
+
+            <div class="form-group">
+                <label class="form-label">분류</label>
+                <div id="detailCategoryInfo" style="display: flex; gap: 8px; align-items: center;">
+                    <span id="detailCategory"></span>
+                    <span id="detailSubCategory" style="background: #f0f0f0; padding: 4px 8px; border-radius: 3px; font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">내용</label>
+                <div id="detailContent" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="form-group" id="detailDescItem" style="display: none;">
+                <label class="form-label">세부사항</label>
+                <div id="detailDesc" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">날짜</label>
+                <div id="detailDate" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 30px;">
+                <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
+                <button class="btn-save" onclick="editTask()">수정</button>
+                <button style="flex: 1; padding: 12px; border: none; border-radius: 6px; background: #d32f2f; color: white; font-weight: 500; cursor: pointer;" onclick="deleteTask()">삭제</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const koreanHolidays = {
             '2026-01-01': '신정', '2026-01-29': '설날', '2026-01-30': '설날', '2026-02-02': '대체공휴일',
@@ -1145,8 +1181,8 @@
             }
 
             taskList.innerHTML = tasksToShow.map(task => `
-                <div class="task-item">
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked);">
+                <div class="task-item" onclick="openDetailModal('${task.id}')">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}', this.checked); event.stopPropagation();">
                     <span class="task-text">${task.title}</span>
                     <div class="task-info">
                         <span class="task-category ${task.category}">${getCategoryLabel(task.category)}</span>
@@ -1162,6 +1198,7 @@
         }
 
         function openAddModal(category) {
+            window.editingTaskId = null;  // 새로 추가 모드
             selectedCategory = category;
             selectedSubCategory = '';
             
@@ -1179,6 +1216,9 @@
 
         function closeAddModal() {
             document.getElementById('addModal').classList.remove('open');
+            window.editingTaskId = null;
+            document.getElementById('modalTitle').textContent = '할일 추가';
+            clearFormFields();
         }
 
         function clearFormFields() {
@@ -1287,9 +1327,8 @@
 
             const dateStr = formatDate(document.getElementById('taskDate').valueAsDate || new Date());
             
-            // ✅ id 제외 (Supabase가 자동으로 UUID 생성)
-            const newTask = {
-                user_id: '00000000-0000-0000-0000-000000000000',  // 임시 사용자 ID
+            const taskData = {
+                user_id: '00000000-0000-0000-0000-000000000000',
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
@@ -1299,42 +1338,72 @@
                 completed: false,
                 due_date: null,
                 due_date_time: null,
-                status: null,
-                created_at: new Date().toISOString()
+                status: null
             };
 
-            // ✅ 로컬 배열에는 임시 id 추가 (UI 표시용)
-            const taskWithId = {
-                id: 'temp_' + Date.now().toString(),
-                ...newTask
-            };
-            allTasks.push(taskWithId);
-
-            // ✅ UI 즉시 업데이트
-            renderCalendar();
-            renderTasks();
-
-            // ✅ 성공 메시지 표시
-            document.getElementById('successMsg').classList.add('show');
-
-            // ✅ 1초 후 모달 닫기
-            setTimeout(() => {
-                closeAddModal();
-                
-                // Supabase 저장 (id 없이 - UUID 자동생성)
-                if (sbClient) {
-                    console.log('📡 Supabase 저장 시작...');
-                    sbClient.from('tasks').insert([newTask]).then(result => {
-                        console.log('✓ Supabase 저장 성공');
-                        // 데이터 다시 로드 (UUID 포함)
-                        loadTasks();
-                        renderCalendar();
-                        renderTasks();
-                    }).catch(error => {
-                        console.log('⚠️ Supabase 저장 오류:', error.message);
-                    });
+            // ✅ 수정 모드 확인
+            if (window.editingTaskId) {
+                // 로컬 배열 업데이트
+                const taskIndex = allTasks.findIndex(t => t.id === window.editingTaskId);
+                if (taskIndex !== -1) {
+                    allTasks[taskIndex] = {
+                        ...allTasks[taskIndex],
+                        ...taskData
+                    };
                 }
-            }, 1000);
+
+                renderCalendar();
+                renderTasks();
+                document.getElementById('successMsg').classList.add('show');
+
+                setTimeout(() => {
+                    closeAddModal();
+                    window.editingTaskId = null;
+
+                    // Supabase 업데이트
+                    if (sbClient) {
+                        sbClient.from('tasks').update(taskData).eq('id', window.editingTaskId).then(() => {
+                            console.log('✓ 수정 완료');
+                        }).catch(error => {
+                            console.log('⚠️ 수정 오류:', error.message);
+                        });
+                    }
+                }, 1000);
+            } else {
+                // 새로운 항목 추가
+
+                const newTask = {
+                    ...taskData,
+                    created_at: new Date().toISOString()
+                };
+
+                // 로컬 배열에 임시 id 추가
+                const taskWithId = {
+                    id: 'temp_' + Date.now().toString(),
+                    ...newTask
+                };
+                allTasks.push(taskWithId);
+
+                renderCalendar();
+                renderTasks();
+                document.getElementById('successMsg').classList.add('show');
+
+                setTimeout(() => {
+                    closeAddModal();
+
+                    // Supabase 저장
+                    if (sbClient) {
+                        sbClient.from('tasks').insert([newTask]).then(() => {
+                            console.log('✓ Supabase 저장 성공');
+                            loadTasks();
+                            renderCalendar();
+                            renderTasks();
+                        }).catch(error => {
+                            console.log('⚠️ Supabase 저장 오류:', error.message);
+                        });
+                    }
+                }, 1000);
+            }
         }
 
         function toggleTask(id, completed) {
@@ -1342,6 +1411,98 @@
             if (task) {
                 task.completed = completed;
                 renderTasks();
+            }
+        }
+
+        // ===== 상세 모달 함수 =====
+        let selectedTaskId = null;
+
+        function openDetailModal(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            selectedTaskId = taskId;
+
+            // 상세 정보 표시
+            document.getElementById('detailTitle').textContent = task.title;
+            document.getElementById('detailCategory').textContent = getCategoryLabel(task.category);
+            
+            const subCatSpan = document.getElementById('detailSubCategory');
+            if (task.sub_category) {
+                subCatSpan.textContent = task.sub_category;
+                subCatSpan.style.display = 'inline-block';
+            } else {
+                subCatSpan.style.display = 'none';
+            }
+
+            document.getElementById('detailContent').textContent = task.title;
+
+            const descItem = document.getElementById('detailDescItem');
+            if (task.description) {
+                document.getElementById('detailDesc').textContent = task.description;
+                descItem.style.display = 'block';
+            } else {
+                descItem.style.display = 'none';
+            }
+
+            document.getElementById('detailDate').textContent = task.date;
+
+            document.getElementById('detailModal').classList.add('open');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('open');
+            selectedTaskId = null;
+        }
+
+        function editTask() {
+            const task = allTasks.find(t => t.id === selectedTaskId);
+            if (!task) return;
+
+            closeDetailModal();
+
+            // 추가 모달에 데이터 입력
+            selectedCategory = task.category;
+            selectedSubCategory = task.sub_category || '';
+
+            document.getElementById('modalTitle').textContent = '할일 수정';
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDesc').value = task.description || '';
+            document.getElementById('taskDate').valueAsDate = new Date(task.date + 'T00:00:00');
+            document.getElementById('successMsg').classList.remove('show');
+            document.getElementById('errorMsg').classList.remove('show');
+
+            // 변수 설정 (수정 모드)
+            window.editingTaskId = selectedTaskId;
+
+            renderCategoryButtons();
+            renderSubCategoryButtons();
+            updateFormFields();
+
+            document.getElementById('addModal').classList.add('open');
+        }
+
+        function deleteTask() {
+            if (!selectedTaskId) return;
+
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+
+            closeDetailModal();
+
+            // 로컬 배열에서 제거
+            allTasks = allTasks.filter(t => t.id !== selectedTaskId);
+
+            // UI 업데이트
+            renderCalendar();
+            renderTasks();
+
+            // Supabase에서 삭제
+            if (sbClient) {
+                sbClient.from('tasks').delete().eq('id', selectedTaskId).then(() => {
+                    console.log('✓ 삭제 완료');
+                }).catch(error => {
+                    console.log('⚠️ 삭제 오류:', error.message);
+                });
             }
         }
 
