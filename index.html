@@ -728,10 +728,10 @@
                     <div class="filter-section">
                         <div class="filter-title">분류 필터</div>
                         <div class="filter-buttons">
-                            <button class="filter-btn active" onclick="filterByCategory('all')">전체</button>
-                            <button class="filter-btn" onclick="filterByCategory('work')">업무</button>
-                            <button class="filter-btn" onclick="filterByCategory('personal')">개인</button>
-                            <button class="filter-btn" onclick="filterByCategory('team')">팀연동</button>
+                            <button class="filter-btn active" onclick="filterByCategory('all', this)">전체</button>
+                            <button class="filter-btn" onclick="filterByCategory('work', this)">업무</button>
+                            <button class="filter-btn" onclick="filterByCategory('personal', this)">개인</button>
+                            <button class="filter-btn" onclick="filterByCategory('team', this)">팀연동</button>
                         </div>
                     </div>
                 </div>
@@ -847,6 +847,26 @@
             <div class="form-group">
                 <label class="form-label">날짜</label>
                 <div id="detailDate" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="form-group" id="detailTimeItem" style="display: none;">
+                <label class="form-label" id="detailTimeLabel">시간</label>
+                <div id="detailTime" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="form-group" id="detailDueItem" style="display: none;">
+                <label class="form-label">마감일시</label>
+                <div id="detailDue" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="form-group" id="detailLocationItem" style="display: none;">
+                <label class="form-label">장소</label>
+                <div id="detailLocation" style="padding: 8px 0;"></div>
+            </div>
+
+            <div class="form-group" id="detailRelationItem" style="display: none;">
+                <label class="form-label">관계</label>
+                <div id="detailRelation" style="padding: 8px 0;"></div>
             </div>
 
             <div class="modal-actions" style="margin-top: 30px;">
@@ -1342,6 +1362,7 @@
                 end_time: document.getElementById('endTime').value || null,
                 location: document.getElementById('location').value || null,
                 relation: document.getElementById('relation').value || null,
+                team_shared: document.getElementById('teamShare').checked || false,
                 status: null
             };
 
@@ -1408,6 +1429,12 @@
                             renderTasks();
                         }).catch(error => {
                             console.log('⚠️ Supabase 저장 오류:', error.message);
+                            // ✅ 저장 실패 알림
+                            const errEl = document.getElementById('errorMsg');
+                            errEl.textContent = '✗ 저장 중 오류가 발생했습니다: ' + error.message;
+                            errEl.classList.add('show');
+                            document.getElementById('successMsg').classList.remove('show');
+                            document.getElementById('addModal').classList.add('open');
                         });
                     }
                 }, 1000);
@@ -1419,6 +1446,13 @@
             if (task) {
                 task.completed = completed;
                 renderTasks();
+
+                // ✅ Supabase 반영 (temp_ id가 아닌 경우만)
+                if (sbClient && !id.startsWith('temp_')) {
+                    sbClient.from('tasks').update({ completed }).eq('id', id).then(() => {
+                        console.log('✓ 완료 상태 저장');
+                    }).catch(e => console.log('⚠️ 완료 상태 저장 오류:', e.message));
+                }
             }
         }
 
@@ -1431,10 +1465,11 @@
 
             selectedTaskId = taskId;
 
-            // 상세 정보 표시
+            // 제목
             document.getElementById('detailTitle').textContent = task.title;
+
+            // 분류 / 세부분류
             document.getElementById('detailCategory').textContent = getCategoryLabel(task.category);
-            
             const subCatSpan = document.getElementById('detailSubCategory');
             if (task.sub_category) {
                 subCatSpan.textContent = task.sub_category;
@@ -1443,8 +1478,10 @@
                 subCatSpan.style.display = 'none';
             }
 
+            // 내용
             document.getElementById('detailContent').textContent = task.title;
 
+            // 세부사항
             const descItem = document.getElementById('detailDescItem');
             if (task.description) {
                 document.getElementById('detailDesc').textContent = task.description;
@@ -1453,7 +1490,47 @@
                 descItem.style.display = 'none';
             }
 
+            // 날짜
             document.getElementById('detailDate').textContent = task.date;
+
+            // ✅ 시작/종료 시간
+            const timeItem = document.getElementById('detailTimeItem');
+            if (task.start_time || task.end_time) {
+                timeItem.style.display = 'block';
+                const timeStr = [task.start_time, task.end_time].filter(Boolean).join(' ~ ');
+                document.getElementById('detailTime').textContent = timeStr;
+            } else {
+                timeItem.style.display = 'none';
+            }
+
+            // ✅ 마감일시
+            const dueItem = document.getElementById('detailDueItem');
+            if (task.due_date || task.due_date_time) {
+                dueItem.style.display = 'block';
+                const dueStr = [task.due_date, task.due_date_time].filter(Boolean).join(' ');
+                document.getElementById('detailDue').textContent = dueStr;
+            } else {
+                dueItem.style.display = 'none';
+            }
+
+            // ✅ 장소
+            const locationItem = document.getElementById('detailLocationItem');
+            if (task.location) {
+                locationItem.style.display = 'block';
+                document.getElementById('detailLocation').textContent = task.location;
+            } else {
+                locationItem.style.display = 'none';
+            }
+
+            // ✅ 관계
+            const relationItem = document.getElementById('detailRelationItem');
+            if (task.relation) {
+                relationItem.style.display = 'block';
+                const relationLabels = { friend: '지인', colleague: '동료', family: '가족' };
+                document.getElementById('detailRelation').textContent = relationLabels[task.relation] || task.relation;
+            } else {
+                relationItem.style.display = 'none';
+            }
 
             document.getElementById('detailModal').classList.add('open');
         }
@@ -1467,12 +1544,10 @@
             const task = allTasks.find(t => t.id === selectedTaskId);
             if (!task) return;
 
-            // ✅ editingTaskId를 먼저 설정 (closeDetailModal 전에!)
+            // ✅ editingTaskId 먼저 설정 (closeDetailModal 호출 전!)
             window.editingTaskId = selectedTaskId;
+            closeDetailModal();
 
-            closeDetailModal();  // 이제 selectedTaskId가 null이 돼도 괜찮음
-
-            // 추가 모달에 데이터 입력
             selectedCategory = task.category;
             selectedSubCategory = task.sub_category || '';
 
@@ -1480,20 +1555,23 @@
             document.getElementById('taskTitle').value = task.title;
             document.getElementById('taskDesc').value = task.description || '';
 
-            // ✅ 날짜 하루 차이 버그 수정 (valueAsDate 대신 직접 value 사용)
+            // ✅ 날짜 (value 직접 사용 - UTC 변환 방지)
             document.getElementById('taskDate').value = task.date;
-
-            // ✅ 마감일자/시간 복원
-            document.getElementById('dueDate').value = task.due_date || '';
-            document.getElementById('dueTime').value = task.due_date_time || '';
 
             // ✅ 시작/종료 시간 복원
             document.getElementById('startTime').value = task.start_time || '';
             document.getElementById('endTime').value = task.end_time || '';
 
+            // ✅ 마감일자/시간 복원
+            document.getElementById('dueDate').value = task.due_date || '';
+            document.getElementById('dueTime').value = task.due_date_time || '';
+
             // ✅ 장소/관계 복원
             document.getElementById('location').value = task.location || '';
             document.getElementById('relation').value = task.relation || '';
+
+            // ✅ 팀공유 복원
+            document.getElementById('teamShare').checked = task.team_shared || false;
 
             document.getElementById('successMsg').classList.remove('show');
             document.getElementById('errorMsg').classList.remove('show');
@@ -1507,41 +1585,32 @@
 
         function deleteTask() {
             if (!selectedTaskId) return;
-
             if (!confirm('정말 삭제하시겠습니까?')) return;
 
-            const deleteId = selectedTaskId;  // ← 먼저 저장
+            const deleteId = selectedTaskId;  // ✅ 먼저 저장
             closeDetailModal();
 
             // 로컬 배열에서 제거
             allTasks = allTasks.filter(t => t.id !== deleteId);
-
-            // UI 업데이트
             renderCalendar();
             renderTasks();
 
-            // Supabase에서 삭제
+            // ✅ temp_ id: Supabase에서 title로 찾아 삭제
             if (sbClient) {
                 if (deleteId.startsWith('temp_')) {
-                    console.log('⚠️ 임시 id - DB에 없으므로 로컬만 삭제');
+                    console.log('⚠️ temp_ id는 Supabase에 없으므로 로컬만 삭제됨');
                 } else {
                     sbClient.from('tasks').delete().eq('id', deleteId).then(() => {
-                        console.log('✓ 삭제 완료');
-                    }).catch(error => {
-                        console.log('⚠️ 삭제 오류:', error.message);
-                    });
+                        console.log('✓ Supabase 삭제 완료');
+                    }).catch(e => console.log('⚠️ 삭제 오류:', e.message));
                 }
             }
         }
 
-        function filterByCategory(category) {
+        function filterByCategory(category, el) {
             currentFilter = category;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
             renderTasks();
         }
 
