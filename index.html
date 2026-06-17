@@ -1977,6 +1977,14 @@
         }
 
         function generateRepeatTasks(baseTask, startDateStr) {
+            // ✅ 로컬 날짜 문자열 생성 (toISOString 사용 안 함 - UTC 변환 시 하루 어긋남)
+            function localDateStr(d) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+
             const tasks = [];
             const created_at = new Date().toISOString();
 
@@ -2007,7 +2015,7 @@
                 // 종료일 초과 시 중단
                 if (endDate && current > endDate) break;
 
-                const dateStr = current.toISOString().split('T')[0];
+                const dateStr = localDateStr(current);
 
                 // 평일마다: 토(6), 일(0) 제외
                 if (selectedRepeat === 'weekday') {
