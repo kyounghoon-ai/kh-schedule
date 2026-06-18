@@ -901,6 +901,129 @@
             gap: 10px;
             margin-top: 10px;
         }
+
+        /* ===== 회의록 ===== */
+        .meeting-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 11px;
+            background: #f0f7ff;
+            color: #3B8BD4;
+            border: 1.5px solid #3B8BD4;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .meeting-btn:hover { background: #e0efff; }
+
+        .meeting-modal { max-width: 600px; }
+
+        .attendee-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .attendee-tag {
+            background: #e6f1fb;
+            color: #185fa5;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .attendee-tag-remove {
+            cursor: pointer;
+            font-weight: 700;
+            color: #185fa5;
+            opacity: 0.6;
+        }
+        .attendee-tag-remove:hover { opacity: 1; }
+
+        .action-item-row {
+            display: grid;
+            grid-template-columns: 1fr 90px 110px 32px;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .action-item-row input {
+            padding: 8px 10px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .action-item-remove {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: #fee;
+            color: #d32f2f;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .add-action-btn {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px dashed #bbb;
+            background: white;
+            border-radius: 6px;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .add-action-btn:hover { border-color: #3B8BD4; color: #3B8BD4; }
+
+        .meeting-list-item {
+            padding: 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .meeting-list-item:hover { background: #f9f9f9; }
+        .meeting-list-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .meeting-list-meta { font-size: 12px; color: #999; }
+        .meeting-action-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background: #fde68a;
+            color: #92400e;
+            margin-left: 6px;
+        }
+
+        .meeting-detail-section { margin-bottom: 16px; }
+        .meeting-detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .meeting-detail-value {
+            font-size: 14px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .action-check-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .action-check-row:last-child { border-bottom: none; }
+        .action-check-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .action-check-text { flex: 1; font-size: 13px; }
+        .action-check-text.done { text-decoration: line-through; color: #aaa; }
+        .action-check-meta { font-size: 11px; color: #999; }
     </style>
 </head>
 <body>
@@ -909,6 +1032,7 @@
             <div class="header-content">
                 <h1>나의 업무 관리</h1>
                 <div class="header-actions">
+                    <button class="header-btn" onclick="openMeetingListModal()">📝 회의록</button>
                     <button class="header-btn report-btn" onclick="openReportModal()">📊 주간 리포트</button>
                     <div class="view-toggle">
                         <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
@@ -1154,10 +1278,113 @@
                 <div id="detailDate" style="padding: 8px 0;"></div>
             </div>
 
+            <button class="meeting-btn" id="meetingBtn" onclick="handleMeetingButton()">📝 회의록 작성</button>
+
             <div class="modal-actions" style="margin-top: 30px;">
                 <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
                 <button class="btn-save" onclick="editTask()">수정</button>
                 <button style="flex: 1; padding: 12px; border: none; border-radius: 6px; background: #d32f2f; color: white; font-weight: 500; cursor: pointer;" onclick="deleteTask()">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회의록 작성/수정 모달 -->
+    <div class="modal-overlay" id="meetingEditModal">
+        <div class="modal meeting-modal">
+            <div class="modal-title" id="meetingEditTitle">회의록 작성</div>
+
+            <div class="message-box success-message" id="meetingSuccessMsg">✓ 저장되었습니다!</div>
+
+            <div class="form-group">
+                <label class="form-label">제목 *</label>
+                <input type="text" class="form-control" id="meetingTitle" placeholder="회의 제목">
+            </div>
+
+            <div class="date-time-group">
+                <div class="form-group">
+                    <label class="form-label">일시</label>
+                    <input type="date" class="form-control" id="meetingDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">장소</label>
+                    <input type="text" class="form-control" id="meetingLocation" placeholder="장소">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">참석자</label>
+                <input type="text" class="form-control" id="attendeeInput" placeholder="이름 입력 후 Enter">
+                <div class="attendee-tags" id="attendeeTags"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">안건 / 논의내용</label>
+                <textarea class="form-control" id="meetingAgenda" placeholder="안건과 논의 내용을 입력하세요" style="min-height: 90px; resize: vertical;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">결정사항</label>
+                <textarea class="form-control" id="meetingDecisions" placeholder="결정된 내용을 입력하세요" style="min-height: 70px; resize: vertical;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">액션 아이템</label>
+                <div id="actionItemsContainer"></div>
+                <button type="button" class="add-action-btn" onclick="addActionItemRow()">+ 액션 아이템 추가</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeMeetingEditModal()">취소</button>
+                <button class="btn-save" onclick="saveMeeting()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회의록 상세보기 모달 -->
+    <div class="modal-overlay" id="meetingDetailModal">
+        <div class="modal meeting-modal">
+            <div class="modal-title" id="mdTitle"></div>
+
+            <div class="meeting-detail-section">
+                <div class="meeting-detail-label">일시 / 장소</div>
+                <div class="meeting-detail-value" id="mdDateLocation"></div>
+            </div>
+
+            <div class="meeting-detail-section">
+                <div class="meeting-detail-label">참석자</div>
+                <div class="meeting-detail-value" id="mdAttendees"></div>
+            </div>
+
+            <div class="meeting-detail-section" id="mdAgendaSection">
+                <div class="meeting-detail-label">안건 / 논의내용</div>
+                <div class="meeting-detail-value" id="mdAgenda"></div>
+            </div>
+
+            <div class="meeting-detail-section" id="mdDecisionsSection">
+                <div class="meeting-detail-label">결정사항</div>
+                <div class="meeting-detail-value" id="mdDecisions"></div>
+            </div>
+
+            <div class="meeting-detail-section" id="mdActionsSection">
+                <div class="meeting-detail-label">액션 아이템</div>
+                <div id="mdActionsList"></div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button class="btn-cancel" onclick="closeMeetingDetailModal()">닫기</button>
+                <button class="btn-save" onclick="editMeetingFromDetail()">수정</button>
+                <button style="flex: 1; padding: 12px; border: none; border-radius: 6px; background: #d32f2f; color: white; font-weight: 500; cursor: pointer;" onclick="deleteMeeting()">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회의록 전체 목록 모달 -->
+    <div class="modal-overlay" id="meetingListModal">
+        <div class="modal meeting-modal">
+            <div class="modal-title">📝 회의록 전체 목록</div>
+            <div id="meetingListContainer" style="max-height: 480px; overflow-y: auto;"></div>
+            <div class="modal-actions" style="margin-top: 16px;">
+                <button class="btn-cancel" onclick="closeMeetingListModal()">닫기</button>
             </div>
         </div>
     </div>
@@ -1191,6 +1418,13 @@
         let selectedDate = new Date();
         let allTasks = [];
         let teamEvents = [];     // ✅ 팀 캘린더 일정
+
+        // ✅ 회의록 관련 변수
+        let allMeetings = [];
+        let currentAttendees = [];
+        let editingMeetingId = null;
+        let detailMeetingTaskId = null; // 상세보기에 열려있는 task의 id (회의록 버튼용)
+        let actionItemCounter = 0;
         let currentFilter = 'all';
         let currentView = 'week';
         let selectedCategory = 'work';
@@ -1215,6 +1449,9 @@
             } catch (e) {
                 console.error('❌ 팀 DB 오류:', e.message);
             }
+
+            // ✅ 회의록 로드
+            await loadMeetings();
 
             setDefaultDate();
             renderCalendar();
@@ -1872,7 +2109,25 @@
 
             document.getElementById('detailDate').textContent = task.date;
 
+            // ✅ 회의록 버튼 상태 설정
+            detailMeetingTaskId = taskId;
+            const meetingBtn = document.getElementById('meetingBtn');
+            const linkedMeeting = allMeetings.find(m => m.task_id === taskId);
+            meetingBtn.textContent = linkedMeeting ? '📝 회의록 보기' : '📝 회의록 작성';
+
             document.getElementById('detailModal').classList.add('open');
+        }
+
+        function handleMeetingButton() {
+            const linkedMeeting = allMeetings.find(m => m.task_id === detailMeetingTaskId);
+            if (linkedMeeting) {
+                closeDetailModal();
+                openMeetingDetailModal(linkedMeeting.id);
+            } else {
+                const task = allTasks.find(t => t.id === detailMeetingTaskId);
+                closeDetailModal();
+                openMeetingEditModal(null, detailMeetingTaskId, task);
+            }
         }
 
         function closeDetailModal() {
@@ -2231,6 +2486,320 @@
 
         // closeAddModal 초기화 시 반복 설정도 리셋
         const _origCloseAddModal = closeAddModal;
+
+        // ========================================
+        // ✅ 회의록 함수
+        // ========================================
+
+        async function loadMeetings() {
+            try {
+                if (!sbClient) return;
+                const { data, error } = await sbClient
+                    .from('meetings')
+                    .select('*, meeting_actions(*)')
+                    .order('meeting_date', { ascending: false });
+                if (error) throw error;
+                allMeetings = data || [];
+                console.log('✓ 회의록 로드됨:', allMeetings.length + '개');
+            } catch (e) {
+                console.log('⚠️ 회의록 로드 오류:', e.message);
+            }
+        }
+
+        function openMeetingEditModal(meetingId, taskId, task) {
+            editingMeetingId = meetingId;
+            currentAttendees = [];
+            actionItemCounter = 0;
+            document.getElementById('actionItemsContainer').innerHTML = '';
+            document.getElementById('meetingSuccessMsg').classList.remove('show');
+
+            if (meetingId) {
+                // 수정 모드
+                const m = allMeetings.find(x => x.id === meetingId);
+                if (!m) return;
+                document.getElementById('meetingEditTitle').textContent = '회의록 수정';
+                document.getElementById('meetingTitle').value = m.title;
+                document.getElementById('meetingDate').value = m.meeting_date;
+                document.getElementById('meetingLocation').value = m.location || '';
+                document.getElementById('meetingAgenda').value = m.agenda || '';
+                document.getElementById('meetingDecisions').value = m.decisions || '';
+                currentAttendees = m.attendees ? m.attendees.split(',').map(s => s.trim()).filter(Boolean) : [];
+                (m.meeting_actions || []).forEach(a => addActionItemRow(a.content, a.assignee, a.due_date, a.id, a.completed));
+            } else {
+                // 신규 작성 (task 연결 또는 독립)
+                document.getElementById('meetingEditTitle').textContent = '회의록 작성';
+                document.getElementById('meetingTitle').value = task ? task.title : '';
+                document.getElementById('meetingDate').value = task ? task.date : formatDate(new Date());
+                document.getElementById('meetingLocation').value = task?.location || '';
+                document.getElementById('meetingAgenda').value = '';
+                document.getElementById('meetingDecisions').value = '';
+                addActionItemRow();
+            }
+
+            document.getElementById('meetingEditModal').dataset.taskId = taskId || '';
+            renderAttendeeTags();
+            document.getElementById('meetingEditModal').classList.add('open');
+        }
+
+        function closeMeetingEditModal() {
+            document.getElementById('meetingEditModal').classList.remove('open');
+            editingMeetingId = null;
+        }
+
+        // 참석자 태그 입력
+        document.addEventListener('keydown', function(e) {
+            if (e.target && e.target.id === 'attendeeInput' && e.key === 'Enter') {
+                e.preventDefault();
+                const val = e.target.value.trim();
+                if (val && !currentAttendees.includes(val)) {
+                    currentAttendees.push(val);
+                    renderAttendeeTags();
+                }
+                e.target.value = '';
+            }
+        });
+
+        function renderAttendeeTags() {
+            const container = document.getElementById('attendeeTags');
+            container.innerHTML = currentAttendees.map((name, idx) => `
+                <span class="attendee-tag">
+                    ${name}
+                    <span class="attendee-tag-remove" onclick="removeAttendee(${idx})">×</span>
+                </span>
+            `).join('');
+        }
+
+        function removeAttendee(idx) {
+            currentAttendees.splice(idx, 1);
+            renderAttendeeTags();
+        }
+
+        function addActionItemRow(content, assignee, dueDate, existingId, completed) {
+            actionItemCounter++;
+            const rowId = 'action-row-' + actionItemCounter;
+            const container = document.getElementById('actionItemsContainer');
+            const row = document.createElement('div');
+            row.className = 'action-item-row';
+            row.id = rowId;
+            row.dataset.existingId = existingId || '';
+            row.dataset.completed = completed ? 'true' : 'false';
+            row.innerHTML = `
+                <input type="text" placeholder="할일 내용" value="${content ? content.replace(/"/g, '&quot;') : ''}" class="action-content">
+                <input type="text" placeholder="담당자" value="${assignee || ''}" class="action-assignee">
+                <input type="date" value="${dueDate || ''}" class="action-due">
+                <button type="button" class="action-item-remove" onclick="document.getElementById('${rowId}').remove()">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        async function saveMeeting() {
+            const title = document.getElementById('meetingTitle').value.trim();
+            if (!title) {
+                alert('제목을 입력하세요');
+                return;
+            }
+
+            const taskId = document.getElementById('meetingEditModal').dataset.taskId || null;
+
+            const meetingData = {
+                user_id: '00000000-0000-0000-0000-000000000000',
+                task_id: taskId,
+                title,
+                meeting_date: document.getElementById('meetingDate').value,
+                location: document.getElementById('meetingLocation').value || null,
+                attendees: currentAttendees.join(', '),
+                agenda: document.getElementById('meetingAgenda').value || null,
+                decisions: document.getElementById('meetingDecisions').value || null,
+                updated_at: new Date().toISOString()
+            };
+
+            // 액션 아이템 수집
+            const rows = document.querySelectorAll('#actionItemsContainer .action-item-row');
+            const actionRows = Array.from(rows).map(row => ({
+                content: row.querySelector('.action-content').value.trim(),
+                assignee: row.querySelector('.action-assignee').value.trim() || null,
+                due_date: row.querySelector('.action-due').value || null,
+                existingId: row.dataset.existingId || null,
+                completed: row.dataset.completed === 'true'
+            })).filter(a => a.content);
+
+            try {
+                let meetingId = editingMeetingId;
+
+                if (editingMeetingId) {
+                    const { error } = await sbClient.from('meetings').update(meetingData).eq('id', editingMeetingId);
+                    if (error) throw error;
+
+                    // 기존 액션 아이템 전체 삭제 후 재생성 (간단한 방식)
+                    await sbClient.from('meeting_actions').delete().eq('meeting_id', editingMeetingId);
+                } else {
+                    const { data, error } = await sbClient.from('meetings').insert([{ ...meetingData, created_at: new Date().toISOString() }]).select();
+                    if (error) throw error;
+                    meetingId = data[0].id;
+                }
+
+                // 액션 아이템 저장
+                for (const a of actionRows) {
+                    const { data: actionData, error: actionError } = await sbClient.from('meeting_actions').insert([{
+                        meeting_id: meetingId,
+                        content: a.content,
+                        assignee: a.assignee,
+                        due_date: a.due_date,
+                        completed: a.completed
+                    }]).select();
+                    if (actionError) { console.log('⚠️ 액션아이템 저장 오류:', actionError.message); continue; }
+
+                    // ✅ 액션 아이템을 개인 할일목록(tasks)에도 자동 등록
+                    if (a.due_date) {
+                        const taskInsert = {
+                            user_id: '00000000-0000-0000-0000-000000000000',
+                            title: a.content,
+                            description: a.assignee ? `담당: ${a.assignee} (회의록: ${title})` : `회의록: ${title}`,
+                            date: a.due_date,
+                            category: 'work',
+                            sub_category: '업무지시',
+                            priority: null,
+                            completed: a.completed,
+                            due_date: a.due_date,
+                            due_date_time: null,
+                            status: null
+                        };
+                        const { data: taskData } = await sbClient.from('tasks').insert([taskInsert]).select();
+                        if (taskData && taskData[0] && actionData && actionData[0]) {
+                            await sbClient.from('meeting_actions').update({ linked_task_id: taskData[0].id }).eq('id', actionData[0].id);
+                        }
+                    }
+                }
+
+                console.log('✓ 회의록 저장 완료');
+                document.getElementById('meetingSuccessMsg').classList.add('show');
+
+                await loadMeetings();
+                await loadTasks();
+                renderCalendar();
+                renderTasks();
+                checkDueAlerts();
+
+                setTimeout(() => {
+                    closeMeetingEditModal();
+                }, 800);
+
+            } catch (e) {
+                console.log('⚠️ 회의록 저장 오류:', e.message);
+                alert('저장 중 오류가 발생했습니다: ' + e.message);
+            }
+        }
+
+        function openMeetingDetailModal(meetingId) {
+            const m = allMeetings.find(x => x.id === meetingId);
+            if (!m) return;
+
+            editingMeetingId = meetingId;
+            document.getElementById('mdTitle').textContent = m.title;
+            document.getElementById('mdDateLocation').textContent =
+                m.meeting_date + (m.location ? ' · ' + m.location : '');
+            document.getElementById('mdAttendees').textContent = m.attendees || '없음';
+
+            const agendaSection = document.getElementById('mdAgendaSection');
+            if (m.agenda) {
+                document.getElementById('mdAgenda').textContent = m.agenda;
+                agendaSection.style.display = 'block';
+            } else {
+                agendaSection.style.display = 'none';
+            }
+
+            const decisionsSection = document.getElementById('mdDecisionsSection');
+            if (m.decisions) {
+                document.getElementById('mdDecisions').textContent = m.decisions;
+                decisionsSection.style.display = 'block';
+            } else {
+                decisionsSection.style.display = 'none';
+            }
+
+            const actions = m.meeting_actions || [];
+            const actionsSection = document.getElementById('mdActionsSection');
+            if (actions.length > 0) {
+                actionsSection.style.display = 'block';
+                document.getElementById('mdActionsList').innerHTML = actions.map(a => `
+                    <div class="action-check-row">
+                        <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleActionItem('${a.id}', this.checked)">
+                        <span class="action-check-text ${a.completed ? 'done' : ''}">${a.content}</span>
+                        <span class="action-check-meta">${a.assignee || ''} ${a.due_date || ''}</span>
+                    </div>
+                `).join('');
+            } else {
+                actionsSection.style.display = 'none';
+            }
+
+            document.getElementById('meetingDetailModal').classList.add('open');
+        }
+
+        function closeMeetingDetailModal() {
+            document.getElementById('meetingDetailModal').classList.remove('open');
+        }
+
+        async function toggleActionItem(actionId, completed) {
+            try {
+                await sbClient.from('meeting_actions').update({ completed }).eq('id', actionId);
+                // 연결된 task도 동기화
+                const meeting = allMeetings.find(m => (m.meeting_actions || []).some(a => a.id === actionId));
+                const action = meeting?.meeting_actions.find(a => a.id === actionId);
+                if (action?.linked_task_id) {
+                    await sbClient.from('tasks').update({ completed }).eq('id', action.linked_task_id);
+                    await loadTasks();
+                    renderCalendar();
+                    renderTasks();
+                }
+                await loadMeetings();
+                console.log('✓ 액션아이템 완료 상태 저장');
+            } catch (e) {
+                console.log('⚠️ 액션아이템 업데이트 오류:', e.message);
+            }
+        }
+
+        function editMeetingFromDetail() {
+            const meetingId = editingMeetingId;
+            closeMeetingDetailModal();
+            const m = allMeetings.find(x => x.id === meetingId);
+            openMeetingEditModal(meetingId, m?.task_id, null);
+        }
+
+        async function deleteMeeting() {
+            if (!editingMeetingId) return;
+            if (!confirm('회의록을 삭제하시겠습니까? 연결된 액션 아이템도 함께 삭제됩니다.')) return;
+
+            try {
+                await sbClient.from('meetings').delete().eq('id', editingMeetingId);
+                closeMeetingDetailModal();
+                await loadMeetings();
+                console.log('✓ 회의록 삭제 완료');
+            } catch (e) {
+                console.log('⚠️ 회의록 삭제 오류:', e.message);
+            }
+        }
+
+        function openMeetingListModal() {
+            const container = document.getElementById('meetingListContainer');
+            if (allMeetings.length === 0) {
+                container.innerHTML = '<div class="empty-state">작성된 회의록이 없습니다</div>';
+            } else {
+                container.innerHTML = allMeetings.map(m => {
+                    const actions = m.meeting_actions || [];
+                    const pending = actions.filter(a => !a.completed).length;
+                    return `
+                        <div class="meeting-list-item" onclick="closeMeetingListModal(); openMeetingDetailModal('${m.id}')">
+                            <div class="meeting-list-title">${m.title}${pending > 0 ? `<span class="meeting-action-badge">액션 ${pending}건</span>` : ''}</div>
+                            <div class="meeting-list-meta">${m.meeting_date}${m.location ? ' · ' + m.location : ''}${m.attendees ? ' · ' + m.attendees : ''}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            document.getElementById('meetingListModal').classList.add('open');
+        }
+
+        function closeMeetingListModal() {
+            document.getElementById('meetingListModal').classList.remove('open');
+        }
 
         window.onload = init;
     </script>
