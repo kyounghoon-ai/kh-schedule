@@ -1821,14 +1821,18 @@
 
             taskList.innerHTML = tasksToShow.map(task => {
                 if (task.isTeamEvent) {
-                    // ✅ 팀 캘린더 일정 - 읽기 전용 (체크/클릭 수정 불가)
+                    // 이미 작성된 회의록이 있는지 확인 (팀 일정 id로 연결된 것)
+                    const linkedMeeting = allMeetings.find(m => m.task_id === task.id);
+                    const btnLabel = linkedMeeting ? '📝 보기' : '📝 회의록';
                     return `
-                        <div class="task-item" style="cursor:default; background:#fdf2f6;">
+                        <div class="task-item" style="background:#fdf2f6; cursor:pointer;"
+                             onclick="openTeamEventMeeting('${task.id}')">
                             <span style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;color:#D4537E;flex-shrink:0;">📅</span>
                             <span class="task-text">${task.title}</span>
                             <div class="task-info">
                                 <span class="task-category team">팀 캘린더</span>
                                 ${task.sub_category ? `<span class="task-subcategory">${task.sub_category}</span>` : ''}
+                                <span style="font-size:10px;padding:3px 6px;border-radius:3px;background:#f8e7ef;color:#993556;cursor:pointer;">${btnLabel}</span>
                             </div>
                         </div>`;
                 }
@@ -2490,6 +2494,25 @@
         // ========================================
         // ✅ 회의록 함수
         // ========================================
+
+        function openTeamEventMeeting(teamEventId) {
+            const linkedMeeting = allMeetings.find(m => m.task_id === teamEventId);
+            if (linkedMeeting) {
+                // 이미 회의록이 있으면 상세보기
+                openMeetingDetailModal(linkedMeeting.id);
+            } else {
+                // 없으면 팀 일정 정보로 회의록 작성 모달 열기
+                const teamEvent = teamEvents.find(e => e.id === teamEventId);
+                if (!teamEvent) return;
+                // teamEvent를 task처럼 넘겨서 제목/날짜 자동 입력
+                const fakeTask = {
+                    title: teamEvent.title,
+                    date: teamEvent.date,
+                    location: teamEvent.location || ''
+                };
+                openMeetingEditModal(null, teamEventId, fakeTask);
+            }
+        }
 
         async function loadMeetings() {
             try {
