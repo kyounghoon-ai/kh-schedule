@@ -717,6 +717,114 @@
             }
         }
 
+        /* ===== Phase 2-1: 드래그 앤 드롭 ===== */
+        .event-badge[draggable="true"] { cursor: grab; }
+        .event-badge[draggable="true"]:active { cursor: grabbing; }
+        .event-badge.dragging { opacity: 0.4; transform: scale(0.95); }
+        .day-cell.drag-over {
+            background: #dbeeff !important;
+            border: 2px dashed #3B8BD4 !important;
+        }
+        .day-cell.drag-over.sunday,
+        .day-cell.drag-over.holiday {
+            background: #fce4ec !important;
+            border-color: #d32f2f !important;
+        }
+
+        /* ===== Phase 2-2: 모바일 FAB ===== */
+        .fab-wrap {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            z-index: 300;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        .fab-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.18s, transform 0.18s;
+        }
+        .fab-menu.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .fab-sub {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 1.5px solid #ddd;
+            border-radius: 24px;
+            padding: 9px 16px 9px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            white-space: nowrap;
+            min-height: 44px;
+        }
+        .fab-sub.work { border-color: #3B8BD4; color: #3B8BD4; }
+        .fab-sub.personal { border-color: #639922; color: #639922; }
+        .fab-main {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #3B8BD4;
+            color: white;
+            font-size: 26px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 12px rgba(59,139,212,0.40);
+            transition: transform 0.18s, background 0.18s;
+        }
+        .fab-main.open { background: #d32f2f; transform: rotate(45deg); }
+
+        /* ===== Phase 2-2: 모바일 전용 ===== */
+        @media (max-width: 680px) {
+            .container { padding: 10px; }
+            header { border-radius: 8px; margin-bottom: 10px; }
+            .header-content { padding: 0 12px; flex-wrap: wrap; gap: 8px; }
+            h1 { font-size: 17px; }
+            .header-actions { gap: 6px; }
+            .header-btn { padding: 6px 10px; font-size: 12px; }
+            .search-bar-wrap { padding: 0 12px 12px; }
+            .day-cell { min-height: 70px; padding: 5px; }
+            .week-grid { gap: 4px; padding: 10px; }
+            .event-badge { min-height: 22px; display: flex; align-items: center; }
+            .task-item { min-height: 44px; padding: 10px 12px; }
+            .filter-btn { min-height: 36px; padding: 6px 10px; font-size: 12px; }
+            /* 기존 추가 버튼 숨기고 FAB으로 대체 */
+            .add-buttons { display: none !important; }
+            .fab-wrap { display: flex; }
+            /* 바텀시트 모달 */
+            .modal-overlay { align-items: flex-end; padding: 0; }
+            .modal {
+                border-radius: 20px 20px 0 0;
+                max-height: 92dvh;
+                overflow-y: auto;
+                padding: 20px 16px 32px;
+                width: 100%;
+            }
+            .modal::before {
+                content: '';
+                display: block;
+                width: 36px;
+                height: 4px;
+                background: #ddd;
+                border-radius: 2px;
+                margin: 0 auto 16px;
+            }
+            .legend { flex-wrap: wrap; gap: 10px; padding: 0 12px 4px; }
+        }
+
         /* ===== 마감 임박 알림 배너 ===== */
         .due-banner {
             background: #fff8e1;
@@ -778,6 +886,95 @@
             font-size: 10px;
             color: #ef4444;
             font-weight: 600;
+        }
+
+        /* ===== Phase 1: 검색 기능 ===== */
+        .search-bar-wrap {
+            padding: 0 20px 14px;
+            position: relative;
+        }
+        .search-bar-wrap input {
+            width: 100%;
+            padding: 8px 36px 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: #fafafa;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .search-bar-wrap input:focus {
+            border-color: #3B8BD4;
+            background: #fff;
+        }
+        .search-bar-wrap .search-icon {
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 16px;
+            pointer-events: none;
+        }
+        .search-clear-btn {
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 16px;
+            padding: 0 2px;
+            display: none;
+        }
+        .search-clear-btn:hover { color: #555; }
+        /* 검색 결과 오버레이 */
+        .search-results-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            z-index: 200;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .search-results-panel.show { display: block; }
+        .search-result-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.12s;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: #f5f8ff; }
+        .search-result-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+        .search-result-title mark {
+            background: #fff3c0;
+            color: #333;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+        .search-result-meta {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+        .search-no-result {
+            padding: 18px 14px;
+            text-align: center;
+            font-size: 13px;
+            color: #bbb;
         }
 
         /* ===== 헤더 버튼 ===== */
@@ -945,6 +1142,174 @@
         .badge-new { background: #D4537E; color: #fff; font-size: 10px;
             padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
 
+        /* ===== Phase 3: 통계 뷰 ===== */
+        .stats-view { display: none; padding: 20px; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .stats-view.active { display: flex; }
+        .stats-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .stats-card { background: #f8f9fa; border-radius: 8px; padding: 14px 12px; text-align: center; }
+        .stats-card-num { font-size: 26px; font-weight: 700; line-height: 1.1; }
+        .stats-card-label { font-size: 11px; color: #999; margin-top: 4px; }
+        .stats-card.c-blue .stats-card-num  { color: #3B8BD4; }
+        .stats-card.c-green .stats-card-num { color: #639922; }
+        .stats-card.c-pink .stats-card-num  { color: #D4537E; }
+        .stats-card.c-amber .stats-card-num { color: #f59e0b; }
+        .stats-section-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+        /* 월별 바차트 */
+        .monthly-chart-wrap { overflow-x: auto; }
+        .monthly-chart { display: flex; align-items: flex-end; gap: 6px; height: 130px; min-width: 560px; padding-bottom: 28px; position: relative; }
+        .monthly-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
+        .monthly-bar-track { width: 100%; background: #f0f0f0; border-radius: 4px 4px 0 0; display: flex; flex-direction: column; justify-content: flex-end; max-height: 96px; position: relative; }
+        .monthly-bar-fill { border-radius: 4px 4px 0 0; transition: height 0.5s cubic-bezier(.4,0,.2,1); min-height: 2px; }
+        .monthly-bar-pct { font-size: 9px; color: #999; text-align: center; position: absolute; top: -14px; width: 100%; }
+        .monthly-bar-label { font-size: 10px; color: #aaa; white-space: nowrap; }
+        .monthly-bar-count { font-size: 9px; color: #bbb; }
+
+        /* 카테고리 분포 */
+        .cat-dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .cat-dist-label { font-size: 12px; color: #555; width: 64px; flex-shrink: 0; }
+        .cat-dist-track { flex: 1; background: #f0f0f0; border-radius: 4px; height: 10px; overflow: hidden; }
+        .cat-dist-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+        .cat-dist-pct { font-size: 11px; color: #999; width: 36px; text-align: right; flex-shrink: 0; }
+
+        /* 요일별 패턴 */
+        .dow-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+        .dow-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .dow-bar-track { width: 100%; background: #f0f0f0; border-radius: 4px; height: 60px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .dow-bar-fill { border-radius: 4px; background: #3B8BD4; transition: height 0.4s; min-height: 2px; }
+        .dow-bar-label { font-size: 10px; color: #aaa; }
+        .dow-bar-num   { font-size: 10px; color: #888; }
+
+        /* ===== Phase 3: 연간 히트맵 ===== */
+        .heatmap-wrap { overflow-x: auto; padding-bottom: 8px; }
+        .heatmap-grid { display: flex; gap: 3px; }
+        .heatmap-week-col { display: flex; flex-direction: column; gap: 3px; }
+        .heatmap-cell { width: 12px; height: 12px; border-radius: 2px; background: #eee; cursor: pointer; transition: transform 0.1s; position: relative; }
+        .heatmap-cell:hover { transform: scale(1.3); z-index: 2; }
+        .heatmap-cell.l0 { background: #eee; }
+        .heatmap-cell.l1 { background: #c6e2f7; }
+        .heatmap-cell.l2 { background: #85b7eb; }
+        .heatmap-cell.l3 { background: #378add; }
+        .heatmap-cell.l4 { background: #185fa5; }
+        .heatmap-cell.has-completed { outline: 1.5px solid #639922; outline-offset: 1px; }
+        .heatmap-cell.is-today { outline: 2px solid #f59e0b; outline-offset: 1px; }
+        .heatmap-month-labels { display: flex; gap: 3px; margin-bottom: 4px; min-height: 16px; }
+        .heatmap-month-label { font-size: 9px; color: #aaa; width: 12px; }
+        .heatmap-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 10px; color: #aaa; justify-content: flex-end; }
+        .heatmap-legend-cell { width: 10px; height: 10px; border-radius: 1px; }
+        .heatmap-tooltip { position: fixed; background: rgba(30,30,30,0.88); color: white; font-size: 11px; padding: 5px 9px; border-radius: 5px; pointer-events: none; z-index: 999; white-space: nowrap; display: none; }
+
+        @media (max-width: 680px) {
+            .stats-summary { grid-template-columns: repeat(2, 1fr); }
+            .monthly-chart { min-width: 400px; }
+        }
+
+        /* ===== Phase 4-1: 알림 토스트 ===== */
+        .notif-toast-wrap {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .notif-toast {
+            background: #1e1e2e;
+            color: #fff;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            max-width: 300px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: toastIn 0.25s ease;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .notif-toast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+        .notif-toast-body { flex: 1; }
+        .notif-toast-title { font-weight: 600; margin-bottom: 2px; font-size: 13px; }
+        .notif-toast-msg   { font-size: 12px; color: #ccc; line-height: 1.4; }
+        .notif-toast-close {
+            background: none; border: none; color: #999;
+            cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
+            pointer-events: auto;
+        }
+        .notif-toast-close:hover { color: #fff; }
+
+        /* 알림 설정 버튼 상태 */
+        .notif-btn-on  { border-color: #639922 !important; color: #639922 !important; }
+        .notif-btn-off { border-color: #ddd; color: #888; }
+
+        /* ===== Phase 4-2: 허브 모달 ===== */
+        .hub-modal { max-width: 520px; }
+        .hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .hub-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 14px;
+            border: 1.5px solid #e5e5e5;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.15s, background 0.15s;
+            background: #fafafa;
+        }
+        .hub-card:hover { border-color: #3B8BD4; background: #f0f7ff; }
+        .hub-card-icon { font-size: 26px; flex-shrink: 0; }
+        .hub-card-info { min-width: 0; }
+        .hub-card-name { font-size: 13px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hub-card-desc { font-size: 11px; color: #999; margin-top: 2px; }
+        .hub-card.add-new {
+            border-style: dashed;
+            border-color: #ccc;
+            background: #fff;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            gap: 4px;
+            color: #aaa;
+        }
+        .hub-card.add-new:hover { border-color: #3B8BD4; color: #3B8BD4; background: #f0f7ff; }
+        .hub-add-form {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .hub-add-form.open { display: flex; }
+        .hub-add-form input, .hub-add-form select {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+        .hub-add-form input:focus, .hub-add-form select:focus { border-color: #3B8BD4; }
+        .hub-add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        @media (max-width: 480px) {
+            .hub-grid { grid-template-columns: 1fr; }
+            .hub-add-row { grid-template-columns: 1fr; }
+        }
+
     </style>
 </head>
 <body>
@@ -953,10 +1318,15 @@
             <div class="header-content">
                 <h1>나의 업무 관리</h1>
                 <div class="header-actions">
+                    <button class="header-btn" onclick="showShortcutHelp()" title="키보드 단축키 안내" style="padding:7px 10px;font-size:15px;color:#888;border-color:#eee;">⌨️</button>
+                    <button class="header-btn notif-btn-off" id="notifBtn" onclick="toggleNotification()" title="브라우저 알림 설정">🔔 알림</button>
+                    <button class="header-btn" onclick="openHubModal()" title="업무 시스템 허브">🔗 허브</button>
                     <button class="header-btn report-btn" onclick="openReportModal()">📊 주간 리포트</button>
                     <div class="view-toggle">
                         <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
                         <button id="monthBtn" onclick="switchView('month')">월간</button>
+                        <button id="yearBtn"  onclick="switchView('year')">연간</button>
+                        <button id="statsBtn" onclick="switchView('stats')">📊 통계</button>
                     </div>
                 </div>
             </div>
@@ -971,6 +1341,16 @@
                     🔄 팀 일정 갱신
                 </button>
             </div>
+
+            <!-- Phase 1: 검색창 -->
+            <div class="search-bar-wrap" id="searchBarWrap">
+                <input type="text" id="searchInput" placeholder="🔍  할일 검색 (제목, 날짜, 분류)" autocomplete="off"
+                    oninput="handleSearch(this.value)"
+                    onfocus="if(this.value) showSearchResults(this.value)"
+                    onkeydown="handleSearchKey(event)">
+                <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" title="검색 지우기">✕</button>
+                <div class="search-results-panel" id="searchResultsPanel"></div>
+            </div>
         </header>
 
         <div class="main-layout">
@@ -984,6 +1364,55 @@
                 </div>
                 <div class="week-grid" id="calendarGrid"></div>
                 <div class="month-grid" id="monthGrid"></div>
+
+                <!-- Phase 3: 연간 히트맵 뷰 -->
+                <div id="yearView" style="display:none; padding:20px; overflow-y:auto;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button class="nav-btn" onclick="heatmapPrevYear()" style="font-size:14px;">←</button>
+                            <span id="heatmapYearLabel" style="font-size:14px; font-weight:600;"></span>
+                            <button class="nav-btn" onclick="heatmapNextYear()" style="font-size:14px;">→</button>
+                        </div>
+                        <div style="font-size:11px; color:#aaa;" id="heatmapYearSummary"></div>
+                    </div>
+                    <div class="heatmap-month-labels" id="heatmapMonthLabels"></div>
+                    <div class="heatmap-wrap">
+                        <div class="heatmap-grid" id="heatmapGrid"></div>
+                    </div>
+                    <div class="heatmap-legend">
+                        <span>적음</span>
+                        <div class="heatmap-legend-cell l0" style="background:#eee;"></div>
+                        <div class="heatmap-legend-cell l1" style="background:#c6e2f7;"></div>
+                        <div class="heatmap-legend-cell l2" style="background:#85b7eb;"></div>
+                        <div class="heatmap-legend-cell l3" style="background:#378add;"></div>
+                        <div class="heatmap-legend-cell l4" style="background:#185fa5;"></div>
+                        <span>많음</span>
+                        <span style="margin-left:10px;">🟢 완료 있음</span>
+                        <span style="margin-left:6px;">🟡 오늘</span>
+                    </div>
+                </div>
+
+                <!-- Phase 3: 통계 뷰 -->
+                <div id="statsView" class="stats-view">
+                    <div class="stats-summary" id="statsSummary"></div>
+                    <div>
+                        <div class="stats-section-title">📅 월별 할일 완료율 <span style="font-size:11px;font-weight:400;color:#aaa;" id="statsYearRange"></span></div>
+                        <div class="monthly-chart-wrap">
+                            <div class="monthly-chart" id="monthlyChart"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stats-section-title">🗂 카테고리 분포</div>
+                        <div id="catDistChart"></div>
+                    </div>
+                    <div>
+                        <div class="stats-section-title">📆 요일별 할일 패턴</div>
+                        <div class="dow-chart" id="dowChart"></div>
+                    </div>
+                </div>
+
+                <!-- 히트맵 툴팁 -->
+                <div class="heatmap-tooltip" id="heatmapTooltip"></div>
             </div>
 
             <div class="task-section">
@@ -1241,6 +1670,7 @@
             <div class="meeting-field" id="mdActionsWrap"><label>액션 아이템</label><div id="mdActionItems" style="padding:8px 0;font-size:13px;white-space:pre-wrap;line-height:1.7">-</div></div>
             <div class="modal-actions" style="margin-top:14px">
                 <button class="btn-cancel" onclick="closeMeetingDetailModal()">← 목록</button>
+                <button style="flex:1;padding:12px;border:1px solid #3B8BD4;border-radius:6px;background:white;color:#3B8BD4;font-weight:500;cursor:pointer" onclick="editMeeting()">수정</button>
                 <button style="flex:1;padding:12px;border:none;border-radius:6px;background:#d32f2f;color:#fff;font-weight:500;cursor:pointer" onclick="deleteMeeting()">삭제</button>
             </div>
         </div>
@@ -1282,14 +1712,108 @@
         </div>
     </div>
 
+    <!-- Phase 4-1: 알림 토스트 컨테이너 -->
+    <div class="notif-toast-wrap" id="notifToastWrap"></div>
+
+    <!-- Phase 4-2: 허브 모달 -->
+    <div class="modal-overlay" id="hubModal">
+        <div class="modal hub-modal">
+            <div class="modal-title">🔗 업무 시스템 허브</div>
+            <p style="font-size:12px;color:#999;margin-bottom:16px;">연결된 시스템을 클릭하면 새 탭으로 이동합니다.</p>
+            <div class="hub-grid" id="hubGrid"></div>
+
+            <!-- 새 시스템 추가 폼 -->
+            <div class="hub-add-form" id="hubAddForm">
+                <div style="font-size:13px;font-weight:600;color:#333;">새 시스템 추가</div>
+                <div class="hub-add-row">
+                    <input type="text"  id="hubNewName"  placeholder="시스템 이름 (예: 팀 캘린더)">
+                    <input type="text"  id="hubNewIcon"  placeholder="아이콘 이모지 (예: 📅)">
+                </div>
+                <input type="url"   id="hubNewUrl"   placeholder="URL (https://...)">
+                <input type="text"  id="hubNewDesc"  placeholder="간단한 설명 (선택)">
+                <div style="display:flex;gap:8px;">
+                    <button style="flex:1;padding:9px;border:1px solid #ddd;border-radius:6px;background:white;cursor:pointer;font-size:13px;" onclick="closeHubAddForm()">취소</button>
+                    <button style="flex:1;padding:9px;border:none;border-radius:6px;background:#3B8BD4;color:white;cursor:pointer;font-size:13px;font-weight:500;" onclick="saveHubItem()">추가</button>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top:16px;">
+                <button class="btn-cancel" onclick="closeHubModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 2-2: 모바일 FAB -->
+    <div class="fab-wrap" id="fabWrap">
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab-sub personal" onclick="fabOpen('personal')">✅ 개인 추가</button>
+            <button class="fab-sub work"     onclick="fabOpen('work')">💼 업무 추가</button>
+        </div>
+        <button class="fab-main" id="fabMain" onclick="toggleFab()" aria-label="할일 추가">＋</button>
+    </div>
+
     <script>
-        const koreanHolidays = {
-            '2026-01-01': '신정', '2026-01-29': '설날', '2026-01-30': '설날', '2026-02-02': '대체공휴일',
-            '2026-03-01': '삼일절', '2026-05-05': '어린이날', '2026-05-06': '대체공휴일',
-            '2026-05-24': '부처님오탄신일', '2026-06-06': '현충일', '2026-08-15': '광복절',
-            '2026-09-28': '추석', '2026-09-29': '추석', '2026-09-30': '추석',
-            '2026-10-03': '개천절', '2026-10-09': '한글날', '2026-12-25': '크리스마스',
+        // ✅ Phase 0: 다년도 공휴일 — 연도별로 관리, 자동으로 현재 연도 병합
+        const koreanHolidaysByYear = {
+            2025: {
+                '2025-01-01': '신정',
+                '2025-01-28': '설날 연휴', '2025-01-29': '설날', '2025-01-30': '설날 연휴',
+                '2025-03-01': '삼일절',
+                '2025-03-03': '대체공휴일',
+                '2025-05-05': '어린이날',
+                '2025-05-06': '부처님오탄신일',
+                '2025-06-06': '현충일',
+                '2025-08-15': '광복절',
+                '2025-10-03': '개천절',
+                '2025-10-05': '추석 연휴', '2025-10-06': '추석', '2025-10-07': '추석 연휴',
+                '2025-10-08': '대체공휴일',
+                '2025-10-09': '한글날',
+                '2025-12-25': '크리스마스',
+            },
+            2026: {
+                '2026-01-01': '신정',
+                '2026-01-28': '설날 연휴', '2026-01-29': '설날', '2026-01-30': '설날 연휴',
+                '2026-02-02': '대체공휴일',
+                '2026-03-01': '삼일절',
+                '2026-05-05': '어린이날',
+                '2026-05-06': '대체공휴일',
+                '2026-05-24': '부처님오탄신일',
+                '2026-06-06': '현충일',
+                '2026-08-15': '광복절',
+                '2026-09-24': '추석 연휴', '2026-09-25': '추석 연휴', '2026-09-26': '추석',
+                '2026-09-28': '추석 연휴', '2026-09-29': '추석 연휴', '2026-09-30': '추석 연휴',
+                '2026-10-03': '개천절',
+                '2026-10-09': '한글날',
+                '2026-12-25': '크리스마스',
+            },
+            2027: {
+                '2027-01-01': '신정',
+                '2027-02-16': '설날 연휴', '2027-02-17': '설날', '2027-02-18': '설날 연휴',
+                '2027-03-01': '삼일절',
+                '2027-05-05': '어린이날',
+                '2027-05-13': '부처님오탄신일',
+                '2027-06-06': '현충일',
+                '2027-08-15': '광복절',
+                '2027-09-14': '추석 연휴', '2027-09-15': '추석', '2027-09-16': '추석 연휴',
+                '2027-10-03': '개천절',
+                '2027-10-09': '한글날',
+                '2027-10-11': '대체공휴일',
+                '2027-12-25': '크리스마스',
+            },
         };
+
+        // 현재 연도 ±1 범위를 하나의 객체로 병합 (뷰 이동 시 인접 연도도 커버)
+        function buildKoreanHolidays() {
+            const thisYear = new Date().getFullYear();
+            const merged = {};
+            [thisYear - 1, thisYear, thisYear + 1].forEach(y => {
+                if (koreanHolidaysByYear[y]) {
+                    Object.assign(merged, koreanHolidaysByYear[y]);
+                }
+            });
+            return merged;
+        }
+        const koreanHolidays = buildKoreanHolidays();
 
         const subCategories = {
             work: ['자료요청', '자료제출', '메일회신', '업무지시', '보고', '회의', '기타'],
@@ -1350,21 +1874,35 @@
 
         function switchView(view) {
             currentView = view;
-            document.getElementById('weekBtn').classList.remove('active');
-            document.getElementById('monthBtn').classList.remove('active');
+            // 버튼 active 초기화
+            ['weekBtn','monthBtn','yearBtn','statsBtn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            // 뷰 패널 전부 숨기기
             document.getElementById('calendarGrid').style.display = 'none';
             document.getElementById('monthGrid').classList.remove('active');
-            
+            document.getElementById('yearView').style.display  = 'none';
+            document.getElementById('statsView').classList.remove('active');
+
             if (view === 'week') {
                 document.getElementById('weekBtn').classList.add('active');
                 document.getElementById('calendarGrid').style.display = 'grid';
                 currentWeekStart = getMonday(selectedDate);
-            } else {
+                renderCalendar();
+            } else if (view === 'month') {
                 document.getElementById('monthBtn').classList.add('active');
                 document.getElementById('monthGrid').classList.add('active');
+                renderCalendar();
+            } else if (view === 'year') {
+                document.getElementById('yearBtn').classList.add('active');
+                document.getElementById('yearView').style.display = 'block';
+                renderHeatmap(heatmapYear);
+            } else if (view === 'stats') {
+                document.getElementById('statsBtn').classList.add('active');
+                document.getElementById('statsView').classList.add('active');
+                renderStats();
             }
-            
-            renderCalendar();
         }
 
         function getMonday(date) {
@@ -1533,6 +2071,12 @@
                 
                 cell.onclick = () => selectDate(date);
 
+                // Phase 2-1: 드롭 존 설정
+                cell.dataset.date = dateStr;
+                cell.addEventListener('dragover',  onCellDragOver);
+                cell.addEventListener('dragleave', onCellDragLeave);
+                cell.addEventListener('drop',      onCellDrop);
+
                 const dateNum = String(date.getDate()).padStart(2, '0');
                 let html = `<div class="day-date`;
                 if (idx === 5) html += ' saturday';
@@ -1553,6 +2097,13 @@
                     const badge = document.createElement('div');
                     badge.className = `event-badge ${task.category}`;
                     badge.textContent = task.title;
+                    // Phase 2-1: 드래그 속성
+                    badge.draggable = true;
+                    badge.dataset.taskId = task.id;
+                    badge.addEventListener('dragstart', onBadgeDragStart);
+                    badge.addEventListener('dragend',   onBadgeDragEnd);
+                    // 클릭과 드래그 충돌 방지: 드래그 중엔 셀 onClick 무시
+                    badge.addEventListener('click', e => { e.stopPropagation(); openDetailModal(task.id); });
                     eventsContainer.appendChild(badge);
                 });
 
@@ -2341,13 +2892,34 @@
                 text += '\n';
             });
 
+            // ✅ Phase 0: navigator.clipboard API로 교체 (execCommand 제거)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => alert('📋 리포트가 클립보드에 복사되었습니다!'))
+                    .catch(() => {
+                        // 권한 거부 등 실패 시 구형 방식 fallback
+                        _legacyCopy(text);
+                    });
+            } else {
+                _legacyCopy(text);
+            }
+        }
+
+        // ✅ Phase 0: clipboard API fallback (권한 거부 또는 구형 브라우저 대응)
+        function _legacyCopy(text) {
             const el = document.createElement('textarea');
             el.value = text;
+            el.style.position = 'fixed';
+            el.style.opacity = '0';
             document.body.appendChild(el);
             el.select();
-            document.execCommand('copy');
+            try {
+                document.execCommand('copy');
+                alert('📋 리포트가 클립보드에 복사되었습니다!');
+            } catch (e) {
+                alert('⚠️ 클립보드 복사에 실패했습니다.\n브라우저 설정에서 클립보드 권한을 허용해 주세요.');
+            }
             document.body.removeChild(el);
-            alert('📋 리포트가 클립보드에 복사되었습니다!');
         }
 
         // closeAddModal 초기화 시 반복 설정도 리셋
@@ -2548,6 +3120,1010 @@
         window.openMeetingDetail = openMeetingDetail;
         window.closeMeetingDetailModal = closeMeetingDetailModal;
         window.deleteMeeting = deleteMeeting;
+
+        // ===================================================
+        //  📊 Phase 3-1: 통계 대시보드
+        // ===================================================
+
+        function renderStats() {
+            const tasks = allTasks; // 전체 데이터 기반
+            if (!tasks.length) {
+                document.getElementById('statsSummary').innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;color:#bbb;padding:30px;font-size:13px;">아직 데이터가 없습니다</div>';
+                return;
+            }
+
+            // ── 전체 요약 ──────────────────────────────────
+            const total     = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const rate      = total ? Math.round(completed / total * 100) : 0;
+            const thisMonth = formatDate(new Date()).slice(0, 7); // YYYY-MM
+            const thisMonthTasks = tasks.filter(t => (t.date || '').startsWith(thisMonth));
+            const thisMonthDone  = thisMonthTasks.filter(t => t.completed).length;
+
+            document.getElementById('statsSummary').innerHTML = `
+                <div class="stats-card c-blue">
+                    <div class="stats-card-num">${total}</div>
+                    <div class="stats-card-label">전체 할일</div>
+                </div>
+                <div class="stats-card c-green">
+                    <div class="stats-card-num">${completed}</div>
+                    <div class="stats-card-label">완료</div>
+                </div>
+                <div class="stats-card c-pink">
+                    <div class="stats-card-num">${rate}%</div>
+                    <div class="stats-card-label">전체 완료율</div>
+                </div>
+                <div class="stats-card c-amber">
+                    <div class="stats-card-num">${thisMonthDone}/${thisMonthTasks.length}</div>
+                    <div class="stats-card-label">이번 달 완료</div>
+                </div>`;
+
+            // ── 월별 완료율 바차트 (최근 12개월) ─────────
+            const now = new Date();
+            const months = [];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+            }
+            document.getElementById('statsYearRange').textContent =
+                `(${months[0]} ~ ${months[11]})`;
+
+            const monthData = months.map(m => {
+                const mt = tasks.filter(t => (t.date||'').startsWith(m));
+                const done = mt.filter(t => t.completed).length;
+                return { m, total: mt.length, done, pct: mt.length ? Math.round(done/mt.length*100) : 0 };
+            });
+
+            const maxTotal = Math.max(...monthData.map(d => d.total), 1);
+            const barColors = ['#3B8BD4','#639922','#D4537E'];
+
+            document.getElementById('monthlyChart').innerHTML = monthData.map((d, i) => {
+                const heightPct = Math.round(d.total / maxTotal * 96);
+                const fillH    = d.total ? Math.round(d.done / d.total * heightPct) : 0;
+                const remH     = heightPct - fillH;
+                const shortM   = d.m.slice(5) + '월';
+                return `<div class="monthly-bar-group">
+                    <div class="monthly-bar-track" style="height:${heightPct}px;">
+                        ${d.total ? `<div class="monthly-bar-pct">${d.pct}%</div>` : ''}
+                        <div style="height:${remH}px; background:#d9e8f5; border-radius:4px 4px 0 0; min-height:${d.total?2:0}px;"></div>
+                        <div class="monthly-bar-fill" style="height:${fillH}px; background:#3B8BD4;"></div>
+                    </div>
+                    <div class="monthly-bar-label">${shortM}</div>
+                    <div class="monthly-bar-count">${d.total}건</div>
+                </div>`;
+            }).join('');
+
+            // ── 카테고리 분포 ──────────────────────────────
+            const cats = [
+                { key:'work',     label:'업무',  color:'#3B8BD4' },
+                { key:'personal', label:'개인',  color:'#639922' },
+                { key:'team',     label:'팀',    color:'#D4537E' },
+            ];
+            const catMax = Math.max(...cats.map(c => tasks.filter(t => t.category === c.key).length), 1);
+            document.getElementById('catDistChart').innerHTML = cats.map(c => {
+                const cnt  = tasks.filter(t => t.category === c.key).length;
+                const pct  = Math.round(cnt / total * 100);
+                const barW = Math.round(cnt / catMax * 100);
+                return `<div class="cat-dist-row">
+                    <div class="cat-dist-label">${c.label}</div>
+                    <div class="cat-dist-track">
+                        <div class="cat-dist-fill" style="width:${barW}%; background:${c.color};"></div>
+                    </div>
+                    <div class="cat-dist-pct">${pct}%</div>
+                </div>`;
+            }).join('');
+
+            // ── 요일별 패턴 ───────────────────────────────
+            const dowLabels = ['일','월','화','수','목','금','토'];
+            const dowCounts = Array(7).fill(0);
+            tasks.forEach(t => {
+                if (!t.date) return;
+                const d = new Date(t.date + 'T00:00:00');
+                dowCounts[d.getDay()]++;
+            });
+            const dowMax = Math.max(...dowCounts, 1);
+            document.getElementById('dowChart').innerHTML = dowLabels.map((label, i) => {
+                const h = Math.round(dowCounts[i] / dowMax * 56);
+                const isSat = i === 6, isSun = i === 0;
+                const color = isSat ? '#3B8BD4' : isSun ? '#d32f2f' : '#3B8BD4';
+                return `<div class="dow-bar-wrap">
+                    <div class="dow-bar-track">
+                        <div class="dow-bar-fill" style="height:${h}px; background:${color};"></div>
+                    </div>
+                    <div class="dow-bar-label" style="color:${isSun?'#d32f2f':isSat?'#3B8BD4':'#aaa'}">${label}</div>
+                    <div class="dow-bar-num">${dowCounts[i]}</div>
+                </div>`;
+            }).join('');
+        }
+
+
+        // ===================================================
+        //  📅 Phase 3-2: 연간 히트맵
+        // ===================================================
+        let heatmapYear = new Date().getFullYear();
+
+        function heatmapPrevYear() {
+            heatmapYear--;
+            renderHeatmap(heatmapYear);
+        }
+        function heatmapNextYear() {
+            heatmapYear++;
+            renderHeatmap(heatmapYear);
+        }
+        window.heatmapPrevYear = heatmapPrevYear;
+        window.heatmapNextYear = heatmapNextYear;
+
+        function renderHeatmap(year) {
+            document.getElementById('heatmapYearLabel').textContent = `${year}년`;
+
+            const todayStr = formatDate(new Date());
+
+            // 날짜별 task 수 집계
+            const countMap = {};   // 'YYYY-MM-DD' → { total, done }
+            allTasks.forEach(t => {
+                if (!t.date || !t.date.startsWith(String(year))) return;
+                if (!countMap[t.date]) countMap[t.date] = { total: 0, done: 0 };
+                countMap[t.date].total++;
+                if (t.completed) countMap[t.date].done++;
+            });
+
+            // 연간 요약
+            const yearTotal = Object.values(countMap).reduce((s, v) => s + v.total, 0);
+            const yearDone  = Object.values(countMap).reduce((s, v) => s + v.done,  0);
+            const activeDays = Object.keys(countMap).length;
+            document.getElementById('heatmapYearSummary').textContent =
+                `총 ${yearTotal}건 · 완료 ${yearDone}건 · 활성 ${activeDays}일`;
+
+            // 1월 1일이 무슨 요일인지 → 첫 주 오프셋 계산 (월요일 기준)
+            const jan1    = new Date(year, 0, 1);
+            const jan1Dow = (jan1.getDay() + 6) % 7; // 0=월 … 6=일
+
+            // 연도 전체 날짜 배열
+            const isLeap  = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+            const totalDays = isLeap ? 366 : 365;
+
+            // 주 단위 컬럼 생성
+            // 앞 오프셋만큼 빈 셀 포함하여 주 배열로 정리
+            const cells = [];
+            for (let i = 0; i < jan1Dow; i++) cells.push(null); // 빈 칸
+            for (let i = 0; i < totalDays; i++) {
+                const d = new Date(year, 0, 1 + i);
+                cells.push(formatDate(d));
+            }
+
+            // 주(column) 단위 분리
+            const weeks = [];
+            for (let i = 0; i < cells.length; i += 7) {
+                weeks.push(cells.slice(i, i + 7));
+            }
+
+            // 월 라벨 위치 계산
+            const monthLabelMap = {};
+            let prevMonth = -1;
+            weeks.forEach((week, wIdx) => {
+                week.forEach(dateStr => {
+                    if (!dateStr) return;
+                    const m = parseInt(dateStr.slice(5, 7)) - 1;
+                    if (m !== prevMonth) {
+                        monthLabelMap[wIdx] = ['1','2','3','4','5','6','7','8','9','10','11','12'][m];
+                        prevMonth = m;
+                    }
+                });
+            });
+
+            // 색상 레벨 계산
+            function levelOf(total) {
+                if (total === 0) return 0;
+                if (total <= 1)  return 1;
+                if (total <= 3)  return 2;
+                if (total <= 6)  return 3;
+                return 4;
+            }
+
+            // 월 라벨 렌더
+            const monthLabelsEl = document.getElementById('heatmapMonthLabels');
+            monthLabelsEl.innerHTML = weeks.map((_, wIdx) => {
+                const label = monthLabelMap[wIdx] || '';
+                return `<div class="heatmap-month-label" style="width:12px;min-width:12px;">${label ? label+'월' : ''}</div>`;
+            }).join('');
+
+            // 히트맵 그리드 렌더
+            const tooltip = document.getElementById('heatmapTooltip');
+            const grid = document.getElementById('heatmapGrid');
+            grid.innerHTML = '';
+
+            weeks.forEach(week => {
+                const col = document.createElement('div');
+                col.className = 'heatmap-week-col';
+                week.forEach(dateStr => {
+                    const cell = document.createElement('div');
+                    if (!dateStr) {
+                        cell.style.cssText = 'width:12px;height:12px;';
+                        col.appendChild(cell);
+                        return;
+                    }
+                    const info  = countMap[dateStr] || { total: 0, done: 0 };
+                    const level = levelOf(info.total);
+                    cell.className = `heatmap-cell l${level}`;
+                    if (info.done > 0)      cell.classList.add('has-completed');
+                    if (dateStr === todayStr) cell.classList.add('is-today');
+
+                    // 툴팁
+                    cell.addEventListener('mouseenter', ev => {
+                        const holiday = koreanHolidays[dateStr] ? ` · ${koreanHolidays[dateStr]}` : '';
+                        tooltip.textContent = `${dateStr}${holiday}  —  ${info.total}건 (완료 ${info.done})`;
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = (ev.clientX + 12) + 'px';
+                        tooltip.style.top  = (ev.clientY - 28) + 'px';
+                    });
+                    cell.addEventListener('mousemove', ev => {
+                        tooltip.style.left = (ev.clientX + 12) + 'px';
+                        tooltip.style.top  = (ev.clientY - 28) + 'px';
+                    });
+                    cell.addEventListener('mouseleave', () => {
+                        tooltip.style.display = 'none';
+                    });
+
+                    // 클릭 → 해당 날짜로 주간 뷰 이동
+                    cell.addEventListener('click', () => {
+                        const d = new Date(dateStr + 'T00:00:00');
+                        selectedDate = d;
+                        currentWeekStart = getMonday(d);
+                        switchView('week');
+                        renderTasks();
+                        updateSelectedDateDisplay();
+                    });
+
+                    col.appendChild(cell);
+                });
+                grid.appendChild(col);
+            });
+        }
+
+        // ===================================================
+        //  🖱️ Phase 2-1: 드래그 앤 드롭 날짜 이동
+        // ===================================================
+        let draggingTaskId = null;
+
+        function onBadgeDragStart(e) {
+            draggingTaskId = e.currentTarget.dataset.taskId;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            // Firefox 호환: 데이터 필수
+            e.dataTransfer.setData('text/plain', draggingTaskId);
+        }
+
+        function onBadgeDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            draggingTaskId = null;
+            // 모든 drag-over 클래스 정리
+            document.querySelectorAll('.day-cell.drag-over')
+                .forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function onCellDragOver(e) {
+            if (!draggingTaskId) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function onCellDragLeave(e) {
+            // 자식 요소로 이동할 때 오발 방지
+            if (e.currentTarget.contains(e.relatedTarget)) return;
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function onCellDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const taskId = e.dataTransfer.getData('text/plain') || draggingTaskId;
+            const newDate = e.currentTarget.dataset.date;
+            if (!taskId || !newDate) return;
+
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task || task.date === newDate) return;
+
+            const oldDate = task.date;
+
+            // 로컬 즉시 반영
+            task.date = newDate;
+            renderCalendar();
+            renderTasks();
+
+            // Supabase 업데이트
+            if (sbClient && !taskId.startsWith('temp_')) {
+                sbClient.from('tasks')
+                    .update({ date: newDate })
+                    .eq('id', taskId)
+                    .then(() => {
+                        console.log(`✓ 드래그 이동: ${oldDate} → ${newDate}`);
+                    })
+                    .catch(err => {
+                        // 실패 시 롤백
+                        console.warn('⚠️ 이동 실패, 롤백:', err.message);
+                        task.date = oldDate;
+                        renderCalendar();
+                        renderTasks();
+                    });
+            }
+        }
+
+
+        // ===================================================
+        //  📱 Phase 2-2: 모바일 FAB
+        // ===================================================
+        let fabOpen_ = false;
+
+        function toggleFab() {
+            fabOpen_ = !fabOpen_;
+            document.getElementById('fabMenu').classList.toggle('open', fabOpen_);
+            document.getElementById('fabMain').classList.toggle('open', fabOpen_);
+        }
+
+        function fabOpen(category) {
+            toggleFab();
+            openAddModal(category);
+        }
+
+        // FAB 외부 탭 시 닫기
+        document.addEventListener('click', e => {
+            if (fabOpen_ && !document.getElementById('fabWrap').contains(e.target)) {
+                fabOpen_ = false;
+                document.getElementById('fabMenu').classList.remove('open');
+                document.getElementById('fabMain').classList.remove('open');
+            }
+        });
+
+        window.toggleFab = toggleFab;
+        window.fabOpen   = fabOpen;
+
+
+        // ===================================================
+        //  📱 Phase 2-2: 모달 스와이프 닫기 (모바일)
+        // ===================================================
+        (function initSwipeToClose() {
+            let startY = 0;
+            let startScroll = 0;
+            const THRESHOLD = 80; // px
+
+            function getTopModal() {
+                const modals = [
+                    'meetingDetailModal',
+                    'meetingModal',
+                    'detailModal',
+                    'addModal',
+                    'reportModal',
+                ].map(id => document.getElementById(id));
+                return modals.find(m => m && m.classList.contains('open')) || null;
+            }
+
+            document.addEventListener('touchstart', e => {
+                const modal = getTopModal();
+                if (!modal) return;
+                const inner = modal.querySelector('.modal');
+                if (!inner) return;
+                startY = e.touches[0].clientY;
+                startScroll = inner.scrollTop;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', e => {
+                const modal = getTopModal();
+                if (!modal) return;
+                const inner = modal.querySelector('.modal');
+                if (!inner) return;
+                // 내부가 스크롤 가능하고 위로 스크롤 중이면 닫기 제스처 무시
+                if (inner.scrollTop > 0) return;
+                const dy = e.touches[0].clientY - startY;
+                if (dy > 0) {
+                    // 살짝 따라오는 시각 피드백
+                    inner.style.transform = `translateY(${Math.min(dy * 0.4, 60)}px)`;
+                    inner.style.transition = 'none';
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', e => {
+                const modal = getTopModal();
+                if (!modal) return;
+                const inner = modal.querySelector('.modal');
+                if (!inner) return;
+                const dy = e.changedTouches[0].clientY - startY;
+                inner.style.transform = '';
+                inner.style.transition = '';
+                if (inner.scrollTop > 0) return;
+                if (dy > THRESHOLD) {
+                    // 해당 모달 닫기
+                    const id = modal.id;
+                    if (id === 'meetingDetailModal') closeMeetingDetailModal();
+                    else if (id === 'meetingModal')  closeMeetingModal();
+                    else if (id === 'detailModal')   closeDetailModal();
+                    else if (id === 'addModal')      closeAddModal();
+                    else if (id === 'reportModal')   closeReportModal();
+                }
+            }, { passive: true });
+        })();
+
+        // ===================================================
+        //  🔍 Phase 1-1: 검색 기능
+        // ===================================================
+        let searchResultHighlightIndex = -1;
+
+        function handleSearch(query) {
+            const clearBtn = document.getElementById('searchClearBtn');
+            clearBtn.style.display = query.length > 0 ? 'block' : 'none';
+            if (query.length === 0) {
+                hideSearchResults();
+                return;
+            }
+            showSearchResults(query);
+        }
+
+        function showSearchResults(query) {
+            const panel = document.getElementById('searchResultsPanel');
+            const q = query.trim().toLowerCase();
+            if (!q) { hideSearchResults(); return; }
+
+            const categoryLabel = { work: '업무', personal: '개인', team: '팀' };
+
+            // allTasks + teamEvents 통합 검색
+            const results = [];
+            allTasks.forEach(t => {
+                if (
+                    t.title.toLowerCase().includes(q) ||
+                    (t.date && t.date.includes(q)) ||
+                    (t.sub_category && t.sub_category.toLowerCase().includes(q)) ||
+                    (t.description && t.description.toLowerCase().includes(q))
+                ) {
+                    results.push({ type: 'task', item: t });
+                }
+            });
+            teamEvents.forEach(e => {
+                if (
+                    e.title.toLowerCase().includes(q) ||
+                    (e.date && e.date.includes(q))
+                ) {
+                    results.push({ type: 'team', item: e });
+                }
+            });
+
+            // 날짜 내림차순 정렬
+            results.sort((a, b) => (b.item.date || '').localeCompare(a.item.date || ''));
+
+            searchResultHighlightIndex = -1;
+
+            if (results.length === 0) {
+                panel.innerHTML = `<div class="search-no-result">검색 결과가 없습니다</div>`;
+                panel.classList.add('show');
+                return;
+            }
+
+            const limit = 30;
+            const shown = results.slice(0, limit);
+            panel.innerHTML = shown.map((r, i) => {
+                const t = r.item;
+                const highlightedTitle = t.title.replace(
+                    new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                    m => `<mark>${m}</mark>`
+                );
+                const catLabel = categoryLabel[t.category] || t.category || '팀';
+                const subLabel = t.sub_category ? ` · ${t.sub_category}` : '';
+                const completedMark = t.completed ? ' ✅' : '';
+                return `<div class="search-result-item" data-index="${i}" data-type="${r.type}" data-id="${t.id}" data-date="${t.date || ''}"
+                    onclick="selectSearchResult('${r.type}', '${t.id}', '${t.date || ''}')">
+                    <div class="search-result-title">${highlightedTitle}${completedMark}</div>
+                    <div class="search-result-meta">${t.date || ''}  ·  ${catLabel}${subLabel}</div>
+                </div>`;
+            }).join('');
+
+            if (results.length > limit) {
+                panel.innerHTML += `<div class="search-no-result" style="border-top:1px solid #f0f0f0">... 외 ${results.length - limit}건 더 있습니다</div>`;
+            }
+            panel.classList.add('show');
+        }
+
+        function selectSearchResult(type, id, date) {
+            hideSearchResults();
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+
+            if (type === 'team') {
+                openMeetingModal(id);
+                return;
+            }
+
+            // 해당 날짜로 이동 후 상세 모달 열기
+            if (date) {
+                const d = new Date(date + 'T00:00:00');
+                selectedDate = d;
+                currentWeekStart = getMonday(d);
+                currentYear = d.getFullYear();
+                currentMonth = d.getMonth();
+                renderCalendar();
+                renderTasks();
+                updateSelectedDateDisplay();
+            }
+            setTimeout(() => openDetailModal(id), 80);
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResultsPanel').classList.remove('show');
+            searchResultHighlightIndex = -1;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            hideSearchResults();
+            document.getElementById('searchInput').focus();
+        }
+
+        // 방향키로 검색 결과 탐색, Enter 선택, Esc 닫기
+        function handleSearchKey(e) {
+            const panel = document.getElementById('searchResultsPanel');
+            const items = panel.querySelectorAll('.search-result-item');
+            if (!panel.classList.contains('show') || items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                searchResultHighlightIndex = Math.min(searchResultHighlightIndex + 1, items.length - 1);
+                updateSearchHighlight(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                searchResultHighlightIndex = Math.max(searchResultHighlightIndex - 1, 0);
+                updateSearchHighlight(items);
+            } else if (e.key === 'Enter' && searchResultHighlightIndex >= 0) {
+                e.preventDefault();
+                items[searchResultHighlightIndex].click();
+            }
+        }
+
+        function updateSearchHighlight(items) {
+            items.forEach((el, i) => {
+                el.style.background = i === searchResultHighlightIndex ? '#f0f6ff' : '';
+            });
+            if (searchResultHighlightIndex >= 0) {
+                items[searchResultHighlightIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        // 검색 패널 외부 클릭 시 닫기
+        document.addEventListener('click', e => {
+            const wrap = document.getElementById('searchBarWrap');
+            if (wrap && !wrap.contains(e.target)) hideSearchResults();
+        });
+
+
+        // ===================================================
+        //  ✏️ Phase 1-2: 회의록 수정 기능
+        // ===================================================
+        let editingMeetingId = null;
+
+        function editMeeting() {
+            const m = allMeetings.find(x => x.id === deletingMeetingId);
+            if (!m) return;
+
+            editingMeetingId = m.id;
+
+            // 상세 모달 닫고 작성 모달로 전환
+            closeMeetingDetailModal();
+
+            // 폼에 기존 데이터 채우기
+            document.getElementById('mTitle').value = m.title || '';
+            document.getElementById('mAttendees').value = m.attendees || '';
+            document.getElementById('mContent').value = m.content || '';
+            document.getElementById('mDecisions').value = m.decisions || '';
+            document.getElementById('mActionItems').value = m.action_items || '';
+
+            // 저장 버튼 텍스트 변경
+            const btn = document.getElementById('mSaveBtn');
+            btn.textContent = '수정 완료';
+
+            // 작성 탭 활성화
+            switchMeetingTab('write');
+        }
+
+        // saveMeeting을 수정 모드도 처리하도록 패치
+        const _origSaveMeeting = saveMeeting;
+        window.saveMeeting = async function() {
+            // 수정 모드
+            if (editingMeetingId) {
+                if (!sbClient) { alert('DB 연결이 필요합니다.'); return; }
+
+                const title = document.getElementById('mTitle').value.trim();
+                const content = document.getElementById('mContent').value.trim();
+                if (!title) { alert('회의 제목을 입력해주세요.'); return; }
+                if (!content) { alert('회의 내용을 입력해주세요.'); return; }
+
+                const btn = document.getElementById('mSaveBtn');
+                btn.disabled = true;
+                btn.textContent = '수정 중...';
+
+                const payload = {
+                    title,
+                    attendees: document.getElementById('mAttendees').value.trim() || null,
+                    content,
+                    decisions: document.getElementById('mDecisions').value.trim() || null,
+                    action_items: document.getElementById('mActionItems').value.trim() || null,
+                };
+
+                const { error } = await sbClient.from('meetings').update(payload).eq('id', editingMeetingId);
+
+                btn.disabled = false;
+                btn.textContent = '저장';
+                editingMeetingId = null;
+
+                if (error) { alert('수정 중 오류: ' + error.message); return; }
+
+                alert('✅ 회의록이 수정되었습니다!');
+                await loadMeetingList(currentMeetingEventId);
+                switchMeetingTab('list');
+                return;
+            }
+            // 신규 저장 — 원래 함수 호출
+            await _origSaveMeeting();
+        };
+
+        window.editMeeting = editMeeting;
+
+
+        // ===================================================
+        //  ⌨️ Phase 1-3: 키보드 단축키
+        // ===================================================
+        document.addEventListener('keydown', function(e) {
+            // 입력 필드 포커스 중이면 무시 (검색 방향키 제외)
+            const tag = document.activeElement.tagName;
+            const inInput = (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+
+            // / → 검색창 포커스
+            if (!inInput && e.key === '/') {
+                e.preventDefault();
+                const input = document.getElementById('searchInput');
+                input.focus();
+                input.select();
+                return;
+            }
+
+            // 입력 중에는 아래 단축키 무시
+            if (inInput) return;
+
+            // N → 업무 추가 모달 열기
+            if (e.key === 'n' || e.key === 'N') {
+                e.preventDefault();
+                openAddModal('work');
+                return;
+            }
+
+            // P → 개인 추가 모달 열기
+            if (e.key === 'p' || e.key === 'P') {
+                e.preventDefault();
+                openAddModal('personal');
+                return;
+            }
+
+            // ← → 이전/다음 주·월 이동
+            if (e.key === 'ArrowLeft' && !e.shiftKey) {
+                e.preventDefault();
+                previousPeriod();
+                return;
+            }
+            if (e.key === 'ArrowRight' && !e.shiftKey) {
+                e.preventDefault();
+                nextPeriod();
+                return;
+            }
+
+            // T → 오늘 날짜로 이동
+            if (e.key === 't' || e.key === 'T') {
+                e.preventDefault();
+                const today = new Date();
+                selectedDate = today;
+                currentWeekStart = getMonday(today);
+                currentYear = today.getFullYear();
+                currentMonth = today.getMonth();
+                renderCalendar();
+                renderTasks();
+                updateSelectedDateDisplay();
+                return;
+            }
+
+            // Esc → 열린 모달 닫기
+            if (e.key === 'Escape') {
+                if (document.getElementById('meetingDetailModal').classList.contains('open')) {
+                    closeMeetingDetailModal(); return;
+                }
+                if (document.getElementById('meetingModal').classList.contains('open')) {
+                    closeMeetingModal(); return;
+                }
+                if (document.getElementById('detailModal').classList.contains('open')) {
+                    closeDetailModal(); return;
+                }
+                if (document.getElementById('addModal').classList.contains('open')) {
+                    closeAddModal(); return;
+                }
+                if (document.getElementById('reportModal').classList.contains('open')) {
+                    closeReportModal(); return;
+                }
+                hideSearchResults();
+            }
+        });
+
+        // 단축키 안내 툴팁 (헤더 우측 물음표)
+        window.showShortcutHelp = function() {
+            alert(
+                '⌨️  키보드 단축키 안내\n\n' +
+                '  /        검색창 포커스\n' +
+                '  N        업무 추가\n' +
+                '  P        개인 추가\n' +
+                '  T        오늘로 이동\n' +
+                '  ← →    이전/다음 주·월\n' +
+                '  Esc    모달 닫기'
+            );
+        };
+
+
+        // ===================================================
+        //  🔔 Phase 4-1: Web Notifications 알림 시스템
+        // ===================================================
+
+        // checkDueAlerts 호출 시 브라우저 알림도 함께 발송
+        // 이미 알림 보낸 task id를 세션 동안 기억해 중복 방지
+        const _notifiedIds = new Set();
+
+        function _patchCheckDueAlertsForNotif() {
+            const _origCheck = checkDueAlerts;
+            window.checkDueAlerts = function() {
+                _origCheck();
+                fireNativeNotifications();
+            };
+        }
+
+        function fireNativeNotifications() {
+            if (Notification.permission !== 'granted') return;
+
+            function localDateStr(d) {
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+            const todayStr    = localDateStr(new Date());
+            const tomorrow    = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+            const tomorrowStr = localDateStr(tomorrow);
+
+            allTasks.forEach(t => {
+                if (t.completed || _notifiedIds.has(t.id)) return;
+                const due = t.due_date || t.date;
+                if (!due) return;
+                let urgency = null;
+                if (due < todayStr)    urgency = '기한 초과';
+                else if (due === todayStr)    urgency = '오늘 마감';
+                else if (due === tomorrowStr) urgency = '내일 마감';
+                if (!urgency) return;
+
+                _notifiedIds.add(t.id);
+                const n = new Notification('📌 ' + urgency, {
+                    body: t.title + (t.sub_category ? ' · ' + t.sub_category : ''),
+                    icon: 'https://em-content.zobj.net/source/google/387/pushpin_1f4cc.png',
+                    tag: 'task-' + t.id,
+                    requireInteraction: urgency === '기한 초과',
+                });
+                // 클릭 시 창 포커스 + 해당 날짜로 이동
+                n.onclick = () => {
+                    window.focus();
+                    const d = new Date((t.due_date || t.date) + 'T00:00:00');
+                    selectedDate = d;
+                    currentWeekStart = getMonday(d);
+                    switchView('week');
+                    renderTasks();
+                    updateSelectedDateDisplay();
+                };
+            });
+        }
+
+        // 토스트 알림 (브라우저 알림 거부 시에도 인앱으로 표시)
+        function showToast(icon, title, message, durationMs = 5000) {
+            const wrap = document.getElementById('notifToastWrap');
+            const toast = document.createElement('div');
+            toast.className = 'notif-toast';
+            toast.innerHTML = `
+                <div class="notif-toast-icon">${icon}</div>
+                <div class="notif-toast-body">
+                    <div class="notif-toast-title">${title}</div>
+                    ${message ? `<div class="notif-toast-msg">${message}</div>` : ''}
+                </div>
+                <button class="notif-toast-close" onclick="this.closest('.notif-toast').remove()">✕</button>`;
+            wrap.appendChild(toast);
+            setTimeout(() => toast.remove(), durationMs);
+        }
+
+        // checkDueAlerts 후 토스트도 보여주는 패치 (알림 거부 시 fallback)
+        function _patchCheckDueAlertsForToast() {
+            const _origCheck = window.checkDueAlerts;
+            window.checkDueAlerts = function() {
+                _origCheck();
+                showDueToasts();
+            };
+        }
+
+        const _toastedIds = new Set();
+        function showDueToasts() {
+            function localDateStr(d) {
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+            const todayStr    = localDateStr(new Date());
+            const tomorrow    = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+            const tomorrowStr = localDateStr(tomorrow);
+
+            allTasks.forEach(t => {
+                if (t.completed || _toastedIds.has(t.id)) return;
+                const due = t.due_date || t.date;
+                if (!due) return;
+                let urgency = null, icon = '⚠️';
+                if (due < todayStr)           { urgency = '기한 초과';  icon = '🔴'; }
+                else if (due === todayStr)    { urgency = '오늘 마감';  icon = '🟠'; }
+                else if (due === tomorrowStr) { urgency = '내일 마감';  icon = '🟡'; }
+                if (!urgency) return;
+                _toastedIds.add(t.id);
+                showToast(icon, urgency, t.title);
+            });
+        }
+
+        async function toggleNotification() {
+            const btn = document.getElementById('notifBtn');
+
+            if (!('Notification' in window)) {
+                showToast('❌', '미지원', '이 브라우저는 알림을 지원하지 않습니다.');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                // 이미 허용 → 인앱 토스트 ON/OFF 토글
+                const isActive = btn.classList.contains('notif-btn-on');
+                if (isActive) {
+                    btn.classList.replace('notif-btn-on', 'notif-btn-off');
+                    btn.title = '브라우저 알림 설정';
+                    showToast('🔕', '알림 꺼짐', '마감 알림이 비활성화됐습니다.');
+                    _toastedIds.clear();
+                } else {
+                    btn.classList.replace('notif-btn-off', 'notif-btn-on');
+                    btn.title = '알림 켜짐 (클릭하여 끄기)';
+                    showToast('🔔', '알림 켜짐', '마감 임박 항목을 알려드립니다.');
+                    showDueToasts();
+                    fireNativeNotifications();
+                }
+                return;
+            }
+
+            if (Notification.permission === 'denied') {
+                showToast('🚫', '알림 차단됨', '브라우저 설정에서 알림을 허용해 주세요.');
+                return;
+            }
+
+            // 최초 권한 요청
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                btn.classList.replace('notif-btn-off', 'notif-btn-on');
+                btn.title = '알림 켜짐 (클릭하여 끄기)';
+                showToast('🔔', '알림 허용됨', '마감 임박 항목을 알려드립니다.');
+                _patchCheckDueAlertsForNotif();
+                _patchCheckDueAlertsForToast();
+                showDueToasts();
+                fireNativeNotifications();
+                // 30분마다 자동 체크
+                setInterval(() => { checkDueAlerts(); }, 30 * 60 * 1000);
+            } else {
+                // 거부되도 인앱 토스트만 활성화
+                btn.classList.replace('notif-btn-off', 'notif-btn-on');
+                btn.title = '인앱 알림 켜짐 (클릭하여 끄기)';
+                showToast('🔔', '인앱 알림 켜짐', '브라우저 알림은 거부됐지만 화면 내 알림은 작동합니다.');
+                _patchCheckDueAlertsForToast();
+                showDueToasts();
+            }
+        }
+
+        window.toggleNotification = toggleNotification;
+        window.showToast = showToast;
+
+
+        // ===================================================
+        //  🔗 Phase 4-2: 업무 시스템 허브
+        // ===================================================
+
+        const HUB_STORAGE_KEY = 'workHubItems_v1';
+
+        // 기본 제공 시스템 (수정 불가 — isBuiltin: true)
+        const HUB_BUILTIN = [
+            { id: 'builtin_personal', icon: '📋', name: '개인 업무', desc: '현재 페이지', url: '#', isBuiltin: true },
+        ];
+
+        function loadHubItems() {
+            try {
+                const raw = localStorage.getItem(HUB_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch { return []; }
+        }
+
+        function saveHubItems(items) {
+            try { localStorage.setItem(HUB_STORAGE_KEY, JSON.stringify(items)); } catch {}
+        }
+
+        function renderHubGrid() {
+            const custom = loadHubItems();
+            const all = [...HUB_BUILTIN, ...custom];
+            const grid = document.getElementById('hubGrid');
+
+            grid.innerHTML = all.map(item => {
+                const target = item.url === '#' ? '' : 'target="_blank" rel="noopener"';
+                const deleteBtn = item.isBuiltin ? '' :
+                    `<button onclick="deleteHubItem('${item.id}', event)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;padding:0 0 0 6px;" title="삭제">✕</button>`;
+                return `<a class="hub-card" href="${item.url}" ${target}>
+                    <div class="hub-card-icon">${item.icon}</div>
+                    <div class="hub-card-info">
+                        <div class="hub-card-name">${item.name}</div>
+                        <div class="hub-card-desc">${item.desc || ''}</div>
+                    </div>
+                    ${deleteBtn}
+                </a>`;
+            }).join('') +
+            `<div class="hub-card add-new" onclick="openHubAddForm()">
+                <div style="font-size:22px;">＋</div>
+                <div style="font-size:12px;">시스템 추가</div>
+            </div>`;
+        }
+
+        function openHubModal() {
+            renderHubGrid();
+            document.getElementById('hubAddForm').classList.remove('open');
+            document.getElementById('hubModal').classList.add('open');
+        }
+
+        function closeHubModal() {
+            document.getElementById('hubModal').classList.remove('open');
+        }
+
+        function openHubAddForm() {
+            document.getElementById('hubNewName').value = '';
+            document.getElementById('hubNewIcon').value = '';
+            document.getElementById('hubNewUrl').value  = '';
+            document.getElementById('hubNewDesc').value = '';
+            document.getElementById('hubAddForm').classList.add('open');
+            document.getElementById('hubNewName').focus();
+        }
+
+        function closeHubAddForm() {
+            document.getElementById('hubAddForm').classList.remove('open');
+        }
+
+        function saveHubItem() {
+            const name = document.getElementById('hubNewName').value.trim();
+            const icon = document.getElementById('hubNewIcon').value.trim() || '🔗';
+            const url  = document.getElementById('hubNewUrl').value.trim();
+            const desc = document.getElementById('hubNewDesc').value.trim();
+
+            if (!name) { showToast('⚠️', '이름을 입력해주세요', ''); return; }
+            if (!url || !url.startsWith('http')) { showToast('⚠️', 'URL을 확인해주세요', 'https://로 시작해야 합니다.'); return; }
+
+            const items = loadHubItems();
+            items.push({ id: 'hub_' + Date.now(), icon, name, desc, url });
+            saveHubItems(items);
+            closeHubAddForm();
+            renderHubGrid();
+            showToast('✅', `${name} 추가됨`, '허브에서 바로 접근할 수 있습니다.');
+        }
+
+        function deleteHubItem(id, e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const items = loadHubItems().filter(i => i.id !== id);
+            saveHubItems(items);
+            renderHubGrid();
+        }
+
+        window.openHubModal     = openHubModal;
+        window.closeHubModal    = closeHubModal;
+        window.openHubAddForm   = openHubAddForm;
+        window.closeHubAddForm  = closeHubAddForm;
+        window.saveHubItem      = saveHubItem;
+        window.deleteHubItem    = deleteHubItem;
 
     </script>
 </body>
