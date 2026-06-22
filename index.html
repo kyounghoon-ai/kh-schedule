@@ -1142,6 +1142,145 @@
         .badge-new { background: #D4537E; color: #fff; font-size: 10px;
             padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
 
+        /* ===== 회의록 전체 뷰 ===== */
+        .meetings-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .meetings-view.active { display: flex; }
+
+        .meetings-toolbar {
+            padding: 14px 20px 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .meetings-toolbar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .meetings-search-wrap {
+            position: relative;
+            flex: 1;
+        }
+        .meetings-search-wrap input {
+            width: 100%;
+            padding: 8px 34px 8px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: #fafafa;
+            transition: border-color .2s;
+        }
+        .meetings-search-wrap input:focus { border-color: #D4537E; background: #fff; }
+        .meetings-search-clear {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: #bbb; cursor: pointer;
+            font-size: 14px; display: none; padding: 0;
+        }
+        .meetings-search-clear:hover { color: #555; }
+
+        .meetings-filter-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .mf-label { font-size: 11px; color: #aaa; flex-shrink: 0; }
+        .mf-btn {
+            padding: 4px 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+            transition: all .15s;
+        }
+        .mf-btn:hover { border-color: #D4537E; color: #D4537E; }
+        .mf-btn.active { background: #D4537E; color: white; border-color: #D4537E; }
+        .mf-date { padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; color: #555; outline: none; }
+        .mf-date:focus { border-color: #D4537E; }
+        .mf-sort {
+            padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 12px; color: #555; outline: none; background: white; cursor: pointer;
+        }
+
+        .meetings-stats-bar {
+            display: flex;
+            gap: 16px;
+            padding: 6px 20px 0;
+            font-size: 11px;
+            color: #aaa;
+            flex-shrink: 0;
+        }
+        .meetings-stats-bar span { color: #D4537E; font-weight: 600; }
+
+        .meetings-list-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px 20px;
+        }
+        .meetings-list-body::-webkit-scrollbar { width: 5px; }
+        .meetings-list-body::-webkit-scrollbar-thumb { background: #eee; border-radius: 3px; }
+
+        .mlog-card {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 4px 12px;
+            padding: 13px 15px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: #fafafa;
+            transition: border-color .15s, background .15s;
+        }
+        .mlog-card:hover { border-color: #D4537E; background: #fdf2f6; }
+        .mlog-card:last-child { margin-bottom: 0; }
+
+        .mlog-title { font-size: 13px; font-weight: 600; color: #333; }
+        .mlog-title mark { background: #fff3c0; color: #333; border-radius: 2px; padding: 0 2px; }
+        .mlog-event { font-size: 11px; color: #D4537E; font-weight: 500; margin-top: 2px; }
+        .mlog-meta  { font-size: 11px; color: #aaa; margin-top: 3px; }
+        .mlog-preview {
+            font-size: 12px; color: #888; margin-top: 4px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            grid-column: 1 / -1;
+        }
+        .mlog-preview mark { background: #fff3c0; color: #555; border-radius: 2px; padding: 0 2px; }
+        .mlog-date-badge {
+            font-size: 11px; color: #999; white-space: nowrap;
+            text-align: right; padding-top: 2px;
+        }
+        .mlog-action-tag {
+            display: inline-block; font-size: 10px; padding: 2px 7px;
+            border-radius: 10px; background: #fdf2f6; color: #D4537E;
+            border: 1px solid #f9c0d4; margin-top: 2px;
+        }
+
+        .meetings-empty {
+            text-align: center; padding: 50px 20px;
+            color: #bbb; font-size: 13px; line-height: 1.8;
+        }
+        .meetings-load-more {
+            width: 100%; padding: 10px; margin-top: 8px;
+            border: 1px dashed #ddd; border-radius: 8px; background: white;
+            font-size: 13px; color: #aaa; cursor: pointer;
+        }
+        .meetings-load-more:hover { border-color: #D4537E; color: #D4537E; }
+
+        @media (max-width: 680px) {
+            .meetings-toolbar-row { flex-wrap: wrap; }
+            .mf-btn { font-size: 11px; padding: 3px 8px; }
+        }
+
         /* ===== Phase 3: 통계 뷰 ===== */
         .stats-view { display: none; padding: 20px; flex-direction: column; gap: 20px; overflow-y: auto; }
         .stats-view.active { display: flex; }
@@ -1325,8 +1464,9 @@
                     <div class="view-toggle">
                         <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
                         <button id="monthBtn" onclick="switchView('month')">월간</button>
-                        <button id="yearBtn"  onclick="switchView('year')">연간</button>
-                        <button id="statsBtn" onclick="switchView('stats')">📊 통계</button>
+                        <button id="yearBtn"     onclick="switchView('year')">연간</button>
+                        <button id="statsBtn"    onclick="switchView('stats')">📊 통계</button>
+                        <button id="meetingsBtn" onclick="switchView('meetings')" style="border-color:#D4537E;color:#D4537E;">📝 회의록</button>
                     </div>
                 </div>
             </div>
@@ -1408,6 +1548,44 @@
                     <div>
                         <div class="stats-section-title">📆 요일별 할일 패턴</div>
                         <div class="dow-chart" id="dowChart"></div>
+                    </div>
+                </div>
+
+                <!-- 회의록 전체 뷰 -->
+                <div id="meetingsView" class="meetings-view">
+
+                    <div class="meetings-toolbar">
+                        <div class="meetings-toolbar-row">
+                            <div class="meetings-search-wrap">
+                                <input type="text" id="mlogSearch"
+                                    placeholder="🔍 제목, 내용, 참석자, 이벤트명 검색"
+                                    autocomplete="off"
+                                    oninput="onMlogSearch(this.value)">
+                                <button class="meetings-search-clear" id="mlogSearchClear" onclick="clearMlogSearch()">✕</button>
+                            </div>
+                            <select class="mf-sort" id="mlogSort" onchange="applyMlogFilter()">
+                                <option value="date_desc">날짜 최신순</option>
+                                <option value="date_asc">날짜 오래된순</option>
+                                <option value="created_desc">작성 최신순</option>
+                            </select>
+                            <button onclick="loadAllMeetings(true)" style="padding:7px 12px;border:1px solid #ddd;border-radius:6px;background:white;font-size:12px;color:#666;cursor:pointer;flex-shrink:0;">🔄</button>
+                        </div>
+                        <div class="meetings-filter-row">
+                            <span class="mf-label">기간</span>
+                            <button class="mf-btn active" data-period="all"   onclick="setMlogPeriod('all',this)">전체</button>
+                            <button class="mf-btn"        data-period="month" onclick="setMlogPeriod('month',this)">이번 달</button>
+                            <button class="mf-btn"        data-period="3m"    onclick="setMlogPeriod('3m',this)">3개월</button>
+                            <button class="mf-btn"        data-period="6m"    onclick="setMlogPeriod('6m',this)">6개월</button>
+                            <input type="date" class="mf-date" id="mlogFrom" placeholder="시작" onchange="applyMlogFilter()">
+                            <span class="mf-label">~</span>
+                            <input type="date" class="mf-date" id="mlogTo"   placeholder="종료" onchange="applyMlogFilter()">
+                        </div>
+                    </div>
+
+                    <div class="meetings-stats-bar" id="mlogStatsBar"></div>
+
+                    <div class="meetings-list-body" id="mlogListBody">
+                        <div class="meetings-empty">📝 회의록 버튼을 눌러 불러오세요</div>
                     </div>
                 </div>
 
@@ -1875,15 +2053,16 @@
         function switchView(view) {
             currentView = view;
             // 버튼 active 초기화
-            ['weekBtn','monthBtn','yearBtn','statsBtn'].forEach(id => {
+            ['weekBtn','monthBtn','yearBtn','statsBtn','meetingsBtn'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('active');
             });
             // 뷰 패널 전부 숨기기
             document.getElementById('calendarGrid').style.display = 'none';
             document.getElementById('monthGrid').classList.remove('active');
-            document.getElementById('yearView').style.display  = 'none';
+            document.getElementById('yearView').style.display    = 'none';
             document.getElementById('statsView').classList.remove('active');
+            document.getElementById('meetingsView').classList.remove('active');
 
             if (view === 'week') {
                 document.getElementById('weekBtn').classList.add('active');
@@ -1902,6 +2081,10 @@
                 document.getElementById('statsBtn').classList.add('active');
                 document.getElementById('statsView').classList.add('active');
                 renderStats();
+            } else if (view === 'meetings') {
+                document.getElementById('meetingsBtn').classList.add('active');
+                document.getElementById('meetingsView').classList.add('active');
+                loadAllMeetings();
             }
         }
 
@@ -4021,6 +4204,234 @@
         }
 
         window.toggleNotification = toggleNotification;
+
+
+        // ===================================================
+        //  📝 회의록 전체 뷰
+        // ===================================================
+
+        let _allMlogData   = [];   // DB에서 받아온 원본 전체
+        let _mlogFiltered  = [];   // 필터·검색 적용 후 표시 목록
+        let _mlogPeriod    = 'all';
+        let _mlogQuery     = '';
+        const MLOG_PAGE    = 30;   // 한 번에 표시할 개수
+        let _mlogPage      = 1;
+
+        // ── 전체 불러오기 ──────────────────────────────────
+        async function loadAllMeetings(force = false) {
+            if (!sbClient) {
+                document.getElementById('mlogListBody').innerHTML =
+                    '<div class="meetings-empty">DB 연결이 필요합니다.</div>';
+                return;
+            }
+            // 이미 데이터 있고 force 아니면 필터만 재적용
+            if (_allMlogData.length && !force) { applyMlogFilter(); return; }
+
+            document.getElementById('mlogListBody').innerHTML =
+                '<div class="meetings-empty">불러오는 중...</div>';
+
+            const { data, error } = await sbClient
+                .from('meetings')
+                .select('*')
+                .order('event_date', { ascending: false });
+
+            if (error) {
+                document.getElementById('mlogListBody').innerHTML =
+                    `<div class="meetings-empty">불러오기 실패: ${error.message}</div>`;
+                return;
+            }
+
+            _allMlogData = data || [];
+            _mlogPage    = 1;
+            applyMlogFilter();
+        }
+
+        // ── 필터 + 검색 적용 ──────────────────────────────
+        function applyMlogFilter() {
+            const q      = _mlogQuery.toLowerCase().trim();
+            const sort   = document.getElementById('mlogSort')?.value || 'date_desc';
+            const fromV  = document.getElementById('mlogFrom')?.value || '';
+            const toV    = document.getElementById('mlogTo')?.value   || '';
+
+            // 기간 필터 계산
+            let periodFrom = '';
+            const now = new Date();
+            function localStr(d) {
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+            if (_mlogPeriod === 'month') {
+                const first = new Date(now.getFullYear(), now.getMonth(), 1);
+                periodFrom = localStr(first);
+            } else if (_mlogPeriod === '3m') {
+                const d = new Date(now); d.setMonth(d.getMonth() - 3);
+                periodFrom = localStr(d);
+            } else if (_mlogPeriod === '6m') {
+                const d = new Date(now); d.setMonth(d.getMonth() - 6);
+                periodFrom = localStr(d);
+            }
+
+            let list = _allMlogData.filter(m => {
+                const date = m.event_date || '';
+                // 기간 필터
+                if (periodFrom && date < periodFrom) return false;
+                // 직접 날짜 범위
+                if (fromV && date < fromV) return false;
+                if (toV   && date > toV)   return false;
+                // 텍스트 검색
+                if (q) {
+                    const hay = [m.title, m.content, m.attendees, m.event_title,
+                                 m.decisions, m.action_items].filter(Boolean).join(' ').toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+
+            // 정렬
+            list.sort((a, b) => {
+                if (sort === 'date_asc')     return (a.event_date||'').localeCompare(b.event_date||'');
+                if (sort === 'created_desc') return (b.created_at||'').localeCompare(a.created_at||'');
+                return (b.event_date||'').localeCompare(a.event_date||''); // date_desc default
+            });
+
+            _mlogFiltered = list;
+            _mlogPage     = 1;
+            renderMlogList();
+        }
+
+        // ── 목록 렌더 ──────────────────────────────────────
+        function renderMlogList() {
+            const q    = _mlogQuery.toLowerCase().trim();
+            const body = document.getElementById('mlogListBody');
+            const total = _mlogFiltered.length;
+            const shown = _mlogFiltered.slice(0, _mlogPage * MLOG_PAGE);
+
+            // 통계 바
+            document.getElementById('mlogStatsBar').innerHTML =
+                `전체 <span>${_allMlogData.length}</span>건 중 <span>${total}</span>건 표시` +
+                (q ? ` · 검색어 "<span>${escapeHtml(q)}</span>"` : '');
+
+            if (!total) {
+                body.innerHTML = `<div class="meetings-empty">
+                    ${q ? `"${escapeHtml(q)}"에 해당하는 회의록이 없습니다.` : '조건에 맞는 회의록이 없습니다.'}<br>
+                    필터를 바꾸거나 검색어를 수정해 보세요.
+                </div>`;
+                return;
+            }
+
+            function hl(text) {
+                if (!q || !text) return escapeHtml(text || '');
+                return escapeHtml(text).replace(
+                    new RegExp(q.replace(/[.*+?^${}()|[\]\]/g, '\$&'), 'gi'),
+                    m => `<mark>${m}</mark>`
+                );
+            }
+
+            body.innerHTML = shown.map(m => {
+                const dateLabel = m.event_date || '-';
+                const writtenAt = m.created_at
+                    ? new Date(m.created_at).toLocaleDateString('ko-KR', { month:'short', day:'numeric' })
+                    : '';
+                const preview = (m.content || '').replace(/
+/g, ' ').slice(0, 80);
+                const hasAction = !!(m.action_items && m.action_items.trim());
+                return `<div class="mlog-card" onclick="openMlogDetail('${m.id}')">
+                    <div>
+                        <div class="mlog-title">${hl(m.title)}</div>
+                        <div class="mlog-event">📅 ${hl(m.event_title || '-')}</div>
+                        <div class="mlog-meta">
+                            ${m.attendees ? `👥 ${hl(m.attendees)}` : ''}
+                            ${hasAction ? '<span class="mlog-action-tag">액션 있음</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="mlog-date-badge">${dateLabel}<br><span style="font-size:10px;color:#ccc;">${writtenAt}</span></div>
+                    <div class="mlog-preview">${hl(preview)}${preview.length >= 80 ? '…' : ''}</div>
+                </div>`;
+            }).join('');
+
+            // 더 보기 버튼
+            if (total > shown.length) {
+                body.innerHTML += `<button class="meetings-load-more"
+                    onclick="_mlogPage++;renderMlogList()">
+                    더 보기 (${total - shown.length}건 남음)
+                </button>`;
+            }
+        }
+
+        // ── 검색 핸들러 ───────────────────────────────────
+        function onMlogSearch(val) {
+            _mlogQuery = val;
+            document.getElementById('mlogSearchClear').style.display = val ? 'block' : 'none';
+            applyMlogFilter();
+        }
+
+        function clearMlogSearch() {
+            document.getElementById('mlogSearch').value = '';
+            document.getElementById('mlogSearchClear').style.display = 'none';
+            _mlogQuery = '';
+            applyMlogFilter();
+        }
+
+        // ── 기간 필터 버튼 ────────────────────────────────
+        function setMlogPeriod(period, el) {
+            _mlogPeriod = period;
+            document.querySelectorAll('.mf-btn[data-period]').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            // 직접 날짜 범위 초기화
+            if (period !== 'custom') {
+                document.getElementById('mlogFrom').value = '';
+                document.getElementById('mlogTo').value   = '';
+            }
+            applyMlogFilter();
+        }
+
+        // ── 상세 보기 ─────────────────────────────────────
+        function openMlogDetail(meetingId) {
+            // allMeetings는 현재 이벤트 단위이므로 _allMlogData에서 찾기
+            const m = _allMlogData.find(x => x.id === meetingId);
+            if (!m) return;
+
+            // 기존 meetingDetailModal 재활용
+            // allMeetings에 임시 주입 (deleteMeeting, editMeeting 호환)
+            allMeetings = _allMlogData;
+            deletingMeetingId = meetingId;
+
+            document.getElementById('mdTitle').textContent       = m.title;
+            document.getElementById('mdEventTitle').textContent  = m.event_title || '-';
+            document.getElementById('mdMeta').textContent        =
+                `📅 ${m.event_date || '-'}${m.attendees ? ' · 👥 ' + m.attendees : ''}`;
+            document.getElementById('mdAttendees').textContent   = m.attendees    || '(미입력)';
+            document.getElementById('mdContent').textContent     = m.content      || '-';
+            document.getElementById('mdDecisions').textContent   = m.decisions    || '-';
+            document.getElementById('mdActionItems').textContent = m.action_items || '-';
+
+            document.getElementById('meetingDetailModal').classList.add('open');
+        }
+
+        // 상세 닫기 후 회의록 뷰로 복귀
+        const _origCloseMeetingDetail = window.closeMeetingDetailModal || function(){};
+        window.closeMeetingDetailModal = function() {
+            _origCloseMeetingDetail();
+            // 수정/삭제 후 목록 갱신
+            if (currentView === 'meetings') {
+                loadAllMeetings(true);
+            }
+        };
+
+        // HTML 이스케이프 유틸
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        window.loadAllMeetings  = loadAllMeetings;
+        window.applyMlogFilter  = applyMlogFilter;
+        window.onMlogSearch     = onMlogSearch;
+        window.clearMlogSearch  = clearMlogSearch;
+        window.setMlogPeriod    = setMlogPeriod;
+        window.openMlogDetail   = openMlogDetail;
         window.showToast = showToast;
 
 
