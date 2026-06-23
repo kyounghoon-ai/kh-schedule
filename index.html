@@ -4321,7 +4321,7 @@
             function hl(text) {
                 if (!q || !text) return escapeHtml(text || '');
                 return escapeHtml(text).replace(
-                    new RegExp(q.replace(/[.*+?^${}()|[\]\]/g, '\$&'), 'gi'),
+                    new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
                     m => `<mark>${m}</mark>`
                 );
             }
