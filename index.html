@@ -1142,6 +1142,67 @@
         .badge-new { background: #D4537E; color: #fff; font-size: 10px;
             padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
 
+        /* ===== UX 개선: 완료 숨기기 토글 ===== */
+        .hide-done-wrap {
+            display: flex; align-items: center; gap: 6px;
+            padding: 0 0 8px; font-size: 12px; color: #888; cursor: pointer;
+            user-select: none;
+        }
+        .hide-done-wrap input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; accent-color: #639922; }
+
+        /* ===== UX 개선: 우선순위 배지 ===== */
+        .priority-badge {
+            font-size: 10px; font-weight: 600;
+            padding: 1px 6px; border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .priority-high   { background: #FCEBEB; color: #A32D2D; }
+        .priority-normal { background: #E6F1FB; color: #185FA5; }
+        .priority-low    { background: #f0f0f0; color: #aaa; }
+
+        /* 우선순위 선택 버튼 */
+        .priority-grid { display: flex; gap: 8px; }
+        .priority-btn {
+            flex: 1; padding: 7px 4px; border: 1.5px solid #ddd; border-radius: 6px;
+            background: white; font-size: 12px; font-weight: 500; cursor: pointer;
+            transition: all .15s; text-align: center;
+        }
+        .priority-btn.active-high   { border-color: #A32D2D; background: #FCEBEB; color: #A32D2D; }
+        .priority-btn.active-normal { border-color: #185FA5; background: #E6F1FB; color: #185FA5; }
+        .priority-btn.active-low    { border-color: #aaa;    background: #f0f0f0; color: #777; }
+
+        /* 할일 항목 우선순위 왼쪽 라인 */
+        .task-item.prio-high   { border-left: 3px solid #d32f2f; }
+        .task-item.prio-normal { border-left: 3px solid #3B8BD4; }
+        .task-item.prio-low    { border-left: 3px solid #ccc; }
+
+        /* ===== UX 개선: 회의록 신규 작성 버튼 ===== */
+        .mlog-new-btn {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 10px; margin: 12px 16px 0;
+            border: 1.5px dashed #D4537E; border-radius: 8px;
+            background: white; color: #D4537E; font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: background .15s;
+            flex-shrink: 0;
+        }
+        .mlog-new-btn:hover { background: #fdf2f6; }
+
+        /* 인라인 회의록 작성 폼 */
+        .mlog-inline-form {
+            display: none; flex-direction: column; gap: 10px;
+            margin: 8px 16px; padding: 14px;
+            background: #fdf2f6; border-radius: 8px;
+            border: 1px solid #f0c8d8;
+        }
+        .mlog-inline-form.open { display: flex; }
+        .mlog-inline-form input, .mlog-inline-form textarea {
+            padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 13px; outline: none; font-family: inherit; resize: vertical;
+        }
+        .mlog-inline-form input:focus, .mlog-inline-form textarea:focus { border-color: #D4537E; }
+        .mlog-inline-form label { font-size: 11px; color: #888; font-weight: 500; }
+        .mlog-inline-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
         /* ===== 회의록 전체 뷰 ===== */
         .meetings-view {
             display: none;
@@ -1584,6 +1645,44 @@
 
                     <div class="meetings-stats-bar" id="mlogStatsBar"></div>
 
+                    <!-- UX 개선: 이벤트 없이 직접 회의록 작성 -->
+                    <button class="mlog-new-btn" id="mlogNewBtn" onclick="toggleMlogInlineForm()">
+                        ＋ 새 회의록 작성
+                    </button>
+                    <div class="mlog-inline-form" id="mlogInlineForm">
+                        <div style="font-size:13px;font-weight:600;color:#D4537E;">📝 새 회의록</div>
+                        <div>
+                            <label>회의 제목 *</label>
+                            <input type="text" id="mlogNewTitle" placeholder="예: 3분기 전략 회의">
+                        </div>
+                        <div class="mlog-inline-row">
+                            <div>
+                                <label>날짜</label>
+                                <input type="date" id="mlogNewDate">
+                            </div>
+                            <div>
+                                <label>참석자</label>
+                                <input type="text" id="mlogNewAttendees" placeholder="홍길동, 김철수">
+                            </div>
+                        </div>
+                        <div>
+                            <label>회의 내용 *</label>
+                            <textarea id="mlogNewContent" rows="3" placeholder="회의 내용을 입력하세요"></textarea>
+                        </div>
+                        <div>
+                            <label>결정사항</label>
+                            <textarea id="mlogNewDecisions" rows="2" placeholder="결정된 사항을 입력하세요"></textarea>
+                        </div>
+                        <div>
+                            <label>액션 아이템</label>
+                            <textarea id="mlogNewActions" rows="2" placeholder="후속 조치 사항을 입력하세요"></textarea>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="toggleMlogInlineForm()" style="flex:1;padding:9px;border:1px solid #ddd;border-radius:6px;background:white;cursor:pointer;font-size:13px;">취소</button>
+                            <button onclick="saveMlogDirect()" style="flex:1;padding:9px;border:none;border-radius:6px;background:#D4537E;color:white;cursor:pointer;font-size:13px;font-weight:500;">저장</button>
+                        </div>
+                    </div>
+
                     <div class="meetings-list-body" id="mlogListBody">
                         <div class="meetings-empty">📝 회의록 버튼을 눌러 불러오세요</div>
                     </div>
@@ -1612,6 +1711,10 @@
                     <div class="task-list" id="taskList"></div>
 
                     <div class="filter-section">
+                        <label class="hide-done-wrap">
+                            <input type="checkbox" id="hideDoneChk" onchange="toggleHideDone(this.checked)">
+                            완료 항목 숨기기
+                        </label>
                         <div class="filter-title">분류 필터</div>
                         <div class="filter-buttons">
                             <button class="filter-btn active" onclick="filterByCategory('all', this)">전체</button>
@@ -1665,6 +1768,16 @@
                 <div class="form-group">
                     <label class="form-label">종료 시간</label>
                     <input type="time" class="form-control" id="endTime">
+                </div>
+            </div>
+
+            <!-- UX 개선: 우선순위 -->
+            <div class="form-group">
+                <label class="form-label">우선순위</label>
+                <div class="priority-grid" id="priorityGrid">
+                    <button type="button" class="priority-btn" data-p="high"   onclick="selectPriority('high')"  >🔴 높음</button>
+                    <button type="button" class="priority-btn active-normal" data-p="normal" onclick="selectPriority('normal')">🔵 보통</button>
+                    <button type="button" class="priority-btn" data-p="low"    onclick="selectPriority('low')"   >⚪ 낮음</button>
                 </div>
             </div>
 
@@ -1978,6 +2091,20 @@
                 '2027-10-11': '대체공휴일',
                 '2027-12-25': '크리스마스',
             },
+            // ✅ 버그수정 4: 2028년 공휴일 추가
+            2028: {
+                '2028-01-01': '신정',
+                '2028-02-04': '설날 연휴', '2028-02-05': '설날', '2028-02-06': '설날 연휴',
+                '2028-02-07': '대체공휴일',
+                '2028-03-01': '삼일절',
+                '2028-05-02': '부처님오탄신일',
+                '2028-05-05': '어린이날',
+                '2028-06-06': '현충일',
+                '2028-08-15': '광복절',
+                '2028-10-01': '추석 연휴', '2028-10-02': '추석', '2028-10-03': '추석 연휴 · 개천절',
+                '2028-10-09': '한글날',
+                '2028-12-25': '크리스마스',
+            },
         };
 
         // 현재 연도 ±1 범위를 하나의 객체로 병합 (뷰 이동 시 인접 연도도 커버)
@@ -1997,6 +2124,9 @@
             work: ['자료요청', '자료제출', '메일회신', '업무지시', '보고', '회의', '기타'],
             personal: ['점심', '저녁', '행사', '운동', '기타']
         };
+
+        // ✅ 버그수정 1: user_id를 한 곳에서 관리 — Auth 연동 시 이 한 줄만 변경
+        const APP_USER_ID = '00000000-0000-0000-0000-000000000000';
 
         const SUPABASE_URL = 'https://srcnsotfcwwvqwejfitl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyY25zb3RmY3d3dnF3ZWpmaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTU3MTksImV4cCI6MjA5Njc3MTcxOX0.153tZC9Tkg8cP4lfzzUnRaoX5rsDT0uXU3X128p-ovU';
@@ -2361,6 +2491,12 @@
                 }
                 
                 day.onclick = () => selectDate(dateObj);
+
+                // ✅ 버그수정 3: 월간 뷰 드래그 앤 드롭
+                day.dataset.date = dateStr;
+                day.addEventListener('dragover',  onCellDragOver);
+                day.addEventListener('dragleave', onCellDragLeave);
+                day.addEventListener('drop',      onCellDrop);
                 
                 const dateNum = document.createElement('div');
                 dateNum.className = 'month-date';
@@ -2382,6 +2518,16 @@
                         dot.className = 'month-event-dot';
                         dot.style.background = t.category === 'work' ? '#3B8BD4'
                             : t.category === 'personal' ? '#639922' : '#D4537E';
+                        // ✅ 버그수정 3: 팀 이벤트가 아닌 개인 할일만 드래그 가능
+                        if (!t.start_date) {
+                            dot.draggable = true;
+                            dot.dataset.taskId = t.id;
+                            dot.style.cursor = 'grab';
+                            dot.title = t.title;
+                            dot.addEventListener('dragstart', onBadgeDragStart);
+                            dot.addEventListener('dragend',   onBadgeDragEnd);
+                            dot.addEventListener('click', e => { e.stopPropagation(); openDetailModal(t.id); });
+                        }
                         eventsDiv.appendChild(dot);
                     });
                     day.appendChild(eventsDiv);
@@ -2597,7 +2743,7 @@
             const dateStr = document.getElementById('taskDate').value || formatDate(new Date());
             
             const taskData = {
-                user_id: '00000000-0000-0000-0000-000000000000',
+                user_id: APP_USER_ID,
                 title,
                 description: document.getElementById('taskDesc').value || null,
                 date: dateStr,
@@ -2656,12 +2802,21 @@
                 // ✅ 반복 일정 처리
                 const repeatTasks = generateRepeatTasks(newTask, dateStr);
 
+                // ✅ 버그수정 2: temp_ ID 로딩 상태 — 저장 완료 전 클릭 방지
                 repeatTasks.forEach(t => {
-                    allTasks.push({ id: 'temp_' + Date.now() + '_' + t.date, ...t });
+                    allTasks.push({ id: 'temp_' + Date.now() + '_' + t.date, ...t, _saving: true });
                 });
 
                 renderCalendar();
                 renderTasks();
+                // 저장 중 배지에 시각 피드백 (반투명 + 커서 차단)
+                document.querySelectorAll('.event-badge').forEach(el => {
+                    if (el.textContent.trim() === taskData.title) {
+                        el.style.opacity = '0.5';
+                        el.style.pointerEvents = 'none';
+                        el.title = '저장 중...';
+                    }
+                });
                 document.getElementById('successMsg').classList.add('show');
 
                 setTimeout(() => {
@@ -2671,9 +2826,15 @@
                     if (sbClient) {
                         sbClient.from('tasks').insert(repeatTasks).then(() => {
                             console.log('✓ Supabase 저장 성공 (' + repeatTasks.length + '건)');
+                            // ✅ 버그수정 2: 저장 완료 → temp_ 제거 후 실제 데이터로 교체
+                            allTasks = allTasks.filter(t => !t._saving);
                             loadTasks().then(() => { renderCalendar(); renderTasks(); checkDueAlerts(); });
                         }).catch(error => {
                             console.log('⚠️ Supabase 저장 오류:', error.message);
+                            // 저장 실패 시 temp_ 항목 제거 + 안내
+                            allTasks = allTasks.filter(t => !t._saving);
+                            renderCalendar(); renderTasks();
+                            showToast('❌', '저장 실패', '네트워크를 확인하고 다시 시도해주세요.');
                         });
                     }
                 }, 1000);
@@ -2700,6 +2861,11 @@
         function openDetailModal(taskId) {
             const task = allTasks.find(t => t.id === taskId);
             if (!task) return;
+            // ✅ 버그수정 2: 저장 중인 temp_ 항목은 모달 차단
+            if (task._saving || taskId.startsWith('temp_')) {
+                showToast('⏳', '저장 중', '잠시 후 다시 시도해주세요.');
+                return;
+            }
 
             selectedTaskId = taskId;
 
@@ -3075,6 +3241,22 @@
                 text += '\n';
             });
 
+            // UX 개선: 해당 주 회의록 자동 포함
+            const weekMeetings = _allMlogData.filter(m => {
+                const d = m.event_date || '';
+                return d >= startStr && d <= endStr;
+            });
+            if (weekMeetings.length > 0) {
+                text += `[이번 주 회의록]\n`;
+                weekMeetings.forEach(m => {
+                    text += `  📝 ${m.event_date || '-'} ${m.title}\n`;
+                    if (m.attendees)    text += `     참석자: ${m.attendees}\n`;
+                    if (m.decisions)    text += `     결정: ${m.decisions.replace(/\n/g, ' ')}\n`;
+                    if (m.action_items) text += `     액션: ${m.action_items.replace(/\n/g, ' ')}\n`;
+                });
+                text += '\n';
+            }
+
             // ✅ Phase 0: navigator.clipboard API로 교체 (execCommand 제거)
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text)
@@ -3107,6 +3289,183 @@
 
         // closeAddModal 초기화 시 반복 설정도 리셋
         const _origCloseAddModal = closeAddModal;
+
+        // ===================================================
+        //  ✅ UX 1: 완료 항목 숨기기 토글
+        // ===================================================
+        let _hideDone = false;
+
+        function toggleHideDone(checked) {
+            _hideDone = checked;
+            renderTasks();
+        }
+
+        // renderTasks를 패치해서 _hideDone 반영
+        const _origRenderTasks = renderTasks;
+        window.renderTasks = function() {
+            _origRenderTasks();
+            if (_hideDone) {
+                document.querySelectorAll('#taskList .task-item').forEach(el => {
+                    const chk = el.querySelector('input[type=checkbox]');
+                    if (chk && chk.checked) el.style.display = 'none';
+                });
+                // 전부 숨겨져서 빈 경우
+                const list = document.getElementById('taskList');
+                const visible = list.querySelectorAll('.task-item:not([style*="none"])');
+                if (visible.length === 0 && list.querySelectorAll('.task-item').length > 0) {
+                    const div = document.createElement('div');
+                    div.className = 'empty-state';
+                    div.id = 'hideDoneMsg';
+                    div.textContent = '완료된 항목만 있습니다 ✅';
+                    list.appendChild(div);
+                }
+            }
+        };
+        window.toggleHideDone = toggleHideDone;
+
+
+        // ===================================================
+        //  🔴 UX 2: 우선순위 필드
+        // ===================================================
+        let _selectedPriority = 'normal';
+
+        function selectPriority(p) {
+            _selectedPriority = p;
+            document.querySelectorAll('.priority-btn').forEach(btn => {
+                btn.classList.remove('active-high', 'active-normal', 'active-low');
+                if (btn.dataset.p === p) btn.classList.add(`active-${p}`);
+            });
+        }
+        window.selectPriority = selectPriority;
+
+        // saveTask priority 반영 패치
+        const _origSaveTask = window.saveTask;
+        window.saveTask = function() {
+            // priority 값 주입 후 원래 함수 호출
+            const origPriority = null;
+            // taskData 생성 전에 _selectedPriority를 심어두기
+            window._pendingPriority = _selectedPriority;
+            _origSaveTask();
+        };
+
+        // clearFormFields 후 우선순위 초기화
+        const _origClearForm = clearFormFields;
+        window.clearFormFields = function() {
+            _origClearForm();
+            _selectedPriority = 'normal';
+            selectPriority('normal');
+        };
+
+        // openDetailModal 수정 모드 진입 시 priority 복원
+        const _origOpenDetail = window.openDetailModal;
+        window.openDetailModal = function(taskId) {
+            _origOpenDetail(taskId);
+            const task = allTasks.find(t => t.id === taskId);
+            if (task && task.priority) {
+                _selectedPriority = task.priority;
+            } else {
+                _selectedPriority = 'normal';
+            }
+        };
+
+        // renderTasks에 우선순위 라인 반영 (DOM 패치)
+        const _origRenderTasks2 = window.renderTasks;
+        window.renderTasks = function() {
+            _origRenderTasks2();
+            document.querySelectorAll('#taskList .task-item').forEach(el => {
+                const onclickAttr = el.getAttribute('onclick') || '';
+                const match = onclickAttr.match(/openDetailModal\('([^']+)'\)/);
+                if (!match) return;
+                const task = allTasks.find(t => t.id === match[1]);
+                if (!task || !task.priority) return;
+                el.classList.remove('prio-high', 'prio-normal', 'prio-low');
+                el.classList.add(`prio-${task.priority}`);
+                // 배지 추가 (중복 방지)
+                if (!el.querySelector('.priority-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = `priority-badge priority-${task.priority}`;
+                    badge.textContent = { high:'높음', normal:'보통', low:'낮음' }[task.priority] || '';
+                    const info = el.querySelector('.task-info');
+                    if (info) info.prepend(badge);
+                }
+            });
+        };
+
+        // saveTask에서 priority 실제 주입 — taskData 생성 후 덮어쓰기
+        // (priority: null 로 고정된 부분을 패치)
+        const __realSaveTask = saveTask;
+        window.saveTask = function() {
+            __realSaveTask();
+            // 저장 직전 allTasks의 마지막 temp_ 항목에 priority 세팅
+            setTimeout(() => {
+                const last = allTasks.slice().reverse().find(t => t._saving);
+                if (last) last.priority = _selectedPriority;
+            }, 50);
+        };
+
+
+        // ===================================================
+        //  📝 UX 3: 회의록 이벤트 없이 직접 작성
+        // ===================================================
+        function toggleMlogInlineForm() {
+            const form = document.getElementById('mlogInlineForm');
+            const btn  = document.getElementById('mlogNewBtn');
+            const isOpen = form.classList.contains('open');
+            form.classList.toggle('open', !isOpen);
+            btn.textContent = isOpen ? '＋ 새 회의록 작성' : '✕ 취소';
+            if (!isOpen) {
+                // 폼 열릴 때 날짜 기본값 오늘
+                document.getElementById('mlogNewDate').value = formatDate(new Date());
+                document.getElementById('mlogNewTitle').focus();
+            } else {
+                // 닫을 때 초기화
+                ['mlogNewTitle','mlogNewDate','mlogNewAttendees',
+                 'mlogNewContent','mlogNewDecisions','mlogNewActions'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+            }
+        }
+
+        async function saveMlogDirect() {
+            if (!sbClient) { showToast('❌', 'DB 연결 필요', ''); return; }
+
+            const title   = document.getElementById('mlogNewTitle').value.trim();
+            const content = document.getElementById('mlogNewContent').value.trim();
+            if (!title)   { showToast('⚠️', '제목을 입력해주세요', ''); return; }
+            if (!content) { showToast('⚠️', '내용을 입력해주세요', ''); return; }
+
+            const payload = {
+                title,
+                event_id:    null,
+                event_title: '(직접 작성)',
+                event_date:  document.getElementById('mlogNewDate').value || formatDate(new Date()),
+                attendees:   document.getElementById('mlogNewAttendees').value.trim() || null,
+                content,
+                decisions:   document.getElementById('mlogNewDecisions').value.trim() || null,
+                action_items:document.getElementById('mlogNewActions').value.trim() || null,
+            };
+
+            const saveBtn = document.querySelector('#mlogInlineForm button:last-child');
+            saveBtn.disabled = true;
+            saveBtn.textContent = '저장 중...';
+
+            const { error } = await sbClient.from('meetings').insert(payload);
+
+            saveBtn.disabled = false;
+            saveBtn.textContent = '저장';
+
+            if (error) {
+                showToast('❌', '저장 실패', error.message);
+                return;
+            }
+
+            showToast('✅', '회의록 저장 완료', title);
+            toggleMlogInlineForm();
+            await loadAllMeetings(true);
+        }
+
+        window.toggleMlogInlineForm = toggleMlogInlineForm;
+        window.saveMlogDirect       = saveMlogDirect;
 
         window.switchView       = switchView;
         window.previousPeriod    = previousPeriod;
