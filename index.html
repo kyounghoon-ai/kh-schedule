@@ -3108,6 +3108,22 @@
         // closeAddModal 초기화 시 반복 설정도 리셋
         const _origCloseAddModal = closeAddModal;
 
+        window.switchView       = switchView;
+        window.previousPeriod    = previousPeriod;
+        window.nextPeriod        = nextPeriod;
+        window.openAddModal      = openAddModal;
+        window.closeAddModal     = closeAddModal;
+        window.openDetailModal   = openDetailModal;
+        window.closeDetailModal  = closeDetailModal;
+        window.openReportModal   = openReportModal;
+        window.closeReportModal  = closeReportModal;
+        window.toggleTask        = toggleTask;
+        window.deleteTask        = deleteTask;
+        window.saveTask          = saveTask;
+        window.selectDate        = selectDate;
+        window.refreshTeamEvents = refreshTeamEvents;
+        window.exportReport      = exportReport;
+        window.checkDueAlerts    = checkDueAlerts;
         window.onload = init;
 
         // ===================================================
@@ -4331,8 +4347,7 @@
                 const writtenAt = m.created_at
                     ? new Date(m.created_at).toLocaleDateString('ko-KR', { month:'short', day:'numeric' })
                     : '';
-                const preview = (m.content || '').replace(/
-/g, ' ').slice(0, 80);
+                const preview = (m.content || '').replace(/\n/g, ' ').slice(0, 80);
                 const hasAction = !!(m.action_items && m.action_items.trim());
                 return `<div class="mlog-card" onclick="openMlogDetail('${m.id}')">
                     <div>
