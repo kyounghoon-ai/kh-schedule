@@ -2422,6 +2422,8 @@
                 sbTeam = window.supabase.createClient(TEAM_SUPABASE_URL, TEAM_SUPABASE_KEY);
                 console.log('✓ 팀 Supabase 연결됨');
                 await loadTeamEvents();
+                // ✅ 방향 B: 팀 DB Realtime 구독 시작
+                subscribeTeamDBRealtime();
             } catch (e) {
                 console.error('❌ 팀 DB 오류:', e.message);
             }
@@ -3724,12 +3726,52 @@
             }
 
             showToast('✅', '회의록 저장 완료', title);
+
+            // ✅ 방향 B: 직접 작성 회의록도 팀 DB 동기화
+            syncMeetingToTeamDB(payload).then(result => {
+                if (result.synced && result.mode === 'insert') {
+                    showToast('🔄', '팀 캘린더에 추가됨', '팀 업무앱 캘린더에서도 확인 가능합니다');
+                    loadTeamEvents().then(() => renderCalendar());
+                }
+            });
+
             toggleMlogInlineForm();
             await loadAllMeetings(true);
         }
 
         window.toggleMlogInlineForm = toggleMlogInlineForm;
         window.saveMlogDirect       = saveMlogDirect;
+
+        // ===================================================
+        //  📡 방향 B: Supabase Realtime — 팀 DB 변경 감지
+        // ===================================================
+        function subscribeTeamDBRealtime() {
+            if (!sbTeam) return;
+            try {
+                sbTeam
+                    .channel('team-events-watch')
+                    .on('postgres_changes', {
+                        event: '*',          // INSERT, UPDATE, DELETE 모두 감지
+                        schema: 'public',
+                        table: 'events',
+                        filter: 'category=eq.meeting'
+                    }, payload => {
+                        console.log('📡 팀 DB 변경 감지:', payload.eventType);
+                        // 팀 이벤트 목록 갱신 후 캘린더 재렌더
+                        loadTeamEvents().then(() => {
+                            renderCalendar();
+                            if (currentView === 'day') renderDayView(selectedDate);
+                            showToast('📡', '팀 캘린더 업데이트', '팀 일정이 변경됐습니다');
+                        });
+                    })
+                    .subscribe(status => {
+                        console.log('팀 DB Realtime 구독 상태:', status);
+                    });
+                console.log('✓ 팀 DB Realtime 구독 시작');
+            } catch(e) {
+                console.warn('⚠️ Realtime 구독 실패 (폴링 방식 유지):', e.message);
+            }
+        }
 
         window.switchView       = switchView;
         window.previousPeriod    = previousPeriod;
@@ -3808,6 +3850,85 @@
         }
 
         // 회의록 저장
+        // ===================================================
+        //  🔄 방향 B: 개인앱 회의록 → 팀 DB events 동기화
+        // ===================================================
+
+        // 개인 meetings 저장 후 팀 DB events에 미러링
+        // event_id가 있으면 해당 팀 이벤트에 설명(description) 업데이트
+        // event_id가 없으면 팀 DB에 신규 meeting 이벤트 생성
+        async function syncMeetingToTeamDB(meetingPayload, savedMeetingId) {
+            if (!sbTeam) {
+                console.log('⚠️ 팀 DB 미연결 — 동기화 건너뜀');
+                return { synced: false };
+            }
+
+            const eventRawId = meetingPayload.event_id; // team_ 접두사 없는 순수 ID
+
+            // ── 케이스 1: 기존 팀 이벤트에 연결된 회의록 ──
+            // 팀 이벤트의 description에 회의록 요약을 업데이트
+            if (eventRawId) {
+                const summary = [
+                    `[회의록] ${meetingPayload.title}`,
+                    meetingPayload.attendees ? `참석: ${meetingPayload.attendees}` : null,
+                    meetingPayload.decisions ? `결정: ${meetingPayload.decisions}` : null,
+                    meetingPayload.action_items ? `액션: ${meetingPayload.action_items}` : null,
+                ].filter(Boolean).join('
+');
+
+                const { error } = await sbTeam
+                    .from('events')
+                    .update({ description: summary })
+                    .eq('id', eventRawId);
+
+                if (error) {
+                    console.warn('⚠️ 팀 이벤트 description 업데이트 실패:', error.message);
+                    return { synced: false, error };
+                }
+                console.log('✓ 팀 이벤트 description 업데이트 완료 (event_id:', eventRawId + ')');
+                return { synced: true, mode: 'update' };
+            }
+
+            // ── 케이스 2: 이벤트 없이 직접 작성한 회의록 ──
+            // 팀 DB에 category:'meeting' 이벤트 신규 생성
+            const teamPayload = {
+                title: meetingPayload.title,
+                category: 'meeting',
+                start_date: meetingPayload.event_date,
+                end_date:   meetingPayload.event_date,
+                description: [
+                    meetingPayload.attendees ? `참석: ${meetingPayload.attendees}` : null,
+                    meetingPayload.content,
+                    meetingPayload.decisions ? `결정: ${meetingPayload.decisions}` : null,
+                    meetingPayload.action_items ? `액션: ${meetingPayload.action_items}` : null,
+                ].filter(Boolean).join('
+'),
+                location: null,
+                start_time: null,
+                end_time: null,
+                vacation_type: null,
+                purpose: null,
+                // user_id는 팀 DB가 Auth 기반 — anon key로 RLS 통과 불가 시 null 허용 여부에 따라 결정
+                // RLS가 막으면 이 insert는 실패하지만 개인 DB 저장엔 영향 없음
+            };
+
+            const { error } = await sbTeam.from('events').insert(teamPayload);
+
+            if (error) {
+                console.warn('⚠️ 팀 DB 신규 이벤트 생성 실패 (RLS 또는 권한 문제일 수 있음):', error.message);
+                return { synced: false, error };
+            }
+            console.log('✓ 팀 DB 신규 meeting 이벤트 생성 완료');
+            return { synced: true, mode: 'insert' };
+        }
+
+        // 팀 DB events에서 회의록 연결 이벤트의 description 초기화 (삭제 시)
+        async function unsyncMeetingFromTeamDB(eventRawId) {
+            if (!sbTeam || !eventRawId) return;
+            await sbTeam.from('events').update({ description: null }).eq('id', eventRawId);
+            console.log('✓ 팀 이벤트 description 초기화 완료');
+        }
+
         async function saveMeeting() {
             if (!sbClient) { alert('DB 연결이 필요합니다.'); return; }
 
@@ -3848,6 +3969,16 @@
                 alert('저장 중 오류가 발생했습니다: ' + error.message);
                 return;
             }
+
+            // ✅ 방향 B: 팀 DB 동기화 (백그라운드, 실패해도 개인 저장엔 영향 없음)
+            syncMeetingToTeamDB(payload).then(result => {
+                if (result.synced) {
+                    showToast('🔄', '팀 캘린더 동기화 완료',
+                        result.mode === 'insert' ? '팀 DB에 회의 일정이 추가됐습니다' : '팀 이벤트 내용이 업데이트됐습니다');
+                    // 팀 이벤트 목록 갱신
+                    loadTeamEvents().then(() => renderCalendar());
+                }
+            });
 
             // 저장 성공 → 목록 탭으로 전환
             alert('✅ 회의록이 저장되었습니다!');
@@ -3927,8 +4058,21 @@
             if (!deletingMeetingId || !sbClient) return;
             if (!confirm('이 회의록을 삭제할까요?')) return;
 
+            // ✅ 방향 B: 삭제 전 팀 이벤트 연결 정보 저장
+            const targetMeeting = allMeetings.find(x => x.id === deletingMeetingId)
+                               || _allMlogData.find(x => x.id === deletingMeetingId);
+            const linkedEventId = targetMeeting?.event_id || null;
+
             const { error } = await sbClient.from('meetings').delete().eq('id', deletingMeetingId);
             if (error) { alert('삭제 실패: ' + error.message); return; }
+
+            // ✅ 방향 B: 연결된 팀 이벤트 description 초기화
+            if (linkedEventId) {
+                unsyncMeetingFromTeamDB(linkedEventId).then(() => {
+                    showToast('🔄', '팀 캘린더 연동 해제', '팀 이벤트 내용이 초기화됐습니다');
+                    loadTeamEvents().then(() => renderCalendar());
+                });
+            }
 
             closeMeetingDetailModal();
             await loadMeetingList(currentMeetingEventId);
@@ -4574,10 +4718,26 @@
 
                 btn.disabled = false;
                 btn.textContent = '저장';
-                editingMeetingId = null;
 
                 if (error) { alert('수정 중 오류: ' + error.message); return; }
 
+                // ✅ 방향 B: 수정 시에도 팀 DB 동기화
+                const editedMeeting = allMeetings.find(x => x.id === editingMeetingId);
+                if (editedMeeting) {
+                    const syncPayload = {
+                        ...payload,
+                        event_id: editedMeeting.event_id || null,
+                        event_date: editedMeeting.event_date || null,
+                    };
+                    syncMeetingToTeamDB(syncPayload).then(result => {
+                        if (result.synced) {
+                            showToast('🔄', '팀 캘린더 동기화 완료', '팀 이벤트 내용이 업데이트됐습니다');
+                            loadTeamEvents().then(() => renderCalendar());
+                        }
+                    });
+                }
+
+                editingMeetingId = null;
                 alert('✅ 회의록이 수정되었습니다!');
                 await loadMeetingList(currentMeetingEventId);
                 switchMeetingTab('list');
