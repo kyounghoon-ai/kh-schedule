@@ -3873,8 +3873,7 @@
                     meetingPayload.attendees ? `참석: ${meetingPayload.attendees}` : null,
                     meetingPayload.decisions ? `결정: ${meetingPayload.decisions}` : null,
                     meetingPayload.action_items ? `액션: ${meetingPayload.action_items}` : null,
-                ].filter(Boolean).join('
-');
+                ].filter(Boolean).join('\n');
 
                 const { error } = await sbTeam
                     .from('events')
@@ -3901,8 +3900,7 @@
                     meetingPayload.content,
                     meetingPayload.decisions ? `결정: ${meetingPayload.decisions}` : null,
                     meetingPayload.action_items ? `액션: ${meetingPayload.action_items}` : null,
-                ].filter(Boolean).join('
-'),
+                ].filter(Boolean).join('\n'),
                 location: null,
                 start_time: null,
                 end_time: null,
