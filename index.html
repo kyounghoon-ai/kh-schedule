@@ -1142,6 +1142,212 @@
         .badge-new { background: #D4537E; color: #fff; font-size: 10px;
             padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
 
+        /* ===== 일간 뷰 ===== */
+        .day-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .day-view.active { display: flex; }
+
+        .day-view-header {
+            padding: 14px 20px 10px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+        .day-view-date {
+            font-size: 18px; font-weight: 700; color: #222;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .day-view-date .day-nav {
+            background: none; border: 1px solid #eee; border-radius: 6px;
+            padding: 3px 10px; font-size: 16px; cursor: pointer; color: #666;
+            transition: background .12s;
+        }
+        .day-view-date .day-nav:hover { background: #f5f5f5; }
+        .day-view-today-btn {
+            font-size: 11px; padding: 3px 8px; border: 1px solid #ddd;
+            border-radius: 12px; background: white; cursor: pointer; color: #888;
+        }
+        .day-view-today-btn:hover { border-color: #3B8BD4; color: #3B8BD4; }
+        .day-holiday-badge {
+            font-size: 11px; color: #d32f2f; background: #fce4e4;
+            padding: 2px 8px; border-radius: 10px;
+        }
+
+        .day-view-body {
+            flex: 1; overflow-y: auto; padding: 0;
+        }
+        .day-view-body::-webkit-scrollbar { width: 5px; }
+        .day-view-body::-webkit-scrollbar-thumb { background: #eee; border-radius: 3px; }
+
+        /* 시간 슬롯 */
+        .day-time-grid {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            position: relative;
+        }
+        .day-time-label {
+            font-size: 10px; color: #bbb; text-align: right;
+            padding-right: 8px; padding-top: 0; line-height: 1;
+            height: 48px; display: flex; align-items: flex-start; justify-content: flex-end;
+            border-right: 1px solid #f0f0f0;
+            position: relative; top: -6px;
+        }
+        .day-time-slot {
+            height: 48px;
+            border-bottom: 1px solid #f5f5f5;
+            position: relative;
+            cursor: pointer;
+            transition: background .1s;
+        }
+        .day-time-slot:hover { background: #f8f8ff; }
+        .day-time-slot.half-hour { border-bottom: 1px dashed #f0f0f0; }
+        .day-time-slot.current-hour { background: #fffbe6; }
+
+        /* 일간 이벤트 카드 */
+        .day-event-card {
+            position: absolute; left: 4px; right: 4px;
+            border-radius: 6px; padding: 4px 8px;
+            font-size: 12px; font-weight: 500;
+            cursor: pointer; z-index: 2;
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+            box-shadow: 0 1px 4px rgba(0,0,0,.10);
+            transition: opacity .1s;
+        }
+        .day-event-card:hover { opacity: .85; }
+        .day-event-card.work     { background: #3B8BD4; color: white; }
+        .day-event-card.personal { background: #639922; color: white; }
+        .day-event-card.team     { background: #D4537E; color: white; }
+        .day-event-card.allday   { background: #f0f0f0; color: #555; border-left: 3px solid #bbb; }
+
+        /* 종일 이벤트 영역 */
+        .day-allday-section {
+            padding: 8px 8px 8px 52px;
+            border-bottom: 1px solid #eee;
+            display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0;
+        }
+        .day-allday-badge {
+            font-size: 11px; padding: 3px 9px; border-radius: 12px;
+            cursor: pointer; font-weight: 500;
+        }
+        .day-allday-badge.work     { background: #dbeeff; color: #185FA5; }
+        .day-allday-badge.personal { background: #e8f5e1; color: #3a6b10; }
+        .day-allday-badge.team     { background: #fce4ef; color: #a5345d; }
+        .day-allday-badge.done     { text-decoration: line-through; opacity: .55; }
+
+        /* 현재 시각 라인 */
+        .day-now-line {
+            position: absolute; left: 44px; right: 0;
+            height: 2px; background: #f59e0b; z-index: 5; pointer-events: none;
+        }
+        .day-now-dot {
+            position: absolute; left: 40px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #f59e0b; z-index: 5; pointer-events: none;
+            transform: translateY(-3px);
+        }
+
+        /* 인라인 할일 추가 입력창 */
+        .day-inline-input-wrap {
+            position: absolute; left: 4px; right: 4px;
+            z-index: 10; background: white;
+            border: 1.5px solid #3B8BD4; border-radius: 6px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.12);
+            display: flex; align-items: center; gap: 6px; padding: 5px 8px;
+        }
+        .day-inline-input {
+            flex: 1; border: none; outline: none;
+            font-size: 13px; background: transparent;
+        }
+        .day-inline-cat {
+            display: flex; gap: 4px;
+        }
+        .day-inline-cat-btn {
+            font-size: 10px; padding: 2px 6px; border-radius: 10px;
+            border: 1px solid #ddd; background: white; cursor: pointer; color: #888;
+        }
+        .day-inline-cat-btn.active-work     { border-color: #3B8BD4; background: #dbeeff; color: #185FA5; }
+        .day-inline-cat-btn.active-personal { border-color: #639922; background: #e8f5e1; color: #3a6b10; }
+        .day-inline-save {
+            font-size: 11px; padding: 3px 8px; border: none; border-radius: 5px;
+            background: #3B8BD4; color: white; cursor: pointer; font-weight: 600; flex-shrink: 0;
+        }
+        .day-inline-cancel {
+            font-size: 14px; color: #bbb; background: none; border: none; cursor: pointer; padding: 0;
+        }
+
+        /* 인라인 퀵 추가 — 주간뷰 셀 하단 */
+        .cell-quick-add {
+            display: none; width: 100%;
+            margin-top: 3px; padding: 3px 4px;
+            border: none; border-radius: 4px; background: transparent;
+            font-size: 10px; color: #ccc; text-align: left; cursor: text;
+        }
+        .day-cell:hover .cell-quick-add { display: block; }
+        .cell-quick-input {
+            width: 100%; border: 1px solid #3B8BD4; border-radius: 4px;
+            padding: 3px 5px; font-size: 11px; outline: none;
+            background: white; margin-top: 3px; display: none;
+        }
+
+        /* ===== 회의록 연동 ===== */
+        .task-meeting-link {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 8px; padding: 8px 10px;
+            background: #fdf2f6; border: 1px solid #f0c8d8;
+            border-radius: 6px; cursor: pointer;
+            font-size: 12px; color: #D4537E; font-weight: 500;
+            transition: background .12s;
+        }
+        .task-meeting-link:hover { background: #fce4ef; }
+        .task-meeting-link .link-icon { font-size: 14px; }
+        .task-meeting-link .link-label { flex: 1; }
+        .task-meeting-link .link-count {
+            background: #D4537E; color: white;
+            font-size: 10px; padding: 1px 6px; border-radius: 10px;
+        }
+        .task-meeting-add-btn {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 12px; color: #aaa; cursor: pointer;
+            padding: 6px 0; border: none; background: none;
+            margin-top: 4px;
+        }
+        .task-meeting-add-btn:hover { color: #D4537E; }
+
+        /* ===== 반복 일정 개별 수정 다이얼로그 ===== */
+        .repeat-edit-dialog {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,.45);
+        }
+        .repeat-edit-box {
+            background: white; border-radius: 14px;
+            padding: 24px 20px; width: 320px; max-width: 90vw;
+            box-shadow: 0 8px 32px rgba(0,0,0,.18);
+        }
+        .repeat-edit-title {
+            font-size: 15px; font-weight: 600; margin-bottom: 6px; color: #333;
+        }
+        .repeat-edit-sub {
+            font-size: 12px; color: #999; margin-bottom: 18px; line-height: 1.5;
+        }
+        .repeat-edit-options { display: flex; flex-direction: column; gap: 8px; }
+        .repeat-edit-opt {
+            padding: 12px 14px; border: 1.5px solid #eee; border-radius: 8px;
+            cursor: pointer; transition: border-color .12s, background .12s;
+            font-size: 13px; font-weight: 500; color: #333;
+        }
+        .repeat-edit-opt:hover { border-color: #3B8BD4; background: #f0f7ff; color: #3B8BD4; }
+        .repeat-edit-opt small { display: block; font-size: 11px; color: #aaa; font-weight: 400; margin-top: 2px; }
+        .repeat-edit-cancel {
+            width: 100%; margin-top: 12px; padding: 10px;
+            border: 1px solid #eee; border-radius: 8px;
+            background: white; font-size: 13px; color: #999; cursor: pointer;
+        }
+        .repeat-edit-cancel:hover { background: #f5f5f5; }
+
         /* ===== UX 개선: 완료 숨기기 토글 ===== */
         .hide-done-wrap {
             display: flex; align-items: center; gap: 6px;
@@ -1523,8 +1729,9 @@
                     <button class="header-btn" onclick="openHubModal()" title="업무 시스템 허브">🔗 허브</button>
                     <button class="header-btn report-btn" onclick="openReportModal()">📊 주간 리포트</button>
                     <div class="view-toggle">
-                        <button class="active" id="weekBtn" onclick="switchView('week')">주간</button>
-                        <button id="monthBtn" onclick="switchView('month')">월간</button>
+                        <button class="active" id="weekBtn"     onclick="switchView('week')">주간</button>
+                        <button id="dayBtn"      onclick="switchView('day')">일간</button>
+                        <button id="monthBtn"    onclick="switchView('month')">월간</button>
                         <button id="yearBtn"     onclick="switchView('year')">연간</button>
                         <button id="statsBtn"    onclick="switchView('stats')">📊 통계</button>
                         <button id="meetingsBtn" onclick="switchView('meetings')" style="border-color:#D4537E;color:#D4537E;">📝 회의록</button>
@@ -1565,6 +1772,25 @@
                 </div>
                 <div class="week-grid" id="calendarGrid"></div>
                 <div class="month-grid" id="monthGrid"></div>
+
+                <!-- 일간 뷰 -->
+                <div id="dayView" class="day-view">
+                    <div class="day-view-header">
+                        <div class="day-view-date">
+                            <button class="day-nav" onclick="dayViewPrev()">←</button>
+                            <span id="dayViewLabel"></span>
+                            <button class="day-nav" onclick="dayViewNext()">→</button>
+                            <button class="day-view-today-btn" onclick="dayViewToday()">오늘</button>
+                            <span class="day-holiday-badge" id="dayHolidayBadge" style="display:none;"></span>
+                        </div>
+                    </div>
+                    <!-- 종일 이벤트 -->
+                    <div class="day-allday-section" id="dayAlldaySection"></div>
+                    <!-- 시간 그리드 -->
+                    <div class="day-view-body" id="dayViewBody">
+                        <div class="day-time-grid" id="dayTimeGrid"></div>
+                    </div>
+                </div>
 
                 <!-- Phase 3: 연간 히트맵 뷰 -->
                 <div id="yearView" style="display:none; padding:20px; overflow-y:auto;">
@@ -1995,6 +2221,15 @@
                 <div id="detailDate" style="padding: 8px 0;"></div>
             </div>
 
+            <!-- 회의록 연동 섹션 -->
+            <div class="form-group" id="detailMeetingSection">
+                <label class="form-label">연결된 회의록</label>
+                <div id="detailMeetingList"></div>
+                <button class="task-meeting-add-btn" onclick="addMeetingToTask()">
+                    ＋ 회의록 연결하기
+                </button>
+            </div>
+
             <div class="modal-actions" style="margin-top: 30px;">
                 <button class="btn-cancel" onclick="closeDetailModal()">닫기</button>
                 <button class="btn-save" onclick="editTask()">수정</button>
@@ -2005,6 +2240,29 @@
 
     <!-- Phase 4-1: 알림 토스트 컨테이너 -->
     <div class="notif-toast-wrap" id="notifToastWrap"></div>
+
+    <!-- 반복 일정 개별 수정 다이얼로그 -->
+    <div class="repeat-edit-dialog" id="repeatEditDialog" style="display:none;">
+        <div class="repeat-edit-box">
+            <div class="repeat-edit-title">반복 일정 수정</div>
+            <div class="repeat-edit-sub" id="repeatEditSub">이 항목은 반복 일정입니다.<br>어떤 범위로 수정하시겠습니까?</div>
+            <div class="repeat-edit-options">
+                <div class="repeat-edit-opt" onclick="confirmRepeatEdit('this')">
+                    이 일정만 수정
+                    <small>선택한 날짜의 항목만 변경됩니다</small>
+                </div>
+                <div class="repeat-edit-opt" onclick="confirmRepeatEdit('future')">
+                    이 일정 및 이후 수정
+                    <small>이 날짜부터 이후 반복 항목이 모두 변경됩니다</small>
+                </div>
+                <div class="repeat-edit-opt" onclick="confirmRepeatEdit('all')">
+                    모든 반복 일정 수정
+                    <small>같은 제목의 반복 항목 전체가 변경됩니다</small>
+                </div>
+            </div>
+            <button class="repeat-edit-cancel" onclick="closeRepeatEditDialog()">취소</button>
+        </div>
+    </div>
 
     <!-- Phase 4-2: 허브 모달 -->
     <div class="modal-overlay" id="hubModal">
@@ -2182,23 +2440,26 @@
 
         function switchView(view) {
             currentView = view;
-            // 버튼 active 초기화
-            ['weekBtn','monthBtn','yearBtn','statsBtn','meetingsBtn'].forEach(id => {
+            ['weekBtn','dayBtn','monthBtn','yearBtn','statsBtn','meetingsBtn'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('active');
             });
-            // 뷰 패널 전부 숨기기
             document.getElementById('calendarGrid').style.display = 'none';
             document.getElementById('monthGrid').classList.remove('active');
             document.getElementById('yearView').style.display    = 'none';
             document.getElementById('statsView').classList.remove('active');
             document.getElementById('meetingsView').classList.remove('active');
+            document.getElementById('dayView').classList.remove('active');
 
             if (view === 'week') {
                 document.getElementById('weekBtn').classList.add('active');
                 document.getElementById('calendarGrid').style.display = 'grid';
                 currentWeekStart = getMonday(selectedDate);
                 renderCalendar();
+            } else if (view === 'day') {
+                document.getElementById('dayBtn').classList.add('active');
+                document.getElementById('dayView').classList.add('active');
+                renderDayView(selectedDate);
             } else if (view === 'month') {
                 document.getElementById('monthBtn').classList.add('active');
                 document.getElementById('monthGrid').classList.add('active');
@@ -2248,12 +2509,13 @@
         function previousPeriod() {
             if (currentView === 'week') {
                 currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            } else if (currentView === 'day') {
+                selectedDate.setDate(selectedDate.getDate() - 1);
+                renderDayView(selectedDate);
+                return;
             } else {
                 currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
+                if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             }
             renderCalendar();
         }
@@ -2261,12 +2523,13 @@
         function nextPeriod() {
             if (currentView === 'week') {
                 currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            } else if (currentView === 'day') {
+                selectedDate.setDate(selectedDate.getDate() + 1);
+                renderDayView(selectedDate);
+                return;
             } else {
                 currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
+                if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             }
             renderCalendar();
         }
@@ -2401,6 +2664,7 @@
                 }
                 
                 html += '<div class="day-events"></div>';
+                html += `<button class="cell-quick-add" onclick="event.stopPropagation(); openCellQuickAdd(this, '${dateStr}')">＋ 추가</button>`;
                 cell.innerHTML = html;
 
                 // 개인 일정 표시
@@ -4579,6 +4843,634 @@
         }
 
         window.toggleNotification = toggleNotification;
+
+
+        // ===================================================
+        //  📝 회의록 ↔ 할일 연동
+        // ===================================================
+
+        // localStorage 키: { taskId: [meetingId, ...] }
+        const TASK_MEETING_KEY = 'taskMeetingLinks_v1';
+
+        function loadTaskMeetingLinks() {
+            try { return JSON.parse(localStorage.getItem(TASK_MEETING_KEY) || '{}'); } catch { return {}; }
+        }
+        function saveTaskMeetingLinks(map) {
+            localStorage.setItem(TASK_MEETING_KEY, JSON.stringify(map));
+        }
+        function getLinkedMeetings(taskId) {
+            const map = loadTaskMeetingLinks();
+            return map[taskId] || [];
+        }
+        function addMeetingLink(taskId, meetingId) {
+            const map = loadTaskMeetingLinks();
+            if (!map[taskId]) map[taskId] = [];
+            if (!map[taskId].includes(meetingId)) map[taskId].push(meetingId);
+            saveTaskMeetingLinks(map);
+        }
+        function removeMeetingLink(taskId, meetingId) {
+            const map = loadTaskMeetingLinks();
+            if (map[taskId]) {
+                map[taskId] = map[taskId].filter(id => id !== meetingId);
+                if (map[taskId].length === 0) delete map[taskId];
+            }
+            saveTaskMeetingLinks(map);
+        }
+
+        // openDetailModal 패치 — 회의록 연동 섹션 렌더
+        const _origOpenDetailForLink = window.openDetailModal;
+        window.openDetailModal = function(taskId) {
+            _origOpenDetailForLink(taskId);
+            renderDetailMeetingSection(taskId);
+        };
+
+        function renderDetailMeetingSection(taskId) {
+            const linkedIds = getLinkedMeetings(taskId);
+            const listEl = document.getElementById('detailMeetingList');
+            if (!listEl) return;
+
+            if (linkedIds.length === 0) {
+                listEl.innerHTML = '<div style="font-size:12px;color:#ccc;padding:4px 0;">연결된 회의록이 없습니다</div>';
+                return;
+            }
+
+            // _allMlogData에서 찾기 (없으면 id만 표시)
+            listEl.innerHTML = linkedIds.map(mid => {
+                const m = _allMlogData.find(x => x.id === mid);
+                const label = m ? `${m.event_date || ''} ${m.title}` : `회의록 #${mid.slice(0,8)}`;
+                return `<div class="task-meeting-link" onclick="openMlogDetail('${mid}')">
+                    <span class="link-icon">📝</span>
+                    <span class="link-label">${label}</span>
+                    <button onclick="event.stopPropagation();unlinkMeeting('${taskId}','${mid}')"
+                        style="background:none;border:none;cursor:pointer;color:#D4537E;font-size:13px;padding:0 2px;">✕</button>
+                </div>`;
+            }).join('');
+        }
+
+        function unlinkMeeting(taskId, meetingId) {
+            removeMeetingLink(taskId, meetingId);
+            renderDetailMeetingSection(taskId);
+            showToast('🔗', '연결 해제됨', '');
+        }
+
+        // 회의록 연결 — 선택 팝업 (간단한 prompt 대신 _allMlogData 목록에서 선택)
+        function addMeetingToTask() {
+            if (!selectedTaskId) return;
+
+            if (_allMlogData.length === 0) {
+                showToast('⚠️', '회의록 뷰를 먼저 열어주세요', '회의록 탭에서 데이터를 불러온 뒤 연결하세요.');
+                return;
+            }
+
+            const already = getLinkedMeetings(selectedTaskId);
+            const available = _allMlogData.filter(m => !already.includes(m.id));
+
+            if (available.length === 0) {
+                showToast('ℹ️', '연결할 회의록이 없습니다', '모든 회의록이 이미 연결되어 있습니다.');
+                return;
+            }
+
+            // 선택 다이얼로그 생성 (간단 드롭다운 방식)
+            const existing = document.getElementById('mlogPickerDialog');
+            if (existing) existing.remove();
+
+            const dialog = document.createElement('div');
+            dialog.id = 'mlogPickerDialog';
+            dialog.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45)';
+
+            const box = document.createElement('div');
+            box.style.cssText = 'background:white;border-radius:14px;padding:20px;width:340px;max-width:92vw;max-height:70vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)';
+
+            box.innerHTML = `
+                <div style="font-size:15px;font-weight:600;margin-bottom:12px;">📝 회의록 선택</div>
+                <input type="text" placeholder="검색..." id="mlogPickerSearch"
+                    style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;margin-bottom:10px;outline:none;"
+                    oninput="filterMlogPicker(this.value)">
+                <div id="mlogPickerList" style="display:flex;flex-direction:column;gap:6px;"></div>
+                <button onclick="document.getElementById('mlogPickerDialog').remove()"
+                    style="width:100%;margin-top:12px;padding:9px;border:1px solid #eee;border-radius:8px;background:white;cursor:pointer;font-size:13px;color:#999;">취소</button>`;
+
+            dialog.appendChild(box);
+            document.body.appendChild(dialog);
+
+            window._mlogPickerItems = available;
+            window._mlogPickerTaskId = selectedTaskId;
+            renderMlogPickerList(available);
+
+            setTimeout(() => document.getElementById('mlogPickerSearch')?.focus(), 100);
+        }
+
+        function renderMlogPickerList(items) {
+            const listEl = document.getElementById('mlogPickerList');
+            if (!listEl) return;
+            listEl.innerHTML = items.slice(0, 40).map(m => `
+                <div onclick="linkMeetingFromPicker('${m.id}')"
+                    style="padding:10px 12px;border:1px solid #eee;border-radius:8px;cursor:pointer;font-size:13px;transition:background .12s;"
+                    onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+                    <div style="font-weight:500;color:#333;">${m.title}</div>
+                    <div style="font-size:11px;color:#aaa;margin-top:2px;">${m.event_date || '-'} ${m.attendees ? '· ' + m.attendees : ''}</div>
+                </div>`).join('');
+        }
+
+        function filterMlogPicker(q) {
+            const filtered = (window._mlogPickerItems || []).filter(m =>
+                (m.title + ' ' + (m.event_date||'') + ' ' + (m.attendees||'')).toLowerCase().includes(q.toLowerCase())
+            );
+            renderMlogPickerList(filtered);
+        }
+
+        function linkMeetingFromPicker(meetingId) {
+            const taskId = window._mlogPickerTaskId;
+            addMeetingLink(taskId, meetingId);
+            document.getElementById('mlogPickerDialog')?.remove();
+            renderDetailMeetingSection(taskId);
+            const m = _allMlogData.find(x => x.id === meetingId);
+            showToast('🔗', '회의록 연결됨', m ? m.title : '');
+        }
+
+        window.unlinkMeeting         = unlinkMeeting;
+        window.addMeetingToTask      = addMeetingToTask;
+        window.filterMlogPicker      = filterMlogPicker;
+        window.linkMeetingFromPicker = linkMeetingFromPicker;
+        window.openMlogDetail        = openMlogDetail;
+
+
+        // ===================================================
+        //  🔄 반복 일정 개별 수정
+        // ===================================================
+
+        let _repeatEditTaskId   = null;
+        let _repeatEditCallback = null;
+
+        // editTask 패치 — 반복 일정이면 선택 다이얼로그 먼저 표시
+        const _origEditTask = window.editTask || editTask;
+        window.editTask = function() {
+            const task = allTasks.find(t => t.id === selectedTaskId);
+            if (!task) return;
+
+            // 반복 일정 여부 판단: 같은 제목 + 같은 카테고리가 2개 이상인 경우
+            const sameGroup = allTasks.filter(t =>
+                t.title === task.title &&
+                t.category === task.category &&
+                !t._saving
+            );
+
+            if (sameGroup.length <= 1) {
+                // 단건 — 바로 수정
+                _origEditTask();
+                return;
+            }
+
+            // 반복 일정 — 선택 다이얼로그
+            _repeatEditTaskId = selectedTaskId;
+            _repeatEditCallback = null;
+
+            const sub = document.getElementById('repeatEditSub');
+            if (sub) sub.textContent = `"${task.title}" 은 ${sameGroup.length}개의 반복 일정입니다.\n어떤 범위로 수정하시겠습니까?`;
+
+            closeDetailModal();
+            document.getElementById('repeatEditDialog').style.display = 'flex';
+        };
+
+        function closeRepeatEditDialog() {
+            document.getElementById('repeatEditDialog').style.display = 'none';
+            _repeatEditTaskId = null;
+        }
+
+        function confirmRepeatEdit(scope) {
+            closeRepeatEditDialog();
+            const task = allTasks.find(t => t.id === _repeatEditTaskId);
+            if (!task) return;
+
+            // scope를 전역에 저장해두고 editTask 원래 흐름 실행
+            window._repeatEditScope = scope;
+            selectedTaskId = _repeatEditTaskId;
+
+            // 수정 모달 열기 (원래 editTask 흐름)
+            window.editingTaskId = selectedTaskId;
+
+            selectedCategory    = task.category;
+            selectedSubCategory = task.sub_category || '';
+
+            document.getElementById('modalTitle').textContent = '할일 수정';
+            document.getElementById('taskTitle').value  = task.title;
+            document.getElementById('taskDesc').value   = task.description || '';
+            document.getElementById('taskDate').value   = task.date;
+            document.getElementById('dueDate').value    = task.due_date || '';
+            document.getElementById('dueTime').value    = task.due_date_time || '';
+            document.getElementById('startTime').value  = task.start_time || '';
+            document.getElementById('endTime').value    = task.end_time || '';
+            document.getElementById('location').value   = task.location || '';
+            document.getElementById('relation').value   = task.relation || '';
+            document.getElementById('successMsg').classList.remove('show');
+            document.getElementById('errorMsg').classList.remove('show');
+
+            if (typeof renderCategoryButtons === 'function') renderCategoryButtons();
+            if (typeof renderSubCategoryButtons === 'function') renderSubCategoryButtons();
+            if (typeof updateFormFields === 'function') updateFormFields();
+
+            document.getElementById('addModal').classList.add('open');
+        }
+
+        // saveTask 패치 — _repeatEditScope 에 따라 다른 DB 처리
+        const _origSaveTaskForRepeat = window.saveTask;
+        window.saveTask = function() {
+            const scope = window._repeatEditScope;
+            if (!scope || !window.editingTaskId) {
+                // 반복 수정 아님 — 원래 흐름
+                _origSaveTaskForRepeat();
+                return;
+            }
+
+            window._repeatEditScope = null;
+
+            const editId  = window.editingTaskId;
+            const task    = allTasks.find(t => t.id === editId);
+            if (!task) { _origSaveTaskForRepeat(); return; }
+
+            const title    = document.getElementById('taskTitle').value.trim();
+            const dateStr  = document.getElementById('taskDate').value || task.date;
+            if (!title) {
+                document.getElementById('errorMsg').textContent = '✗ 내용을 입력하세요';
+                document.getElementById('errorMsg').classList.add('show');
+                return;
+            }
+
+            const patch = {
+                title,
+                description:   document.getElementById('taskDesc').value    || null,
+                sub_category:  selectedSubCategory || null,
+                due_date:      document.getElementById('dueDate').value      || null,
+                due_date_time: document.getElementById('dueTime').value      || null,
+                start_time:    document.getElementById('startTime').value    || null,
+                end_time:      document.getElementById('endTime').value      || null,
+                location:      document.getElementById('location').value     || null,
+                relation:      document.getElementById('relation').value     || null,
+            };
+
+            // 범위별 대상 ID 결정
+            let targetTasks = [];
+            const group = allTasks.filter(t =>
+                t.title === task.title && t.category === task.category && !t._saving
+            ).sort((a, b) => (a.date||'').localeCompare(b.date||''));
+
+            if (scope === 'this') {
+                targetTasks = [task];
+            } else if (scope === 'future') {
+                targetTasks = group.filter(t => (t.date||'') >= (task.date||''));
+            } else if (scope === 'all') {
+                targetTasks = group;
+            }
+
+            // 로컬 즉시 반영
+            targetTasks.forEach(t => Object.assign(t, patch));
+            closeAddModal();
+            renderCalendar();
+            renderTasks();
+
+            const label = { this:'이 일정만', future:'이 일정 이후', all:'전체' }[scope];
+            showToast('✅', `${label} 수정됨`, `${targetTasks.length}건`);
+
+            // Supabase 일괄 업데이트
+            if (sbClient) {
+                const ids = targetTasks.filter(t => !t.id.startsWith('temp_')).map(t => t.id);
+                if (ids.length > 0) {
+                    sbClient.from('tasks').update(patch).in('id', ids)
+                        .then(() => console.log(`✓ 반복 수정 완료 (${ids.length}건, scope:${scope})`))
+                        .catch(e => {
+                            console.warn('⚠️ 반복 수정 오류:', e.message);
+                            showToast('⚠️', 'DB 저장 오류', e.message);
+                        });
+                }
+            }
+        };
+
+        window.closeRepeatEditDialog = closeRepeatEditDialog;
+
+
+        // ===================================================
+        //  📅 일간 뷰 렌더
+        // ===================================================
+        function renderDayView(date) {
+            selectedDate = new Date(date);
+            const dateStr  = formatDate(selectedDate);
+            const todayStr = formatDate(new Date());
+            const dow = ['일','월','화','수','목','금','토'][selectedDate.getDay()];
+            const isSun = selectedDate.getDay() === 0;
+            const isSat = selectedDate.getDay() === 6;
+            const isHol = !!koreanHolidays[dateStr];
+            const color = (isSun || isHol) ? '#d32f2f' : isSat ? '#3B8BD4' : '#222';
+
+            // 헤더
+            document.getElementById('dayViewLabel').innerHTML =
+                `<span style="color:${color}">${selectedDate.getMonth()+1}월 ${selectedDate.getDate()}일 (${dow})</span>` +
+                (dateStr === todayStr ? ' <span style="font-size:11px;color:#f59e0b;font-weight:400;">오늘</span>' : '');
+
+            const holBadge = document.getElementById('dayHolidayBadge');
+            if (isHol) {
+                holBadge.textContent = koreanHolidays[dateStr];
+                holBadge.style.display = '';
+            } else {
+                holBadge.style.display = 'none';
+            }
+
+            // 해당 날 할일 + 팀 이벤트
+            const dayTasks  = allTasks.filter(t => t.date === dateStr);
+            const dayTeam   = teamEvents.filter(e => e.date <= dateStr && e.end_date >= dateStr);
+
+            // 종일 이벤트 (시간 없는 것)
+            const alldayTasks = dayTasks.filter(t => !t.start_time);
+            const timedTasks  = dayTasks.filter(t => !!t.start_time);
+
+            // 종일 영역
+            const alldayEl = document.getElementById('dayAlldaySection');
+            alldayEl.innerHTML = '';
+            if (alldayTasks.length === 0 && dayTeam.length === 0) {
+                alldayEl.style.display = 'none';
+            } else {
+                alldayEl.style.display = 'flex';
+                alldayTasks.forEach(t => {
+                    const b = document.createElement('div');
+                    b.className = `day-allday-badge ${t.category}${t.completed ? ' done' : ''}`;
+                    b.textContent = t.title;
+                    b.onclick = () => openDetailModal(t.id);
+                    alldayEl.appendChild(b);
+                });
+                dayTeam.forEach(e => {
+                    const b = document.createElement('div');
+                    b.className = 'day-allday-badge team';
+                    b.textContent = '📅 ' + e.title;
+                    b.onclick = () => openMeetingModal(e.id);
+                    alldayEl.appendChild(b);
+                });
+                // 퀵 추가 버튼
+                const addBadge = document.createElement('div');
+                addBadge.style.cssText = 'font-size:11px;color:#bbb;cursor:pointer;padding:3px 6px;border:1px dashed #ddd;border-radius:10px;';
+                addBadge.textContent = '＋ 종일';
+                addBadge.onclick = () => { selectedDate = new Date(date); openAddModal('work'); };
+                alldayEl.appendChild(addBadge);
+            }
+
+            // 시간 그리드 (06:00 ~ 23:00)
+            const grid = document.getElementById('dayTimeGrid');
+            grid.innerHTML = '';
+            grid.style.position = 'relative';
+
+            const startHour = 6;
+            const endHour   = 23;
+            const slotPx    = 48; // 1시간 = 48px
+
+            for (let h = startHour; h <= endHour; h++) {
+                // 라벨
+                const label = document.createElement('div');
+                label.className = 'day-time-label';
+                label.textContent = h < 10 ? `0${h}` : `${h}`;
+                grid.appendChild(label);
+
+                // 슬롯
+                const slot = document.createElement('div');
+                slot.className = 'day-time-slot';
+                slot.dataset.hour = h;
+                // 현재 시각 강조
+                const nowH = new Date().getHours();
+                if (dateStr === todayStr && h === nowH) slot.classList.add('current-hour');
+
+                // 클릭 → 인라인 추가
+                slot.onclick = (e) => {
+                    if (e.target.classList.contains('day-inline-input')) return;
+                    openDayInlineAdd(slot, dateStr, h);
+                };
+                grid.appendChild(slot);
+            }
+
+            // 시간 있는 할일을 그리드 위에 절대 배치
+            timedTasks.forEach(t => {
+                const [sh, sm] = (t.start_time || '00:00').split(':').map(Number);
+                const [eh, em] = (t.end_time   || `${sh+1}:00`).split(':').map(Number);
+                const topPx  = (sh - startHour + sm/60) * slotPx;
+                const height = Math.max(((eh - sh) + (em - sm)/60) * slotPx, 20);
+                if (sh < startHour || sh > endHour) return;
+
+                const card = document.createElement('div');
+                card.className = `day-event-card ${t.category}`;
+                card.style.cssText = `
+                    top:${topPx + 1}px; height:${height - 2}px;
+                    left:48px; right:4px; position:absolute;`;
+                card.title = t.title;
+                card.innerHTML = `<span>${t.start_time}${t.end_time ? ' – '+t.end_time : ''}</span>
+                    <span style="margin-left:6px;">${t.title}</span>`;
+                card.onclick = () => openDetailModal(t.id);
+                grid.appendChild(card);
+            });
+
+            // 현재 시각 표시선
+            if (dateStr === todayStr) {
+                const now = new Date();
+                const nowPx = (now.getHours() - startHour + now.getMinutes()/60) * slotPx;
+                if (nowPx >= 0) {
+                    const dot  = document.createElement('div');
+                    dot.className = 'day-now-dot';
+                    dot.style.top = nowPx + 'px';
+                    grid.appendChild(dot);
+
+                    const line = document.createElement('div');
+                    line.className = 'day-now-line';
+                    line.style.top = nowPx + 'px';
+                    grid.appendChild(line);
+
+                    // 현재 시각으로 자동 스크롤
+                    setTimeout(() => {
+                        const body = document.getElementById('dayViewBody');
+                        if (body) body.scrollTop = Math.max(nowPx - 80, 0);
+                    }, 50);
+                }
+            }
+
+            // periodDisplay 업데이트
+            document.getElementById('periodDisplay').textContent =
+                `${selectedDate.getMonth()+1}월 ${selectedDate.getDate()}일`;
+        }
+
+        // 일간 뷰 이전/다음/오늘
+        function dayViewPrev() {
+            selectedDate = new Date(selectedDate);
+            selectedDate.setDate(selectedDate.getDate() - 1);
+            renderDayView(selectedDate);
+        }
+        function dayViewNext() {
+            selectedDate = new Date(selectedDate);
+            selectedDate.setDate(selectedDate.getDate() + 1);
+            renderDayView(selectedDate);
+        }
+        function dayViewToday() {
+            selectedDate = new Date();
+            renderDayView(selectedDate);
+        }
+
+        window.dayViewPrev  = dayViewPrev;
+        window.dayViewNext  = dayViewNext;
+        window.dayViewToday = dayViewToday;
+
+        // 캘린더 셀 클릭 → 일간 뷰로 이동 (더블클릭)
+        // selectDate 패치: 일간 뷰에서 날짜 클릭 시 해당 날짜 렌더
+        const _origSelectDate = window.selectDate || selectDate;
+        window.selectDate = function(date) {
+            _origSelectDate(date);
+            if (currentView === 'day') renderDayView(date);
+        };
+
+
+        // ===================================================
+        //  ⚡ 인라인 퀵 할일 추가
+        // ===================================================
+
+        // 일간 뷰 슬롯 클릭 → 시간이 설정된 인라인 추가
+        let _inlineEl = null;
+
+        function openDayInlineAdd(slot, dateStr, hour) {
+            // 기존 입력창 제거
+            closeDayInlineAdd();
+
+            const wrap = document.createElement('div');
+            wrap.className = 'day-inline-input-wrap';
+            wrap.style.top = '4px';
+            _inlineEl = wrap;
+
+            let inlineCat = 'work';
+
+            wrap.innerHTML = `
+                <div class="day-inline-cat">
+                    <button class="day-inline-cat-btn active-work" id="ilcWork" onclick="setInlineCat('work')">업무</button>
+                    <button class="day-inline-cat-btn" id="ilcPers" onclick="setInlineCat('personal')">개인</button>
+                </div>
+                <input class="day-inline-input" id="dayInlineInput" placeholder="${hour}:00 할일 입력 후 Enter">
+                <button class="day-inline-save" onclick="saveDayInline('${dateStr}', ${hour})">저장</button>
+                <button class="day-inline-cancel" onclick="closeDayInlineAdd()">✕</button>`;
+
+            slot.style.position = 'relative';
+            slot.appendChild(wrap);
+
+            const input = document.getElementById('dayInlineInput');
+            input.focus();
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter')  { e.preventDefault(); saveDayInline(dateStr, hour); }
+                if (e.key === 'Escape') { e.preventDefault(); closeDayInlineAdd(); }
+            });
+        }
+
+        function setInlineCat(cat) {
+            document.getElementById('ilcWork').className = 'day-inline-cat-btn' + (cat === 'work' ? ' active-work' : '');
+            document.getElementById('ilcPers').className = 'day-inline-cat-btn' + (cat === 'personal' ? ' active-personal' : '');
+            window._inlineCat = cat;
+        }
+        window._inlineCat = 'work';
+
+        function closeDayInlineAdd() {
+            if (_inlineEl) { _inlineEl.remove(); _inlineEl = null; }
+        }
+
+        async function saveDayInline(dateStr, hour) {
+            const input = document.getElementById('dayInlineInput');
+            if (!input) return;
+            const title = input.value.trim();
+            if (!title) { closeDayInlineAdd(); return; }
+
+            const cat = window._inlineCat || 'work';
+            const timeStr = `${String(hour).padStart(2,'0')}:00`;
+
+            const taskData = {
+                user_id:    APP_USER_ID,
+                title,
+                date:       dateStr,
+                category:   cat,
+                start_time: timeStr,
+                completed:  false,
+                created_at: new Date().toISOString(),
+            };
+
+            // 로컬 즉시 추가
+            const tempId = 'temp_' + Date.now();
+            allTasks.push({ id: tempId, ...taskData, _saving: true });
+            closeDayInlineAdd();
+            renderDayView(selectedDate);
+
+            // DB 저장
+            if (sbClient) {
+                const { data, error } = await sbClient.from('tasks').insert(taskData).select().single();
+                allTasks = allTasks.filter(t => t.id !== tempId);
+                if (!error && data) {
+                    allTasks.push(data);
+                    showToast('✅', '저장됨', title);
+                } else {
+                    showToast('❌', '저장 실패', error?.message || '');
+                }
+                renderDayView(selectedDate);
+                renderCalendar();
+            }
+        }
+
+        // 주간 뷰 셀 퀵 추가
+        function openCellQuickAdd(btn, dateStr) {
+            // 이미 열려있으면 닫기
+            const existing = btn.parentElement.querySelector('.cell-quick-input');
+            if (existing) { existing.remove(); btn.style.display = ''; return; }
+
+            btn.style.display = 'none';
+            const input = document.createElement('input');
+            input.className = 'cell-quick-input';
+            input.style.display = 'block';
+            input.placeholder = '할일 입력 후 Enter';
+            btn.parentElement.appendChild(input);
+            input.focus();
+
+            async function commit() {
+                const title = input.value.trim();
+                input.remove();
+                btn.style.display = '';
+                if (!title) return;
+
+                const taskData = {
+                    user_id:   APP_USER_ID,
+                    title,
+                    date:      dateStr,
+                    category:  'work',
+                    completed: false,
+                    created_at: new Date().toISOString(),
+                };
+                const tempId = 'temp_' + Date.now();
+                allTasks.push({ id: tempId, ...taskData, _saving: true });
+                renderCalendar();
+                renderTasks();
+
+                if (sbClient) {
+                    const { data, error } = await sbClient.from('tasks').insert(taskData).select().single();
+                    allTasks = allTasks.filter(t => t.id !== tempId);
+                    if (!error && data) {
+                        allTasks.push(data);
+                        showToast('✅', '저장됨', title);
+                    } else {
+                        showToast('❌', '저장 실패', error?.message || '');
+                    }
+                    renderCalendar();
+                    renderTasks();
+                }
+            }
+
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+                if (e.key === 'Escape') { input.remove(); btn.style.display = ''; }
+            });
+            input.addEventListener('blur', () => {
+                setTimeout(() => { if (document.activeElement !== input) { input.remove(); btn.style.display = ''; } }, 150);
+            });
+        }
+
+        window.openCellQuickAdd  = openCellQuickAdd;
+        window.openDayInlineAdd  = openDayInlineAdd;
+        window.setInlineCat      = setInlineCat;
+        window.closeDayInlineAdd = closeDayInlineAdd;
+        window.saveDayInline     = saveDayInline;
+        window.confirmRepeatEdit     = confirmRepeatEdit;
 
 
         // ===================================================
