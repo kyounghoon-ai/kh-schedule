@@ -1716,6 +1716,338 @@
             .hub-add-row { grid-template-columns: 1fr; }
         }
 
+
+        /* =============================================
+           🌙 다크 모드
+        ============================================= */
+        :root {
+            --bg-primary:   #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary:  #fafafa;
+            --bg-hover:     #f0f0f0;
+            --text-primary:   #333;
+            --text-secondary: #666;
+            --text-muted:     #999;
+            --border-color:   #e5e5e5;
+            --border-light:   #ddd;
+            --header-bg:      #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary:   #1a1a1a;
+                --bg-secondary: #242424;
+                --bg-tertiary:  #2a2a2a;
+                --bg-hover:     #333;
+                --text-primary:   #e8e8e8;
+                --text-secondary: #aaa;
+                --text-muted:     #666;
+                --border-color:   #333;
+                --border-light:   #3a3a3a;
+                --header-bg:      #1f1f1f;
+                --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
+            }
+        }
+
+        /* 다크 모드 수동 토글 (data-theme="dark") */
+        [data-theme="dark"] {
+            --bg-primary:   #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-tertiary:  #2a2a2a;
+            --bg-hover:     #333;
+            --text-primary:   #e8e8e8;
+            --text-secondary: #aaa;
+            --text-muted:     #666;
+            --border-color:   #333;
+            --border-light:   #3a3a3a;
+            --header-bg:      #1f1f1f;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
+        }
+        [data-theme="light"] {
+            --bg-primary:   #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary:  #fafafa;
+            --bg-hover:     #f0f0f0;
+            --text-primary:   #333;
+            --text-secondary: #666;
+            --text-muted:     #999;
+            --border-color:   #e5e5e5;
+            --border-light:   #ddd;
+            --header-bg:      #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
+        }
+
+        /* 전역 변수 적용 */
+        body                   { background: var(--bg-primary) !important; color: var(--text-primary) !important; }
+        header                 { background: var(--header-bg) !important; border-bottom-color: var(--border-color) !important; }
+        h1                     { color: var(--text-primary) !important; }
+        .main-layout           { background: var(--bg-primary) !important; }
+
+        /* 캘린더 */
+        .calendar-section      { background: var(--bg-secondary) !important; border-color: var(--border-color) !important; }
+        .week-grid             { background: var(--bg-secondary) !important; }
+        .week-day-header       { background: var(--bg-tertiary) !important; color: var(--text-secondary) !important; border-color: var(--border-color) !important; }
+        .day-cell              { background: var(--bg-secondary) !important; border-color: var(--border-color) !important; }
+        .day-cell:hover        { background: var(--bg-hover) !important; }
+        .day-cell.selected     { background: #e6f1fb !important; }
+        .day-date              { color: var(--text-primary) !important; }
+        .day-holiday-name      { color: #d32f2f !important; }
+        .month-grid            { background: var(--bg-secondary) !important; }
+        .month-day             { background: var(--bg-secondary) !important; border-color: var(--border-color) !important; color: var(--text-primary) !important; }
+        .month-day:hover       { background: var(--bg-hover) !important; }
+        .month-date            { color: var(--text-secondary) !important; }
+
+        /* 할일 패널 */
+        .task-section          { background: var(--bg-secondary) !important; border-color: var(--border-color) !important; }
+        .task-header           { background: var(--bg-secondary) !important; border-bottom-color: var(--border-color) !important; }
+        .selected-date         { color: var(--text-muted) !important; }
+        .selected-date-value   { color: var(--text-primary) !important; }
+        .task-list-title       { color: var(--text-secondary) !important; }
+        .task-item             { background: var(--bg-tertiary) !important; border-color: var(--border-color) !important; color: var(--text-primary) !important; }
+        .task-item:hover       { background: var(--bg-hover) !important; }
+        .task-text             { color: var(--text-primary) !important; }
+        .empty-state           { color: var(--text-muted) !important; }
+        .filter-section        { border-top-color: var(--border-color) !important; }
+        .filter-title          { color: var(--text-muted) !important; }
+        .filter-btn            { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .filter-btn.active     { background: #3B8BD4 !important; color: white !important; border-color: #3B8BD4 !important; }
+
+        /* 네비게이션 */
+        .nav-btn               { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .nav-btn:hover         { border-color: #3B8BD4 !important; color: #3B8BD4 !important; }
+        #periodDisplay         { color: var(--text-primary) !important; }
+        .view-toggle button    { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .view-toggle button.active { background: #3B8BD4 !important; color: white !important; border-color: #3B8BD4 !important; }
+
+        /* 헤더 버튼 */
+        .header-btn            { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .header-btn:hover      { border-color: #3B8BD4 !important; color: #3B8BD4 !important; }
+        .add-btn               { color: white !important; }
+
+        /* 모달 */
+        .modal                 { background: var(--bg-secondary) !important; color: var(--text-primary) !important; }
+        .modal-title           { color: var(--text-primary) !important; }
+        .form-label            { color: var(--text-secondary) !important; }
+        .form-control          { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-primary) !important; }
+        .form-control:focus    { border-color: #3B8BD4 !important; background: var(--bg-secondary) !important; }
+        .btn-cancel            { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .category-btn          { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .sub-category-btn      { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .repeat-option         { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+
+        /* 통계·연간 뷰 */
+        .stats-view            { background: var(--bg-secondary) !important; }
+        .stats-card            { background: var(--bg-tertiary) !important; }
+        .stats-section-title   { color: var(--text-secondary) !important; }
+        .monthly-bar-label     { color: var(--text-muted) !important; }
+        .monthly-bar-count     { color: var(--text-muted) !important; }
+        .cat-dist-label        { color: var(--text-secondary) !important; }
+        .cat-dist-track        { background: var(--bg-hover) !important; }
+        .cat-dist-pct          { color: var(--text-muted) !important; }
+        .dow-bar-label         { color: var(--text-muted) !important; }
+        .dow-bar-num           { color: var(--text-secondary) !important; }
+        .heatmap-cell.l0       { background: #2a2a2a !important; }
+        .heatmap-legend        { color: var(--text-muted) !important; }
+        .heatmap-month-label   { color: var(--text-muted) !important; }
+
+        /* 회의록 뷰 */
+        .meetings-view         { background: var(--bg-secondary) !important; }
+        .meetings-toolbar      { border-bottom-color: var(--border-color) !important; }
+        .meetings-search-wrap input { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-primary) !important; }
+        .mf-btn                { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .mf-sort               { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .mf-date               { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .mlog-card             { background: var(--bg-tertiary) !important; border-color: var(--border-color) !important; }
+        .mlog-card:hover       { background: var(--bg-hover) !important; border-color: #D4537E !important; }
+        .mlog-title            { color: var(--text-primary) !important; }
+        .mlog-meta             { color: var(--text-muted) !important; }
+        .mlog-preview          { color: var(--text-secondary) !important; }
+        .meetings-stats-bar    { color: var(--text-muted) !important; }
+        .meeting-modal .modal  { background: var(--bg-secondary) !important; }
+        .meeting-tab           { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+        .meeting-field label   { color: var(--text-muted) !important; }
+        .meeting-list-item     { background: var(--bg-tertiary) !important; border-color: var(--border-color) !important; }
+        .meeting-list-item:hover { background: var(--bg-hover) !important; }
+        .meeting-list-title    { color: var(--text-primary) !important; }
+        .meeting-list-meta     { color: var(--text-muted) !important; }
+
+        /* 검색 */
+        .search-bar-wrap input { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; color: var(--text-primary) !important; }
+        .search-results-panel  { background: var(--bg-secondary) !important; border-color: var(--border-color) !important; }
+        .search-result-item:hover { background: var(--bg-hover) !important; }
+        .search-result-title   { color: var(--text-primary) !important; }
+        .search-result-meta    { color: var(--text-muted) !important; }
+
+        /* 일간 뷰 */
+        .day-view              { background: var(--bg-secondary) !important; }
+        .day-view-header       { border-bottom-color: var(--border-color) !important; background: var(--bg-secondary) !important; }
+        .day-view-date         { color: var(--text-primary) !important; }
+        .day-time-label        { color: var(--text-muted) !important; border-right-color: var(--border-color) !important; }
+        .day-time-slot         { border-bottom-color: var(--border-color) !important; }
+        .day-time-slot:hover   { background: var(--bg-hover) !important; }
+        .day-allday-section    { border-bottom-color: var(--border-color) !important; background: var(--bg-secondary) !important; }
+        .day-view-today-btn    { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-muted) !important; }
+        .day-nav               { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-secondary) !important; }
+
+        /* 허브 모달 */
+        .hub-card              { background: var(--bg-tertiary) !important; border-color: var(--border-light) !important; }
+        .hub-card:hover        { background: var(--bg-hover) !important; border-color: #3B8BD4 !important; }
+        .hub-card-name         { color: var(--text-primary) !important; }
+        .hub-card-desc         { color: var(--text-muted) !important; }
+        .hub-add-form          { background: var(--bg-tertiary) !important; }
+        .hub-add-form input    { background: var(--bg-secondary) !important; border-color: var(--border-light) !important; color: var(--text-primary) !important; }
+
+        /* 리포트 모달 */
+        .report-modal          { background: var(--bg-secondary) !important; }
+        .report-card           { background: var(--bg-tertiary) !important; }
+        .report-card-label     { color: var(--text-muted) !important; }
+        .report-bar-label      { color: var(--text-secondary) !important; }
+        .report-bar-bg         { background: var(--bg-hover) !important; }
+        .report-bar-count      { color: var(--text-muted) !important; }
+        .report-task-item      { border-bottom-color: var(--border-color) !important; }
+        .report-section-title  { color: var(--text-secondary) !important; border-bottom-color: var(--border-color) !important; }
+
+        /* 다크 모드 토글 버튼 상태 */
+        .dark-btn-on  { border-color: #f59e0b !important; color: #f59e0b !important; }
+
+        /* =============================================
+           🖨️ 인쇄 / PDF 내보내기
+        ============================================= */
+        @media print {
+            /* 인쇄 불필요 요소 숨기기 */
+            header .header-actions,
+            .search-bar-wrap,
+            .legend button,
+            .nav-buttons,
+            .add-buttons,
+            .fab-wrap,
+            .filter-section,
+            .due-banner,
+            .task-header .add-buttons,
+            .modal-overlay,
+            .notif-toast-wrap,
+            #repeatEditDialog,
+            #mlogPickerDialog,
+            .day-inline-input-wrap,
+            .cell-quick-add,
+            .mlog-new-btn,
+            .mlog-inline-form,
+            .meetings-toolbar button:last-child {
+                display: none !important;
+            }
+
+            /* 전체 레이아웃 인쇄 최적화 */
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 11pt;
+            }
+            .container { padding: 0 !important; }
+            header {
+                background: white !important;
+                border-bottom: 2px solid #333 !important;
+                padding: 8px 16px !important;
+                position: static !important;
+            }
+            h1 { color: black !important; font-size: 14pt !important; }
+
+            /* 캘린더 인쇄 */
+            .main-layout {
+                display: block !important;
+                gap: 0 !important;
+            }
+            .calendar-section {
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                page-break-after: auto;
+            }
+            .week-grid {
+                display: grid !important;
+                grid-template-columns: repeat(7, 1fr) !important;
+                border: 1px solid #ccc !important;
+            }
+            .week-day-header {
+                background: #f0f0f0 !important;
+                color: black !important;
+                font-size: 9pt !important;
+                padding: 4px !important;
+                border: 1px solid #ddd !important;
+            }
+            .day-cell {
+                background: white !important;
+                border: 1px solid #ddd !important;
+                min-height: 80px !important;
+                page-break-inside: avoid;
+            }
+            .day-cell.today { background: #fff9e6 !important; }
+            .day-cell.selected { background: white !important; }
+            .day-date { color: black !important; font-size: 9pt !important; }
+            .day-date.sunday { color: #d32f2f !important; }
+            .day-date.saturday { color: #1565c0 !important; }
+            .event-badge {
+                font-size: 8pt !important;
+                padding: 1px 3px !important;
+                margin: 1px 0 !important;
+                border-radius: 2px !important;
+                color: white !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* 월간 뷰 인쇄 */
+            .month-grid {
+                border: 1px solid #ccc !important;
+                border-radius: 0 !important;
+            }
+            .month-day {
+                border: 1px solid #ddd !important;
+                background: white !important;
+                min-height: 60px !important;
+                color: black !important;
+            }
+            .month-date { color: #444 !important; font-size: 9pt !important; }
+
+            /* 할일 패널 — 인쇄 시 전체 표시 */
+            .task-section {
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                border-top: 1px solid #ccc !important;
+                page-break-before: always;
+            }
+            .task-header { border-bottom: 1px solid #ddd !important; }
+            .selected-date-value { color: black !important; font-size: 12pt !important; }
+            .task-item {
+                background: white !important;
+                border: 1px solid #ddd !important;
+                color: black !important;
+                page-break-inside: avoid;
+            }
+            .task-text { color: black !important; }
+            .task-category { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+            /* 인쇄 제목 */
+            .print-title {
+                display: block !important;
+                font-size: 13pt;
+                font-weight: 600;
+                text-align: center;
+                padding: 4px 0 8px;
+                border-bottom: 1px solid #ddd;
+                margin-bottom: 8px;
+                color: black;
+            }
+        }
+
+        /* 화면에서 숨겨둘 인쇄 전용 요소 */
+        .print-only { display: none; }
+        @media print { .print-only { display: block !important; } }
+
     </style>
 </head>
 <body>
@@ -1725,6 +2057,8 @@
                 <h1>나의 업무 관리</h1>
                 <div class="header-actions">
                     <button class="header-btn" onclick="showShortcutHelp()" title="키보드 단축키 안내" style="padding:7px 10px;font-size:15px;color:#888;border-color:#eee;">⌨️</button>
+                    <button class="header-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="다크 모드 전환" style="font-size:15px;padding:7px 10px;">🌙</button>
+                    <button class="header-btn" onclick="printCalendar()" title="캘린더 인쇄 / PDF 저장" style="font-size:15px;padding:7px 10px;">🖨️</button>
                     <button class="header-btn notif-btn-off" id="notifBtn" onclick="toggleNotification()" title="브라우저 알림 설정">🔔 알림</button>
                     <button class="header-btn" onclick="openHubModal()" title="업무 시스템 허브">🔗 허브</button>
                     <button class="header-btn report-btn" onclick="openReportModal()">📊 주간 리포트</button>
@@ -1772,6 +2106,8 @@
                 </div>
                 <div class="week-grid" id="calendarGrid"></div>
                 <div class="month-grid" id="monthGrid"></div>
+                <!-- 인쇄 전용 제목 -->
+                <div class="print-only print-title" id="printTitle"></div>
 
                 <!-- 일간 뷰 -->
                 <div id="dayView" class="day-view">
@@ -2422,8 +2758,6 @@
                 sbTeam = window.supabase.createClient(TEAM_SUPABASE_URL, TEAM_SUPABASE_KEY);
                 console.log('✓ 팀 Supabase 연결됨');
                 await loadTeamEvents();
-                // ✅ 방향 B: 팀 DB Realtime 구독 시작
-                subscribeTeamDBRealtime();
             } catch (e) {
                 console.error('❌ 팀 DB 오류:', e.message);
             }
@@ -3726,52 +4060,12 @@
             }
 
             showToast('✅', '회의록 저장 완료', title);
-
-            // ✅ 방향 B: 직접 작성 회의록도 팀 DB 동기화
-            syncMeetingToTeamDB(payload).then(result => {
-                if (result.synced && result.mode === 'insert') {
-                    showToast('🔄', '팀 캘린더에 추가됨', '팀 업무앱 캘린더에서도 확인 가능합니다');
-                    loadTeamEvents().then(() => renderCalendar());
-                }
-            });
-
             toggleMlogInlineForm();
             await loadAllMeetings(true);
         }
 
         window.toggleMlogInlineForm = toggleMlogInlineForm;
         window.saveMlogDirect       = saveMlogDirect;
-
-        // ===================================================
-        //  📡 방향 B: Supabase Realtime — 팀 DB 변경 감지
-        // ===================================================
-        function subscribeTeamDBRealtime() {
-            if (!sbTeam) return;
-            try {
-                sbTeam
-                    .channel('team-events-watch')
-                    .on('postgres_changes', {
-                        event: '*',          // INSERT, UPDATE, DELETE 모두 감지
-                        schema: 'public',
-                        table: 'events',
-                        filter: 'category=eq.meeting'
-                    }, payload => {
-                        console.log('📡 팀 DB 변경 감지:', payload.eventType);
-                        // 팀 이벤트 목록 갱신 후 캘린더 재렌더
-                        loadTeamEvents().then(() => {
-                            renderCalendar();
-                            if (currentView === 'day') renderDayView(selectedDate);
-                            showToast('📡', '팀 캘린더 업데이트', '팀 일정이 변경됐습니다');
-                        });
-                    })
-                    .subscribe(status => {
-                        console.log('팀 DB Realtime 구독 상태:', status);
-                    });
-                console.log('✓ 팀 DB Realtime 구독 시작');
-            } catch(e) {
-                console.warn('⚠️ Realtime 구독 실패 (폴링 방식 유지):', e.message);
-            }
-        }
 
         window.switchView       = switchView;
         window.previousPeriod    = previousPeriod;
@@ -3850,83 +4144,6 @@
         }
 
         // 회의록 저장
-        // ===================================================
-        //  🔄 방향 B: 개인앱 회의록 → 팀 DB events 동기화
-        // ===================================================
-
-        // 개인 meetings 저장 후 팀 DB events에 미러링
-        // event_id가 있으면 해당 팀 이벤트에 설명(description) 업데이트
-        // event_id가 없으면 팀 DB에 신규 meeting 이벤트 생성
-        async function syncMeetingToTeamDB(meetingPayload, savedMeetingId) {
-            if (!sbTeam) {
-                console.log('⚠️ 팀 DB 미연결 — 동기화 건너뜀');
-                return { synced: false };
-            }
-
-            const eventRawId = meetingPayload.event_id; // team_ 접두사 없는 순수 ID
-
-            // ── 케이스 1: 기존 팀 이벤트에 연결된 회의록 ──
-            // 팀 이벤트의 description에 회의록 요약을 업데이트
-            if (eventRawId) {
-                const summary = [
-                    `[회의록] ${meetingPayload.title}`,
-                    meetingPayload.attendees ? `참석: ${meetingPayload.attendees}` : null,
-                    meetingPayload.decisions ? `결정: ${meetingPayload.decisions}` : null,
-                    meetingPayload.action_items ? `액션: ${meetingPayload.action_items}` : null,
-                ].filter(Boolean).join('\n');
-
-                const { error } = await sbTeam
-                    .from('events')
-                    .update({ description: summary })
-                    .eq('id', eventRawId);
-
-                if (error) {
-                    console.warn('⚠️ 팀 이벤트 description 업데이트 실패:', error.message);
-                    return { synced: false, error };
-                }
-                console.log('✓ 팀 이벤트 description 업데이트 완료 (event_id:', eventRawId + ')');
-                return { synced: true, mode: 'update' };
-            }
-
-            // ── 케이스 2: 이벤트 없이 직접 작성한 회의록 ──
-            // 팀 DB에 category:'meeting' 이벤트 신규 생성
-            const teamPayload = {
-                title: meetingPayload.title,
-                category: 'meeting',
-                start_date: meetingPayload.event_date,
-                end_date:   meetingPayload.event_date,
-                description: [
-                    meetingPayload.attendees ? `참석: ${meetingPayload.attendees}` : null,
-                    meetingPayload.content,
-                    meetingPayload.decisions ? `결정: ${meetingPayload.decisions}` : null,
-                    meetingPayload.action_items ? `액션: ${meetingPayload.action_items}` : null,
-                ].filter(Boolean).join('\n'),
-                location: null,
-                start_time: null,
-                end_time: null,
-                vacation_type: null,
-                purpose: null,
-                // user_id는 팀 DB가 Auth 기반 — anon key로 RLS 통과 불가 시 null 허용 여부에 따라 결정
-                // RLS가 막으면 이 insert는 실패하지만 개인 DB 저장엔 영향 없음
-            };
-
-            const { error } = await sbTeam.from('events').insert(teamPayload);
-
-            if (error) {
-                console.warn('⚠️ 팀 DB 신규 이벤트 생성 실패 (RLS 또는 권한 문제일 수 있음):', error.message);
-                return { synced: false, error };
-            }
-            console.log('✓ 팀 DB 신규 meeting 이벤트 생성 완료');
-            return { synced: true, mode: 'insert' };
-        }
-
-        // 팀 DB events에서 회의록 연결 이벤트의 description 초기화 (삭제 시)
-        async function unsyncMeetingFromTeamDB(eventRawId) {
-            if (!sbTeam || !eventRawId) return;
-            await sbTeam.from('events').update({ description: null }).eq('id', eventRawId);
-            console.log('✓ 팀 이벤트 description 초기화 완료');
-        }
-
         async function saveMeeting() {
             if (!sbClient) { alert('DB 연결이 필요합니다.'); return; }
 
@@ -3967,16 +4184,6 @@
                 alert('저장 중 오류가 발생했습니다: ' + error.message);
                 return;
             }
-
-            // ✅ 방향 B: 팀 DB 동기화 (백그라운드, 실패해도 개인 저장엔 영향 없음)
-            syncMeetingToTeamDB(payload).then(result => {
-                if (result.synced) {
-                    showToast('🔄', '팀 캘린더 동기화 완료',
-                        result.mode === 'insert' ? '팀 DB에 회의 일정이 추가됐습니다' : '팀 이벤트 내용이 업데이트됐습니다');
-                    // 팀 이벤트 목록 갱신
-                    loadTeamEvents().then(() => renderCalendar());
-                }
-            });
 
             // 저장 성공 → 목록 탭으로 전환
             alert('✅ 회의록이 저장되었습니다!');
@@ -4056,21 +4263,8 @@
             if (!deletingMeetingId || !sbClient) return;
             if (!confirm('이 회의록을 삭제할까요?')) return;
 
-            // ✅ 방향 B: 삭제 전 팀 이벤트 연결 정보 저장
-            const targetMeeting = allMeetings.find(x => x.id === deletingMeetingId)
-                               || _allMlogData.find(x => x.id === deletingMeetingId);
-            const linkedEventId = targetMeeting?.event_id || null;
-
             const { error } = await sbClient.from('meetings').delete().eq('id', deletingMeetingId);
             if (error) { alert('삭제 실패: ' + error.message); return; }
-
-            // ✅ 방향 B: 연결된 팀 이벤트 description 초기화
-            if (linkedEventId) {
-                unsyncMeetingFromTeamDB(linkedEventId).then(() => {
-                    showToast('🔄', '팀 캘린더 연동 해제', '팀 이벤트 내용이 초기화됐습니다');
-                    loadTeamEvents().then(() => renderCalendar());
-                });
-            }
 
             closeMeetingDetailModal();
             await loadMeetingList(currentMeetingEventId);
@@ -4716,26 +4910,10 @@
 
                 btn.disabled = false;
                 btn.textContent = '저장';
+                editingMeetingId = null;
 
                 if (error) { alert('수정 중 오류: ' + error.message); return; }
 
-                // ✅ 방향 B: 수정 시에도 팀 DB 동기화
-                const editedMeeting = allMeetings.find(x => x.id === editingMeetingId);
-                if (editedMeeting) {
-                    const syncPayload = {
-                        ...payload,
-                        event_id: editedMeeting.event_id || null,
-                        event_date: editedMeeting.event_date || null,
-                    };
-                    syncMeetingToTeamDB(syncPayload).then(result => {
-                        if (result.synced) {
-                            showToast('🔄', '팀 캘린더 동기화 완료', '팀 이벤트 내용이 업데이트됐습니다');
-                            loadTeamEvents().then(() => renderCalendar());
-                        }
-                    });
-                }
-
-                editingMeetingId = null;
                 alert('✅ 회의록이 수정되었습니다!');
                 await loadMeetingList(currentMeetingEventId);
                 switchMeetingTab('list');
@@ -5304,6 +5482,69 @@
         };
 
         window.closeRepeatEditDialog = closeRepeatEditDialog;
+
+
+        // ===================================================
+        //  🌙 다크 모드 토글
+        // ===================================================
+        const DARK_KEY = 'darkMode_v1';
+
+        function initDarkMode() {
+            const saved = localStorage.getItem(DARK_KEY);
+            if (saved === 'dark') {
+                applyDark(true, false);
+            } else if (saved === 'light') {
+                applyDark(false, false);
+            }
+            // saved === null 이면 prefers-color-scheme CSS가 자동 처리
+        }
+
+        function applyDark(isDark, save = true) {
+            const html = document.documentElement;
+            const btn  = document.getElementById('darkModeBtn');
+            if (isDark) {
+                html.setAttribute('data-theme', 'dark');
+                if (btn) { btn.textContent = '☀️'; btn.title = '라이트 모드로 전환'; btn.classList.add('dark-btn-on'); }
+            } else {
+                html.setAttribute('data-theme', 'light');
+                if (btn) { btn.textContent = '🌙'; btn.title = '다크 모드로 전환'; btn.classList.remove('dark-btn-on'); }
+            }
+            if (save) localStorage.setItem(DARK_KEY, isDark ? 'dark' : 'light');
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            applyDark(!isDark);
+        }
+
+        window.toggleDarkMode = toggleDarkMode;
+        initDarkMode();
+
+
+        // ===================================================
+        //  🖨️ 인쇄 / PDF 내보내기
+        // ===================================================
+        function printCalendar() {
+            // 인쇄 제목 업데이트
+            const titleEl = document.getElementById('printTitle');
+            const period  = document.getElementById('periodDisplay')?.textContent || '';
+            const viewLabels = { week:'주간', day:'일간', month:'월간', year:'연간' };
+            const viewLabel = viewLabels[currentView] || '';
+            if (titleEl) titleEl.textContent = `나의 업무 관리 — ${viewLabel} (${period})`;
+
+            // 인쇄 전 다크 모드 임시 해제 (인쇄는 항상 라이트)
+            const wasDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (wasDark) document.documentElement.setAttribute('data-theme', 'light');
+
+            window.print();
+
+            // 인쇄 후 다크 모드 복원
+            if (wasDark) {
+                setTimeout(() => document.documentElement.setAttribute('data-theme', 'dark'), 500);
+            }
+        }
+
+        window.printCalendar = printCalendar;
 
 
         // ===================================================
